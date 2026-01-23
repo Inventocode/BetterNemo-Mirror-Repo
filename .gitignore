@@ -1,0 +1,17 @@
+res
+other
+
+*.mp3
+*.png
+*.svg
+*.gif
+*.js.map
+*.chunk.js
+*.bundle.*.js
+
+plugin.js
+hideStage.js
+helps.html
+version.json
+template.html
+hot_update.html

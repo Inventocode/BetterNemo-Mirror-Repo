@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <meta content="email=no" name="format-detection" />
+  <meta name="format-detection" content="telephone=no" />
+  <title>Codemao Blockly</title>
+  <script defer src="workspace.bundle.79d6432e01ccdecb492a.js"></script>
+  <script src="hideStage.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="hooker.css">
+</head>
+
+<body>
+  <!-- 悬浮球 -->
+  <div class="float-ball" id="floatBall">
+    <i class="fa-solid fa-gear"></i>
+  </div>
+
+  <!-- 悬浮窗口 -->
+  <div class="float-window" id="floatWindow">
+    <div class="window-header">
+      <h3><i class="fa-solid fa-cube"></i> NemoHooker</h3>
+      <button class="close-btn" id="closeBtn">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="window-content"></div>
+  </div>
+  <div id="workspace"></div>
+  <div id="react_root"></div>
+  <div class='panel_mask'></div>
+  <div id='test'></div>
+  <div id='highlight_test'></div>
+  <script src="https://cdn.jsdelivr.net/npm/eruda" defer></script>
+  <script>
+    const NemoHookerVersion = "Indev 0.0.6";
+    function hook(id, name, getThis = false) {
+      var ready = false;
+      var map = new Map();
+      var proxy = {
+        configurable: true,
+        get: function () {
+          return map.get(this);
+        },
+        set: function (value) {
+          map.set(this, value);
+          if (!getThis) window[name] = value;
+          else window[name] = this;
+          ready = true;
+          return void 0;
+        },
+      };
+      Object.defineProperty(Object.prototype, id, proxy);
+    }
+    hook("./src/webview/runtime/index.ts", "HookRuntime");
+    hook("./src/common/redux/index.ts", "HookRedux");
+    console.log(
+        "%cWelcome to ❤ NemoHooker - " +
+        NemoHookerVersion +
+        " ❤ for Nemo o(*￣▽￣*)ブ",
+        "\n  color: rgb(22, 93, 255);\n  text-shadow: 0 1px 0 #404182;"
+    );
+  </script>
+  <script type="module" src="hooker.js"></script>
+</body>
+
+</html>
