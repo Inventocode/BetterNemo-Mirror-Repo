@@ -28,9 +28,7 @@ function get_run_mgr() {
     const UI = {
         home: () => { },
         pageHistory: [],
-        clear: () => {
-            windowContent.innerHTML = '';
-        },
+        clear: () => { windowContent.innerHTML = ''; },
         back: (page) => {
             let lastPage = UI.pageHistory.pop();
             if (lastPage == page) lastPage = UI.pageHistory.pop();
@@ -53,12 +51,8 @@ function get_run_mgr() {
             UI.pageHistory.push(page);
             page();
         },
-        addStatus: (text) => {
-            windowContent.innerHTML = `<div class="status-info"><span>${text}</span></div>` + windowContent.innerHTML;
-        },
-        setStatus: (text) => {
-            document.querySelector("#floatWindow > div.window-content > div.status-info").outerHTML = `<div class="status-info"><span>${text}</span></div>`;
-        },
+        addStatus: (text) => { windowContent.innerHTML = `<div class="status-info"><span>${text}</span></div>` + windowContent.innerHTML; },
+        setStatus: (text) => { document.querySelector("#floatWindow > div.window-content > div.status-info").outerHTML = `<div class="status-info"><span>${text}</span></div>`; },
         removeStatus: () => { document.querySelector("#floatWindow > div.window-content > div.status-info").outerHTML = ''; },
         button: (callback, name = '功能', icon = '') => {
             const menuItem = document.createElement('li');
@@ -90,7 +84,8 @@ function get_run_mgr() {
             windowContent.appendChild(menuItem);
         },
     };
-    let erudaEnabled = false
+    let erudaEnabled = true;
+    eruda.init();
     const Page = {
         home: () => {
             UI.addStatus('Version: ' + NemoHookerVersion);
@@ -116,7 +111,11 @@ function get_run_mgr() {
             UI.button(() => { UI.load(Page.projectConfig) }, '作品', 'cog');
         },
         editorConfig: () => {
-            UI.addStatus('此配置跟随作品存储');
+            UI.addStatus('此配置跟随Webview存储' + localStorage.getItem('editorConfig'));
+            UI.button(() => {
+                localStorage.setItem('editorConfig', localStorage.getItem('editorConfig') + '6');
+                UI.back(UI.editorConfig);
+            }, '测试', 'save');
         },
         projectConfig: () => {
             // 默认高级配置
@@ -141,24 +140,24 @@ function get_run_mgr() {
                 "user_debug_mode": false,
                 "ignore_missing_domain_function": false
             };
-            //             {     "块池预分配大小": 50,
-            //      "优化帧池预分配大小": 10,
-            //      "优化帧池大小限制": 600,
-            //      "遗留": {"列表获取值允许返回未定义": false},
-            //      "每个解释器步骤的最大过程调用次数": 50000,
-            //      "每个解释器步骤的最大“一步执行”迭代次数": 30000,
-            //      "“一步执行”毫秒时间限制": 4,
-            //      "最大调用堆栈大小": 10000,
-            //      "优化编译器": {         "pretty_print": false     },
-            //      "每个实体克隆限制": 300,
-            //      "每个帧的实体最大克隆数": 300,
-            //      "报告所有实体": true,
-            //      "应报告当前运行块": false,
-            //      "用户调试模式": false,
-            //      "忽略缺失的域函数": false 
-            // }
+            /*{     "块池预分配大小": 50,
+                   "优化帧池预分配大小": 10,
+                   "优化帧池大小限制": 600,
+                   "遗留": {"列表获取值允许返回未定义": false},
+                   "每个解释器步骤的最大过程调用次数": 50000,
+                   "每个解释器步骤的最大“一步执行”迭代次数": 30000,
+                   "“一步执行”毫秒时间限制": 4,
+                   "最大调用堆栈大小": 10000,
+                   "优化编译器": {         "pretty_print": false     },
+                   "每个实体克隆限制": 300,
+                   "每个帧的实体最大克隆数": 300,
+                   "报告所有实体": true,
+                   "应报告当前运行块": false,
+                   "用户调试模式": false,
+                   "忽略缺失的域函数": false 
+              }*/
             let newConfig = get_run_mgr().config.get();
-            UI.addStatus('此配置跟随作品存储');
+            UI.addStatus('此配置为临时设置');
             UI.numberInput((value) => {
                 newConfig.per_entity_clone_limit = value;
             }, '角色克隆限制', newConfig.per_entity_clone_limit, defualtConfig.per_entity_clone_limit);
@@ -167,6 +166,7 @@ function get_run_mgr() {
             }, '每帧克隆限制', newConfig.entity_max_clones_per_frame, defualtConfig.per_entity_clone_limit);
             UI.button(() => {
                 get_run_mgr().config.set(defualtConfig);
+                UI.load(UI.projectConfig);
             }, '重置', 'sync-alt');
             UI.button(() => {
                 console.log('newConfig', newConfig);
@@ -496,19 +496,13 @@ const isBlocklyMainworkspaceLoaded = async () => {
         "height": 38,
         "alt": "*"
     }
+    const ANY_TYPE = ["Number", "String", "Boolean", "Array"]
     // 定义自定义代码块对象数组
     const blockObjects = [
         {
             type: "nemohooker_alert",
             message0: "调用 提示 %1",
-            args0: [{
-                "type": "input_value",
-                "name": "param",
-                "check": [
-                    "String",
-                    "Number"
-                ]
-            }],
+            args0: [{ "type": "input_value", "name": "param", "check": ["String", "Number"] }],
             colour: BLOCK_COLOR,
             previousStatement: true,
             nextStatement: true,
@@ -517,14 +511,7 @@ const isBlocklyMainworkspaceLoaded = async () => {
         {
             type: "nemohooker_prompt",
             message0: "调用 询问 %1",
-            args0: [{
-                "type": "input_value",
-                "name": "param",
-                "check": [
-                    "String",
-                    "Number"
-                ]
-            }],
+            args0: [{ "type": "input_value", "name": "param", "check": ["String", "Number"] }],
             colour: BLOCK_COLOR,
             inputsInline: true,
             output: "String"
@@ -532,14 +519,7 @@ const isBlocklyMainworkspaceLoaded = async () => {
         {
             type: "nemohooker_http_get",
             message0: "网络 GET %1",
-            args0: [{
-                "type": "input_value",
-                "name": "param",
-                "check": [
-                    "String",
-                    "Number"
-                ]
-            }],
+            args0: [{ "type": "input_value", "name": "param", "check": ["String", "Number"] }],
             colour: BLOCK_COLOR,
             inputsInline: true,
             output: "String"
@@ -551,6 +531,40 @@ const isBlocklyMainworkspaceLoaded = async () => {
             nextStatement: true,
             colour: BLOCK_COLOR,
             inputsInline: true
+        },
+        {
+            type: "nemohooker_object_include_key",
+            message0: "%1 包含键 %2",
+            args0: [
+                { "type": "input_value", "name": "obj", "check": "String" },
+                { "type": "input_value", "name": "key", "check": ["String", "Number"] }
+            ],
+            colour: "%{BKY_SOUND_HUE}",
+            inputsInline: true,
+            output: "Boolean"
+        },
+        {
+            type: "nemohooker_object_get",
+            message0: "%1 键 %2 的值",
+            args0: [
+                { "type": "input_value", "name": "obj", "check": "String" },
+                { "type": "input_value", "name": "key", "check": ["String", "Number"] }
+            ],
+            colour: "%{BKY_SOUND_HUE}",
+            inputsInline: true,
+            output: ANY_TYPE
+        },
+        {
+            type: "nemohooker_object_set",
+            message0: "%1 键 %2 设为 %3",
+            args0: [
+                { "type": "input_value", "name": "obj", "check": "String" },
+                { "type": "input_value", "name": "key", "check": ["String", "Number"] },
+                { "type": "input_value", "name": "value", "check": ["String", "Number"] }
+            ],
+            colour: "%{BKY_SOUND_HUE}",
+            inputsInline: true,
+            output: "String"
         }
     ];
 
@@ -578,9 +592,19 @@ const isBlocklyMainworkspaceLoaded = async () => {
         // 定义代码块工具箱的XML结构
         const blockToolboxXML = [
             '<block type="nemohooker_event"></block>',
-            '<block type="nemohooker_alert"><value name="param"><shadow type="text"><field name="param">abc</field></shadow></value></block>',
-            '<block type="nemohooker_prompt"><value name="param"><shadow type="text"><field name="param">abc</field></shadow></value></block>',
-            '<block type="nemohooker_http_get"><value name="param"><shadow type="text"><field name="param">abc</field></shadow></value></block>',
+            '<block type="nemohooker_alert"><value name="param"><shadow type="text"><field name="TEXT">wow</field></shadow></value></block>',
+            '<block type="nemohooker_prompt"><value name="param"><shadow type="text"><field name="TEXT">你好</field></shadow></value></block>',
+            '<block type="nemohooker_http_get"><value name="param"><shadow type="text"><field name="TEXT"></field></shadow></value></block>',
+            `<block type="nemohooker_object_get">
+                <value name="obj"><shadow type="text"><field name="TEXT">{"abc":114514}</field></shadow></value>
+                <value name="key"><shadow type="text"><field name="TEXT">abc</field></shadow></value></block>`,
+            `<block type="nemohooker_object_set">
+                <value name="obj"><shadow type="text"><field name="TEXT">{"abc":114514}</field></shadow></value>
+                <value name="key"><shadow type="text"><field name="TEXT">abc</field></shadow></value>
+                <value name="value"><shadow type="text"><field name="TEXT">191810</field></shadow></value></block>`,
+            `<block type="nemohooker_object_include_key">
+                <value name="obj"><shadow type="text"><field name="TEXT">{"abc":114514}</field></shadow></value>
+                <value name="key"><shadow type="text"><field name="TEXT">abc</field></shadow></value></block>`,
             '<block type="warp"></block>',
             '<label type="flyout_line" height="25" text="隐藏积木"/>',
             '<block type="calculate"><value name="input"><shadow type="text"><field name="input"></field></shadow></value></block>',
@@ -616,7 +640,9 @@ const isBlocklyMainworkspaceLoaded = async () => {
             registry.domain_function_list.push(func);
             registry.domain_function_index[name] = registry.domain_function_types.push(name) - 1;
         }
-
+        function typeOf(value) {
+            return Object.prototype.toString.call(value).substring(8, Object.prototype.toString.call(value).length - 1);
+        }
         // 注册自定义代码块的执行函数
         regDomainFunction("nemohooker_alert", (params, uuid, uuid2, utils) => {
             alert(params.param);
@@ -627,5 +653,30 @@ const isBlocklyMainworkspaceLoaded = async () => {
         regDomainFunction("nemohooker_http_get", async (params, uuid, uuid2, utils) => {
             return await (await fetch(params.param)).text();
         });
+        regDomainFunction("nemohooker_object_get", (params, uuid, uuid2, utils) => {
+            const value = JSON.parse(params.obj)[params.key];
+            console.log("value", value);
+            function func(value) {
+                return value.map(item => {
+                    if (typeOf(item) === "Array") return func(item);
+                    if (typeOf(item) === "Object") return JSON.stringify(item);
+                    return item;
+                });
+            }
+            if (typeOf(value) === "Array") return func(value);
+            if (typeOf(value) === "Object") return JSON.stringify(value);
+            console.log("not object")
+            return value;
+        });
+        regDomainFunction("nemohooker_object_set", (params, uuid, uuid2, utils) => {
+            const obj = JSON.parse(params.obj);
+            obj[params.key] = params.value;
+            return JSON.stringify(obj);
+        });
+        regDomainFunction("nemohooker_object_include_key", (params, uuid, uuid2, utils) => {
+            const value = JSON.parse(params.obj)[params.key];
+            return value !== undefined;
+        });
+
     }, 2000)
 })();
