@@ -95,7 +95,7 @@ function get_run_mgr() {
         home: () => {
             UI.addStatus('Version: ' + NemoHookerVersion);
             UI.button(() => {
-                Page.home();
+                alert('你在期待什么？');
             }, '功能', 'home');
             UI.button(() => {
                 UI.load(() => {
@@ -477,152 +477,155 @@ const isBlocklyLoaded = async () => {
     }
     return;
 };
-await isBlocklyLoaded();
 const isBlocklyMainworkspaceLoaded = async () => {
     while (!Blockly.mainWorkspace) {
         await new Promise((resolve) => requestAnimationFrame(resolve));
     }
     return;
 };
-await isBlocklyMainworkspaceLoaded();
-const BLOCK_COLOR = "%{BKY_GREEN_5}";
-const BLOCK_HEAD = {
-    "type": "field_icon",
-    "is_head": true,
-    "src": 'data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgdmlld0JveD0iMCAwIDM2IDM2Ij48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0xOCAzNmM5Ljk0MSAwIDE4LTguMDU5IDE4LTE4UzI3Ljk0MSAwIDE4IDAgMCA4LjA1OSAwIDE4czguMDU5IDE4IDE4IDE4eiIgZmlsbD0iIzE0QjM5MCIvPjxwYXRoIGQ9Ik0xOCAzNWM5LjM4OSAwIDE3LTcuNjExIDE3LTE3UzI3LjM4OSAxIDE4IDEgMSA4LjYxMSAxIDE4czcuNjExIDE3IDE3IDE3eiIgZmlsbD0iI0ZGRiIvPjxwYXRoIGQ9Ik0yNS41NiAxNi40NTdjMS45MTUgMS4xMyAxLjkyNSAyLjk1NCAwIDQuMDlsLTEwLjA5NCA1Ljk1N0MxMy41NTIgMjcuNjM0IDEyIDI2Ljc2NiAxMiAyNC41OFYxMi40MjRjMC0yLjE5MiAxLjU0MS0zLjA2IDMuNDY2LTEuOTI0bDEwLjA5NCA1Ljk1N3oiIGZpbGw9IiMxNEIzOTAiLz48L2c+PC9zdmc+',
-    "width": 38,
-    "height": 38,
-    "alt": "*"
-}
-// 定义自定义代码块对象数组
-const blockObjects = [
-    {
-        type: "nemohooker_alert",
-        message0: "调用 提示 %1",
-        args0: [{
-            "type": "input_value",
-            "name": "param",
-            "check": [
-                "String",
-                "Number"
-            ]
-        }],
-        colour: BLOCK_COLOR,
-        previousStatement: true,
-        nextStatement: true,
-        inputsInline: true
-    },
-    {
-        type: "nemohooker_prompt",
-        message0: "调用 询问 %1",
-        args0: [{
-            "type": "input_value",
-            "name": "param",
-            "check": [
-                "String",
-                "Number"
-            ]
-        }],
-        colour: BLOCK_COLOR,
-        inputsInline: true,
-        output: "String"
-    },
-    {
-        type: "nemohooker_http_get",
-        message0: "网络 GET %1",
-        args0: [{
-            "type": "input_value",
-            "name": "param",
-            "check": [
-                "String",
-                "Number"
-            ]
-        }],
-        colour: BLOCK_COLOR,
-        inputsInline: true,
-        output: "String"
-    },
-    {
-        type: "nemohooker_event",
-        message0: "%1 当 事件",
-        args0: [BLOCK_HEAD],
-        nextStatement: true,
-        colour: BLOCK_COLOR,
-        inputsInline: true
-    }
-];
 
-// 使用JSON数组定义Blockly代码块
-Blockly.define_blocks_with_json_array(blockObjects)
-setTimeout(function () {
-    function add_style(style) {
-        document.head.insertAdjacentHTML('beforeend', `<style>${style}</style>`);
+(async () => {
+    await isBlocklyLoaded();
+    await isBlocklyMainworkspaceLoaded();
+    const BLOCK_COLOR = "%{BKY_GREEN_5}";
+    const BLOCK_HEAD = {
+        "type": "field_icon",
+        "is_head": true,
+        "src": 'data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgdmlld0JveD0iMCAwIDM2IDM2Ij48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0xOCAzNmM5Ljk0MSAwIDE4LTguMDU5IDE4LTE4UzI3Ljk0MSAwIDE4IDAgMCA4LjA1OSAwIDE4czguMDU5IDE4IDE4IDE4eiIgZmlsbD0iIzE0QjM5MCIvPjxwYXRoIGQ9Ik0xOCAzNWM5LjM4OSAwIDE3LTcuNjExIDE3LTE3UzI3LjM4OSAxIDE4IDEgMSA4LjYxMSAxIDE4czcuNjExIDE3IDE3IDE3eiIgZmlsbD0iI0ZGRiIvPjxwYXRoIGQ9Ik0yNS41NiAxNi40NTdjMS45MTUgMS4xMyAxLjkyNSAyLjk1NCAwIDQuMDlsLTEwLjA5NCA1Ljk1N0MxMy41NTIgMjcuNjM0IDEyIDI2Ljc2NiAxMiAyNC41OFYxMi40MjRjMC0yLjE5MiAxLjU0MS0zLjA2IDMuNDY2LTEuOTI0bDEwLjA5NCA1Ljk1N3oiIGZpbGw9IiMxNEIzOTAiLz48L2c+PC9zdmc+',
+        "width": 38,
+        "height": 38,
+        "alt": "*"
     }
-    function add_icon() {
-        document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML('beforeend', '<symbol id="icon-feature" viewBox="-1100 -1050 3200 3200"><path d="M484.352 199.918933a55.296 55.296 0 0 1 50.517333-2.4576l4.778667 2.4576 228.795733 132.096c15.5648 8.977067 25.668267 24.8832 27.409067 42.530134l0.238933 5.358933v264.192a55.296 55.296 0 0 1-23.1424 44.987733l-4.5056 2.901334-228.795733 132.096a55.296 55.296 0 0 1-50.517333 2.4576l-4.778667-2.4576-228.795733-132.096a55.296 55.296 0 0 1-27.409067-42.530134l-0.238933-5.358933v-264.192c0-17.954133 8.704-34.679467 23.1424-44.987733l4.5056-2.901334 228.795733-132.096z m27.648 54.954667l-222.651733 128.580267v257.092266L512 769.092267l222.651733-128.546134v-257.092266L512 254.907733z m120.900267 147.319467a30.72 30.72 0 0 1 2.628266 40.311466l-2.730666 3.140267-88.507734 87.9616v102.570667a30.72 30.72 0 0 1-61.201066 3.857066l-0.238934-3.857066v-101.5808l-88.576-89.088a30.72 30.72 0 0 1 40.413867-46.08l3.140267 2.7648 75.298133 75.741866 76.322133-75.844266a30.72 30.72 0 0 1 43.451734 0.1024z"></path></symbol>')
-    }
-    add_style(`#nemohooker.blocklyTreeSelected > div > svg {fill: white;}`);
-    add_icon();
-    const stringToHTML = function (str) {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(str, "text/html");
-        return doc.body.firstChild;
-    };
-    const stringToXML = function (str) {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(str, "text/xml");
-        return doc.firstChild;
-    };
-    // 定义代码块工具箱的XML结构
-    const blockToolboxXML = [
-        '<block type="nemohooker_event"></block>',
-        '<block type="nemohooker_alert"><value name="param"><shadow type="text"><field name="param">abc</field></shadow></value></block>',
-        '<block type="nemohooker_prompt"><value name="param"><shadow type="text"><field name="param">abc</field></shadow></value></block>',
-        '<block type="nemohooker_http_get"><value name="param"><shadow type="text"><field name="param">abc</field></shadow></value></block>',
-        '<block type="warp"></block>',
-        '<label type="flyout_line" height="25" text="隐藏积木"/>',
-        '<block type="calculate"><value name="input"><shadow type="text"><field name="input"></field></shadow></value></block>',
-        '<block type="multiline_text"></block>'
-    ].map(xmlString => stringToXML(xmlString));
-    // 创建标题
-    const titleButton = stringToHTML(
-        `<label text="NemoHooker" type="normal" gap="24" web-class="flyout-toolbox-title" vertical_padding="0"></label>`
-    );
-    // 工具箱对象配置
-    const toolboxObject = {
-        color: '#54c0ff',
-        name: "nemohooker",
-        icon: {
-            font_id: "icon-feature"
+    // 定义自定义代码块对象数组
+    const blockObjects = [
+        {
+            type: "nemohooker_alert",
+            message0: "调用 提示 %1",
+            args0: [{
+                "type": "input_value",
+                "name": "param",
+                "check": [
+                    "String",
+                    "Number"
+                ]
+            }],
+            colour: BLOCK_COLOR,
+            previousStatement: true,
+            nextStatement: true,
+            inputsInline: true
         },
-        blocks: [
-            titleButton,
-            ...blockToolboxXML,
-        ]
-    };
+        {
+            type: "nemohooker_prompt",
+            message0: "调用 询问 %1",
+            args0: [{
+                "type": "input_value",
+                "name": "param",
+                "check": [
+                    "String",
+                    "Number"
+                ]
+            }],
+            colour: BLOCK_COLOR,
+            inputsInline: true,
+            output: "String"
+        },
+        {
+            type: "nemohooker_http_get",
+            message0: "网络 GET %1",
+            args0: [{
+                "type": "input_value",
+                "name": "param",
+                "check": [
+                    "String",
+                    "Number"
+                ]
+            }],
+            colour: BLOCK_COLOR,
+            inputsInline: true,
+            output: "String"
+        },
+        {
+            type: "nemohooker_event",
+            message0: "%1 当 事件",
+            args0: [BLOCK_HEAD],
+            nextStatement: true,
+            colour: BLOCK_COLOR,
+            inputsInline: true
+        }
+    ];
 
-    console.log("toolboxObject", toolboxObject);
+    // 使用JSON数组定义Blockly代码块
+    Blockly.define_blocks_with_json_array(blockObjects)
+    setTimeout(function () {
+        function add_style(style) {
+            document.head.insertAdjacentHTML('beforeend', `<style>${style}</style>`);
+        }
+        function add_icon() {
+            document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML('beforeend', '<symbol id="icon-feature" viewBox="-1100 -1050 3200 3200"><path d="M484.352 199.918933a55.296 55.296 0 0 1 50.517333-2.4576l4.778667 2.4576 228.795733 132.096c15.5648 8.977067 25.668267 24.8832 27.409067 42.530134l0.238933 5.358933v264.192a55.296 55.296 0 0 1-23.1424 44.987733l-4.5056 2.901334-228.795733 132.096a55.296 55.296 0 0 1-50.517333 2.4576l-4.778667-2.4576-228.795733-132.096a55.296 55.296 0 0 1-27.409067-42.530134l-0.238933-5.358933v-264.192c0-17.954133 8.704-34.679467 23.1424-44.987733l4.5056-2.901334 228.795733-132.096z m27.648 54.954667l-222.651733 128.580267v257.092266L512 769.092267l222.651733-128.546134v-257.092266L512 254.907733z m120.900267 147.319467a30.72 30.72 0 0 1 2.628266 40.311466l-2.730666 3.140267-88.507734 87.9616v102.570667a30.72 30.72 0 0 1-61.201066 3.857066l-0.238934-3.857066v-101.5808l-88.576-89.088a30.72 30.72 0 0 1 40.413867-46.08l3.140267 2.7648 75.298133 75.741866 76.322133-75.844266a30.72 30.72 0 0 1 43.451734 0.1024z"></path></symbol>')
+        }
+        add_style(`#nemohooker.blocklyTreeSelected > div > svg {fill: white;}`);
+        add_icon();
+        const stringToHTML = function (str) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(str, "text/html");
+            return doc.body.firstChild;
+        };
+        const stringToXML = function (str) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(str, "text/xml");
+            return doc.firstChild;
+        };
+        // 定义代码块工具箱的XML结构
+        const blockToolboxXML = [
+            '<block type="nemohooker_event"></block>',
+            '<block type="nemohooker_alert"><value name="param"><shadow type="text"><field name="param">abc</field></shadow></value></block>',
+            '<block type="nemohooker_prompt"><value name="param"><shadow type="text"><field name="param">abc</field></shadow></value></block>',
+            '<block type="nemohooker_http_get"><value name="param"><shadow type="text"><field name="param">abc</field></shadow></value></block>',
+            '<block type="warp"></block>',
+            '<label type="flyout_line" height="25" text="隐藏积木"/>',
+            '<block type="calculate"><value name="input"><shadow type="text"><field name="input"></field></shadow></value></block>',
+            '<block type="multiline_text"></block>'
+        ].map(xmlString => stringToXML(xmlString));
+        // 创建标题
+        const titleButton = stringToHTML(
+            `<label text="NemoHooker" type="normal" gap="24" web-class="flyout-toolbox-title" vertical_padding="0"></label>`
+        );
+        // 工具箱对象配置
+        const toolboxObject = {
+            color: '#54c0ff',
+            name: "nemohooker",
+            icon: {
+                font_id: "icon-feature"
+            },
+            blocks: [
+                titleButton,
+                ...blockToolboxXML,
+            ]
+        };
 
-    // 获取主工作区的工具箱并添加自定义工具箱节点
-    const toolbox = Blockly.mainWorkspace.get_toolbox();
-    toolbox.add(toolbox.new_node(toolboxObject));
+        console.log("toolboxObject", toolboxObject);
 
-    // 注册域函数的工具函数
-    function regDomainFunction(name, func) {
-        const registry = get_run_mgr().registry;
-        registry.domain_function[name] = func;
-        registry.domain_function_list.push(func);
-        registry.domain_function_index[name] = registry.domain_function_types.push(name) - 1;
-    }
+        // 获取主工作区的工具箱并添加自定义工具箱节点
+        const toolbox = Blockly.mainWorkspace.get_toolbox();
+        toolbox.add(toolbox.new_node(toolboxObject));
 
-    // 注册自定义代码块的执行函数
-    regDomainFunction("nemohooker_alert", (params, uuid, uuid2, utils) => {
-        alert(params.param);
-    });
-    regDomainFunction("nemohooker_prompt", (params, uuid, uuid2, utils) => {
-        return prompt(params.param);
-    });
-    regDomainFunction("nemohooker_http_get", async (params, uuid, uuid2, utils) => {
-        return await (await fetch(params.param)).text();
-    });
-}, 2000);
+        // 注册域函数的工具函数
+        function regDomainFunction(name, func) {
+            const registry = get_run_mgr().registry;
+            registry.domain_function[name] = func;
+            registry.domain_function_list.push(func);
+            registry.domain_function_index[name] = registry.domain_function_types.push(name) - 1;
+        }
+
+        // 注册自定义代码块的执行函数
+        regDomainFunction("nemohooker_alert", (params, uuid, uuid2, utils) => {
+            alert(params.param);
+        });
+        regDomainFunction("nemohooker_prompt", (params, uuid, uuid2, utils) => {
+            return prompt(params.param);
+        });
+        regDomainFunction("nemohooker_http_get", async (params, uuid, uuid2, utils) => {
+            return await (await fetch(params.param)).text();
+        });
+    }, 2000)
+})();
