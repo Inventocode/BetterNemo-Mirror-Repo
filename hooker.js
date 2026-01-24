@@ -485,12 +485,11 @@ const isBlocklyMainworkspaceLoaded = async () => {
     return;
 };
 await isBlocklyMainworkspaceLoaded();
-const CBP_COLOR = "%{BKY_RED_2}";
-const CBP_BLOCK_ICON = 'https://static.codemao.cn/flowchunkflex/HkQchml_xx.png';
-const CBP_BLOCK_HEAD = {
+const BLOCK_COLOR = "%{BKY_GREEN_5}";
+const BLOCK_HEAD = {
     "type": "field_icon",
     "is_head": true,
-    "src": CBP_BLOCK_ICON,
+    "src": 'data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgdmlld0JveD0iMCAwIDM2IDM2Ij48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0xOCAzNmM5Ljk0MSAwIDE4LTguMDU5IDE4LTE4UzI3Ljk0MSAwIDE4IDAgMCA4LjA1OSAwIDE4czguMDU5IDE4IDE4IDE4eiIgZmlsbD0iIzE0QjM5MCIvPjxwYXRoIGQ9Ik0xOCAzNWM5LjM4OSAwIDE3LTcuNjExIDE3LTE3UzI3LjM4OSAxIDE4IDEgMSA4LjYxMSAxIDE4czcuNjExIDE3IDE3IDE3eiIgZmlsbD0iI0ZGRiIvPjxwYXRoIGQ9Ik0yNS41NiAxNi40NTdjMS45MTUgMS4xMyAxLjkyNSAyLjk1NCAwIDQuMDlsLTEwLjA5NCA1Ljk1N0MxMy41NTIgMjcuNjM0IDEyIDI2Ljc2NiAxMiAyNC41OFYxMi40MjRjMC0yLjE5MiAxLjU0MS0zLjA2IDMuNDY2LTEuOTI0bDEwLjA5NCA1Ljk1N3oiIGZpbGw9IiMxNEIzOTAiLz48L2c+PC9zdmc+',
     "width": 38,
     "height": 38,
     "alt": "*"
@@ -498,21 +497,58 @@ const CBP_BLOCK_HEAD = {
 // 定义自定义代码块对象数组
 const blockObjects = [
     {
-        type: "connect_to_catbitpro",
-        message0: "连接到哈基比特",
-        args0: [],
-        colour: CBP_COLOR,
-        previousStatement: !0,
-        nextStatement: !0,
-        inputsInline: !0,
+        type: "nemohooker_alert",
+        message0: "调用 提示 %1",
+        args0: [{
+            "type": "input_value",
+            "name": "param",
+            "check": [
+                "String",
+                "Number"
+            ]
+        }],
+        colour: BLOCK_COLOR,
+        previousStatement: true,
+        nextStatement: true,
+        inputsInline: true
     },
     {
-        "type": "catbitpro_connected_when",
-        "message0": "%1 当 连接到 哈基比特",
-        "args0": [CBP_BLOCK_HEAD],
-        "nextStatement": true,
-        "colour": CBP_COLOR,
-        "inputsInline": true
+        type: "nemohooker_prompt",
+        message0: "调用 询问 %1",
+        args0: [{
+            "type": "input_value",
+            "name": "param",
+            "check": [
+                "String",
+                "Number"
+            ]
+        }],
+        colour: BLOCK_COLOR,
+        inputsInline: true,
+        output: "String"
+    },
+    {
+        type: "nemohooker_http_get",
+        message0: "网络 GET %1",
+        args0: [{
+            "type": "input_value",
+            "name": "param",
+            "check": [
+                "String",
+                "Number"
+            ]
+        }],
+        colour: BLOCK_COLOR,
+        inputsInline: true,
+        output: "String"
+    },
+    {
+        type: "nemohooker_event",
+        message0: "%1 当 事件",
+        args0: [BLOCK_HEAD],
+        nextStatement: true,
+        colour: BLOCK_COLOR,
+        inputsInline: true
     }
 ];
 
@@ -522,47 +558,42 @@ setTimeout(function () {
     function add_style(style) {
         document.head.insertAdjacentHTML('beforeend', `<style>${style}</style>`);
     }
-    // 添加图标
     function add_icon() {
-        document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML('beforeend', '<symbol id="icn_blocktype_catbitpro" viewBox="-59 -62 150 150"><path d="M10.622128,24.164392C-5.3129196,20.498587,-1.2730504,4.2643046,9.3503027,0.22443709C9.986208,0.22443709,9.986208,0.67331123,9.986208,1.1221843C9.986208,1.5710596,9.986208,2.0199337,10.622113,2.0199337L25.360193,2.0199337C26.220535,2.0199337,26.220535,1.5149503,26.220535,1.009968C26.220535,0.50498343,26.220535,0,27.080877,0C40.098228,6.4338632,38.302731,22.368896,25.360193,24.164392L10.622128,24.164392ZM8.3029156,7.3316274C8.6022091,5.5361147,11.594688,5.5361147,12.193143,7.3316274L12.193143,9.4264622C12.193143,9.8752613,12.193143,10.099652,12.080955,10.211871C11.968736,10.32409,11.744299,10.32409,11.295409,10.324105L8.9014139,10.324105C8.3029594,10.32409,8.3029156,10.32409,8.3029156,9.4263573L8.3029156,7.3316274ZM24.462446,7.3316274C24.761694,5.5361147,27.754189,5.5361147,28.352688,7.3316274L28.352688,9.4264622C28.352688,9.8752613,28.352688,10.099652,28.240469,10.211871C28.12825,10.32409,27.903814,10.32409,27.454939,10.324105L25.060944,10.324105C24.462446,10.32409,24.462446,10.32409,24.462446,9.4263573L24.462446,7.3316274ZM4.4127021,14.812831C2.6171906,14.513538,2.6171906,11.521058,4.4127021,10.922605L6.5075383,10.922605C6.9563222,10.922605,7.1807299,10.922605,7.2929482,11.034807C7.4051666,11.147012,7.4051666,11.371449,7.4051819,11.820337L7.4051819,14.214333C7.4051666,14.812788,7.4051666,14.812831,6.5074334,14.812831L4.4127021,14.812831ZM15.784212,14.812831C17.579708,14.513538,17.579708,11.521058,15.784212,10.922605L13.689301,10.922605C13.240516,10.922605,13.016109,10.922605,12.903905,11.034807C12.791686,11.147012,12.791672,11.371449,12.791672,11.820337L12.791672,14.214333C12.791686,14.812788,12.791686,14.812831,13.689404,14.812831L15.784212,14.812831ZM20.572203,14.812831C18.776707,14.513538,18.776707,11.521058,20.572203,10.922605L22.666948,10.922605C23.115824,10.922605,23.34026,10.922605,23.452478,11.034807C23.564697,11.147012,23.564697,11.371449,23.564697,11.820337L23.564697,14.214333C23.564697,14.812788,23.564697,14.812831,22.666948,14.812831L20.572203,14.812831ZM31.943682,14.812831C33.739178,14.513538,33.739178,11.521058,31.943682,10.922605L29.848785,10.922605C29.39991,10.922605,29.175625,10.922605,29.063406,11.034807C28.951187,11.147012,28.951187,11.371449,28.951187,11.820337L28.951187,14.214333C28.951187,14.812788,28.951187,14.812831,29.848936,14.812831L31.943682,14.812831ZM8.1532907,17.805342C8.4525843,19.600838,11.445064,19.600838,12.043518,17.805342L12.043518,15.710445C12.043518,15.261722,12.043518,15.037285,11.93133,14.925082C11.819111,14.812863,11.594674,14.812847,11.145784,14.812847L8.7517891,14.812847C8.1533346,14.812863,8.1532907,14.812863,8.1532907,15.710596L8.1532907,17.805342ZM24.31282,17.805342C24.61207,19.600838,27.604565,19.600838,28.203064,17.805342L28.203064,15.710445C28.203064,15.261722,28.203064,15.037285,28.090845,14.925082C27.978626,14.812863,27.754189,14.812847,27.305315,14.812847L24.91132,14.812847C24.31282,14.812863,24.31282,14.812863,24.31282,15.710596L24.31282,17.805342Z" fill-rule="evenodd"></path></symbol>')
+        document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML('beforeend', '<symbol id="icon-feature" viewBox="-1100 -1050 3200 3200"><path d="M484.352 199.918933a55.296 55.296 0 0 1 50.517333-2.4576l4.778667 2.4576 228.795733 132.096c15.5648 8.977067 25.668267 24.8832 27.409067 42.530134l0.238933 5.358933v264.192a55.296 55.296 0 0 1-23.1424 44.987733l-4.5056 2.901334-228.795733 132.096a55.296 55.296 0 0 1-50.517333 2.4576l-4.778667-2.4576-228.795733-132.096a55.296 55.296 0 0 1-27.409067-42.530134l-0.238933-5.358933v-264.192c0-17.954133 8.704-34.679467 23.1424-44.987733l4.5056-2.901334 228.795733-132.096z m27.648 54.954667l-222.651733 128.580267v257.092266L512 769.092267l222.651733-128.546134v-257.092266L512 254.907733z m120.900267 147.319467a30.72 30.72 0 0 1 2.628266 40.311466l-2.730666 3.140267-88.507734 87.9616v102.570667a30.72 30.72 0 0 1-61.201066 3.857066l-0.238934-3.857066v-101.5808l-88.576-89.088a30.72 30.72 0 0 1 40.413867-46.08l3.140267 2.7648 75.298133 75.741866 76.322133-75.844266a30.72 30.72 0 0 1 43.451734 0.1024z"></path></symbol>')
     }
-    add_style(`#catbitpro.blocklyTreeSelected > div > svg {fill: white;}`);
+    add_style(`#nemohooker.blocklyTreeSelected > div > svg {fill: white;}`);
     add_icon();
-
-    // 将字符串转换为HTML元素的工具函数
     const stringToHTML = function (str) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(str, "text/html");
         return doc.body.firstChild;
     };
-    // 将字符串转换为XML元素的工具函数
     const stringToXML = function (str) {
         const parser = new DOMParser();
         const doc = parser.parseFromString(str, "text/xml");
         return doc.firstChild;
     };
-
     // 定义代码块工具箱的XML结构
     const blockToolboxXML = [
-        `<block type="catbitpro_connected_when"></block>
-        `, `<block type="connect_to_catbitpro"></block>`,
+        '<block type="nemohooker_event"></block>',
+        '<block type="nemohooker_alert"><value name="param"><shadow type="text"><field name="param">abc</field></shadow></value></block>',
+        '<block type="nemohooker_prompt"><value name="param"><shadow type="text"><field name="param">abc</field></shadow></value></block>',
+        '<block type="nemohooker_http_get"><value name="param"><shadow type="text"><field name="param">abc</field></shadow></value></block>',
+        '<block type="warp"></block>',
         '<label type="flyout_line" height="25" text="隐藏积木"/>',
-        `<block type="calculate"><value name="input">
-      <shadow type="text">
-        <field name="input">abc</field>
-      </shadow>
-    </value></block>`
+        '<block type="calculate"><value name="input"><shadow type="text"><field name="input"></field></shadow></value></block>',
+        '<block type="multiline_text"></block>'
     ].map(xmlString => stringToXML(xmlString));
     // 创建标题
     const titleButton = stringToHTML(
-        `<label text="栗子 · hook" type="normal" gap="24" web-class="flyout-toolbox-title" vertical_padding="0"></label>`
+        `<label text="NemoHooker" type="normal" gap="24" web-class="flyout-toolbox-title" vertical_padding="0"></label>`
     );
     // 工具箱对象配置
     const toolboxObject = {
-        color: '#F46767',
-        name: "catbitpro",
+        color: '#54c0ff',
+        name: "nemohooker",
         icon: {
-            font_id: "icn_blocktype_catbitpro"
+            font_id: "icon-feature"
         },
         blocks: [
             titleButton,
@@ -585,7 +616,13 @@ setTimeout(function () {
     }
 
     // 注册自定义代码块的执行函数
-    regDomainFunction("connect_to_catbitpro", (...args) => {
-        document.write('<h1>WOW</h1>')
+    regDomainFunction("nemohooker_alert", (params, uuid, uuid2, utils) => {
+        alert(params.param);
+    });
+    regDomainFunction("nemohooker_prompt", (params, uuid, uuid2, utils) => {
+        return prompt(params.param);
+    });
+    regDomainFunction("nemohooker_http_get", async (params, uuid, uuid2, utils) => {
+        return await (await fetch(params.param)).text();
     });
 }, 2000);
