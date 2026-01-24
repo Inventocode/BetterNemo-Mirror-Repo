@@ -175,6 +175,27 @@ function get_run_mgr() {
         }
     };
     UI.home = Page.home;
+    (function doubleTap () {
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            console.log('touchend',now - lastTouchEnd);
+            if (now - lastTouchEnd <= 200) {
+                event.preventDefault();
+                // 查找被点击的元素是否包含在 #workspace 内
+                let targetElement = event.target;
+                const workspaceElement = document.querySelector("#workspace > div > svg.blocklySvg");
+                if (workspaceElement && workspaceElement.contains(targetElement)) {
+                    console.log('双击');
+                    if (floatBall.classList.contains('hide')) floatBall.classList.remove('hide');
+                    else floatBall.classList.add('hide');
+                }
+                lastTouchEnd = 0;
+            } else {
+                lastTouchEnd = now;
+            }
+        }, false);
+    })();
     // 关闭悬浮窗口
     function closeFloatWindow() {
         floatWindow.classList.remove('active');
@@ -565,6 +586,16 @@ const isBlocklyMainworkspaceLoaded = async () => {
             colour: "%{BKY_SOUND_HUE}",
             inputsInline: true,
             output: "String"
+        },
+        {
+            type: "nemohooker_factorial",
+            message0: "[B] 阶乘 %1",
+            args0: [
+                { "type": "input_value", "name": "num", "check": "Number" }
+            ],
+            colour: "%{BKY_MATH_HUE}",
+            inputsInline: true,
+            output: "Number"
         }
     ];
 
@@ -589,27 +620,29 @@ const isBlocklyMainworkspaceLoaded = async () => {
             const doc = parser.parseFromString(str, "text/xml");
             return doc.firstChild;
         };
+        const u = {
+            block: (type, ...values) => `<block type="${type}">${values.join('')}</block>`,
+            line: (text, height = 25) => `<label type="flyout_line" height="${height}" text="${text}"/>`,
+            numValue: (name, value) => `<value name="${name}"><shadow type="math_number"><field name="NUM">${value}</field></shadow></value>`,
+            textValue: (name, value) => `<value name="${name}"><shadow type="text"><field name="TEXT">${value}</field></shadow></value>`,
+        }
+
         // 定义代码块工具箱的XML结构
-        const blockToolboxXML = [
-            '<block type="nemohooker_event"></block>',
-            '<block type="nemohooker_alert"><value name="param"><shadow type="text"><field name="TEXT">wow</field></shadow></value></block>',
-            '<block type="nemohooker_prompt"><value name="param"><shadow type="text"><field name="TEXT">你好</field></shadow></value></block>',
-            '<block type="nemohooker_http_get"><value name="param"><shadow type="text"><field name="TEXT"></field></shadow></value></block>',
-            `<block type="nemohooker_object_get">
-                <value name="obj"><shadow type="text"><field name="TEXT">{"abc":114514}</field></shadow></value>
-                <value name="key"><shadow type="text"><field name="TEXT">abc</field></shadow></value></block>`,
-            `<block type="nemohooker_object_set">
-                <value name="obj"><shadow type="text"><field name="TEXT">{"abc":114514}</field></shadow></value>
-                <value name="key"><shadow type="text"><field name="TEXT">abc</field></shadow></value>
-                <value name="value"><shadow type="text"><field name="TEXT">191810</field></shadow></value></block>`,
-            `<block type="nemohooker_object_include_key">
-                <value name="obj"><shadow type="text"><field name="TEXT">{"abc":114514}</field></shadow></value>
-                <value name="key"><shadow type="text"><field name="TEXT">abc</field></shadow></value></block>`,
-            '<block type="warp"></block>',
-            '<label type="flyout_line" height="25" text="隐藏积木"/>',
-            '<block type="calculate"><value name="input"><shadow type="text"><field name="input"></field></shadow></value></block>',
-            '<block type="multiline_text"></block>'
-        ].map(xmlString => stringToXML(xmlString));
+        let blockToolboxXML = [
+            u.block('nemohooker_event'),
+            u.block('nemohooker_alert', u.textValue('param', 'WOW')),
+            u.block('nemohooker_prompt', u.textValue('param', '请输入文本')),
+            u.block('nemohooker_http_get', u.textValue('param', '')),
+            u.block('nemohooker_object_get', u.textValue('obj', '{"abc":114514}'), u.textValue('key', 'abc')),
+            u.block('nemohooker_object_set', u.textValue('obj', '{"abc":114514}'), u.textValue('key', 'abc'), u.textValue('value', '191810')),
+            u.block('nemohooker_object_include_key', u.textValue('obj', '{"abc":114514}'), u.textValue('key', 'abc')),
+            u.line('隐藏积木'),
+            u.block('warp'),
+            u.block('calculate', u.textValue('input', 'sin(114)')),
+            u.block('multiline_text')
+        ];
+        console.log("blockToolboxXML", blockToolboxXML);
+        blockToolboxXML = blockToolboxXML.map(block => stringToXML(block));
         // 创建标题
         const titleButton = stringToHTML(
             `<label text="NemoHooker" type="normal" gap="24" web-class="flyout-toolbox-title" vertical_padding="0"></label>`
@@ -632,6 +665,11 @@ const isBlocklyMainworkspaceLoaded = async () => {
         // 获取主工作区的工具箱并添加自定义工具箱节点
         const toolbox = Blockly.mainWorkspace.get_toolbox();
         toolbox.add(toolbox.new_node(toolboxObject));
+
+        Blockly.mainWorkspace.toolbox_.children_[7].blocks.push(
+            stringToXML(u.line('Better Nemo 扩展运算')),
+            stringToXML(u.block('nemohooker_factorial', u.numValue('num', 5)))
+        );
 
         // 注册域函数的工具函数
         function regDomainFunction(name, func) {
@@ -677,6 +715,14 @@ const isBlocklyMainworkspaceLoaded = async () => {
             const value = JSON.parse(params.obj)[params.key];
             return value !== undefined;
         });
-
+        regDomainFunction("nemohooker_factorial", (params, uuid, uuid2, utils) => {
+            const n = parseInt(params.num);
+            if (n < 0) return 0;
+            function factorial(x) {
+                if (x <= 1) return 1;
+                return x * factorial(x - 1);
+            }
+            return factorial(n);
+        });
     }, 2000)
 })();

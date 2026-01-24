@@ -25,7 +25,9 @@ div.blocklyTreeNode:has(#advanced) {
   right: 100px;
   bottom: 100px;
 }
-
+.float-ball.hide {
+  display: none !important;
+}
 .float-ball:active {
   transform: scale(0.92);
   transition: transform 0.1s ease;
