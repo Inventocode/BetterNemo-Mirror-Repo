@@ -184,7 +184,7 @@ li.menu-input>input[type="text"],
 li.menu-input>input[type="number"] {
   border-radius: 20px 0 0 20px;
   font-size: 14px;
-  width: 75px;
+  width: 100px;
   height: 35px;
   box-sizing: border-box;
 }
