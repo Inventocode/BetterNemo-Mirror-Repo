@@ -130,11 +130,13 @@ function catBlock(event = { nodata: true }) {
         let y = event.clientY;
     }
     document.querySelectorAll("g.cat_hat > g.cat_hat_eyes").forEach(cat => {
-        if (!options['facing_the_mouse']) return;
-        let catX = cat.getBoundingClientRect().x;
-        let catY = cat.getBoundingClientRect().y;
-        if (event.nodata) return
-        cat.style.transform = `translate(${(x - catX) / 100 + 4}px, ${(y - catY) / 100 + 32}px)`;
+        try {
+            if (!options['facing_the_mouse']) return;
+            let catX = cat.getBoundingClientRect().x;
+            let catY = cat.getBoundingClientRect().y;
+            if (event.nodata) return
+            cat.style.transform = `translate(${(x - catX) / 100 + 4}px, ${(y - catY) / 100 + 32}px)`;
+        } catch (e) { }
     });
     window['catBlock'] = catBlock;
 };
@@ -618,10 +620,17 @@ const isBrushHooked = async () => {
     }
     return;
 };
+const isUtilsHooked = async () => {
+    while (!HookUtils) {
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+    }
+    return;
+};
 // ------------------画笔原型注入------------------
 (async () => {
-    console.log("[async] 等待画笔原型获取");
+    console.log("[async] 等待画笔原型,utils获取");
     await isBrushHooked();
+    await isUtilsHooked();
     console.log("[async] 画笔原型注入开始");
     HookBrush.exports.Brush.prototype.put_pixel = function (x, y, r, g, b, a) {
         var ctx = this.ctx;
@@ -664,12 +673,51 @@ const isBrushHooked = async () => {
         ctx.restore();
         this.actor.parent_scene.should_update_brush();
     };
+    HookBrush.exports.Brush.prototype.draw_custom_image_stamp = function (url) {
+        var ctx = this.ctx;
+        if (!ctx) {
+            return;
+        }
+        var actor = this.actor;
+        var center_point = HookUtils.exports.get_actor_center(actor, actor.position);
+        var rotation = this.actor.rotation;
+        var _a = this.app.get_app().view, view_height = _a.height, view_width = _a.width;
+        ctx.save();
+        ctx.translate(center_point.x + view_width / 2, center_point.y + view_height / 2);
+        ctx.rotate(rotation);
+        ctx.scale(actor.scale.x < 0 ? -1 : 1, actor.scale.y < 0 ? -1 : 1);
+        const source = new Image(100, 200);
+        source.src = url;
+        ctx.drawImage(source, Math.floor(-actor.width / 2), Math.floor(-actor.height / 2), Math.floor(actor.width), Math.floor(actor.height));
+        ctx.restore();
+        actor.parent_scene.should_update_brush();
+    };
     console.log("[async] 画笔原型注入完成");
 })();
 // --------------------积木注入----------------
 (async () => {
     console.log("[async] 等待Blockly加载");
     await isBlocklyLoaded();
+    // --------------------变形器----------------
+    Blockly.extensions.register_mutator("nemohooker_on_key_event_mutator", {
+        itemCount_: 0,
+        mutationToDom: function () {
+            const e = document.createElement("mutation");
+            return e.setAttribute("items", String(this.itemCount_)), e;
+        },
+        domToMutation: function (t) {
+            console.log("domToMutation");
+            var n = parseInt(t.getAttribute("items") || "0");
+            if (0 === n) {
+                var r = this.append_math_shadow("param", 2)
+                    , i = '<block type="nemohooker_on_key_event_param"></block>';
+                this.append_block_input(i, r),
+                    this.itemCount_++
+            } else
+                this.append_math_shadow("param", 2),
+                    this.itemCount_ = Number(n)
+        }
+    })
     console.log("[async] 等待Workspace加载");
     await isBlocklyMainworkspaceLoaded();
     console.log("[async] 积木注入开始");
@@ -683,6 +731,66 @@ const isBrushHooked = async () => {
         "alt": "*"
     }
     const ANY_TYPE = ["Number", "String", "Boolean", "Array"]
+    // Blockly.define_block_with_object('nemohooker_on_key_event_param', {
+    //     init: function () {
+    //         var thisBlock = this;
+    //         n = Blockly.di_container.get(p.BINDING.FieldLabelSerializable);
+    //         r = Blockly.di_container.get(p.BINDING.CreateEvent);
+    //         this.append_dummy_input().append_field(i, "TEXT");
+    //         this.set_output(true);
+    //         this.set_inputs_inline(true);
+    //         this.set_colour(Blockly.theme.block_color.BLUE_2.fill, Blockly.theme.block_color.BLUE_2.border);
+    //         this.on_mouse_down = function (n) {
+    //             var i = Blockly.events.get_group();
+    //             if (Blockly.events.set_group(i || true),
+    //                 __IS_PC__ && 0 !== n.button)
+    //                 return n.preventDefault(),
+    //                     void n.stopPropagation();
+    //             var a = thisBlock.workspace.get_gesture(n);
+    //             if (a) {
+    //                 var o = a.handle_move.bind(a)
+    //                     , s = a.handle_up.bind(a)
+    //                     , c = 0
+    //                 a.handle_move = function (i) {
+    //                     if (false)
+    //                         o(i);
+    //                     else if (c < 10)
+    //                         c++;
+    //                     else if (a.is_dragging_block = true,
+    //                         true || __IS_PC__) {
+    //                         var s = function () {
+    //                             Blockly.events.disable();
+    //                             var n = thisBlock.get_field_value("TEXT") || ""
+    //                                 , i = thisBlock.workspace.new_block('nemohooker_on_key_event_param')
+    //                                 , a = thisBlock.get_relative_to_surface_xy();
+    //                             return i.move_by(a),
+    //                                 i.set_field_value(n, "TEXT"),
+    //                                 i.init_svg(),
+    //                                 i.render(),
+    //                                 Blockly.events.enable(),
+    //                                 Blockly.events.is_enabled() && Blockly.events.fire(r({
+    //                                     block: i,
+    //                                     source: "other"
+    //                                 })),
+    //                                 i
+    //                         }();
+    //                         s.select(),
+    //                             a.handle_block_start(n, s),
+    //                             a.target_block = s,
+    //                             false = true
+    //                     } else
+    //                         a.cancel()
+    //                 }
+    //                     ,
+    //                     a.handle_up = function (t) {
+    //                         s(t),
+    //                             Blockly.events.set_group(i),
+    //                             true = true
+    //                     }
+    //             }
+    //         }
+    //     }
+    // })
     // 定义自定义代码块对象数组
     const blockObjects = [
         {
@@ -693,6 +801,23 @@ const isBrushHooked = async () => {
             previousStatement: true,
             nextStatement: true,
             inputsInline: true
+        },
+        {
+            type: "nemohooker_clipboard_write",
+            message0: "写入 剪切板 %1",
+            args0: [{ "type": "input_value", "name": "value", "check": ["String", "Number"] }],
+            colour: BLOCK_COLOR,
+            previousStatement: true,
+            nextStatement: true,
+            inputsInline: true
+        },
+        {
+            type: "nemohooker_clipboard_read",
+            message0: "获取 剪切板",
+            args0: [],
+            colour: BLOCK_COLOR,
+            inputsInline: true,
+            output: "String"
         },
         {
             type: "nemohooker_alert",
@@ -732,12 +857,13 @@ const isBrushHooked = async () => {
             output: "String"
         },
         {
-            type: "nemohooker_event",
-            message0: "%1 当 事件",
+            type: "nemohooker_on_key_event",
+            message0: "%1 当 按键事件",
             args0: [BLOCK_HEAD],
             nextStatement: true,
             colour: BLOCK_COLOR,
-            inputsInline: true
+            inputsInline: true,
+            mutator: "nemohooker_on_key_event_mutator"
         },
         // 对象操作
         {
@@ -840,6 +966,15 @@ const isBrushHooked = async () => {
             inputsInline: true
         },
         {
+            type: "nemohooker_draw_custom_image_stamp",
+            message0: "图像 %1",
+            args0: [{ "type": "input_value", "name": "src", "check": "String" }],
+            colour: "%{BKY_PEN_HUE}",
+            previousStatement: true,
+            nextStatement: true,
+            inputsInline: true
+        },
+        {
             type: "nemohooker_put_pixel",
             message0: "放置像素 x %1 y %2 颜色 r %3 g %4 b %5 a %6",
             args0: [
@@ -896,6 +1031,7 @@ const isBrushHooked = async () => {
         title: (text) => `<label text="${text}" type="normal" gap="24" web-class="flyout-toolbox-title" vertical_padding="0"></label>`,
         block: (type, ...values) => `<block type="${type}">${values.join('')}</block>`,
         line: (text, height = 25) => `<label type="flyout_line" height="${height}" text="${text}"/>`,
+        flyout_bottom: (width = 130, height = 16) => `<label type="flyout_bottom" align="center" width="${width}" height="${height}"></label>`,
         numValue: (name, value) => `<value name="${name}"><shadow type="math_number"><field name="NUM">${value}</field></shadow></value>`,
         textValue: (name, value) => `<value name="${name}"><shadow type="text"><field name="TEXT">${value}</field></shadow></value>`,
         optionValue: (value) => `<field name="OP">${value}</field>`
@@ -904,7 +1040,9 @@ const isBrushHooked = async () => {
     // 定义工具箱的XML结构
     let blockToolboxXML = [
         u.title('NemoHooker'),
-        u.block('nemohooker_event'),
+        // u.block('nemohooker_on_key_event'),
+        u.block('nemohooker_clipboard_write', u.textValue('value', '(～￣▽￣)～')),
+        u.block('nemohooker_clipboard_read'),
         u.block('nemohooker_eval', u.textValue('js', `console.log("Hello world!")`)),
         u.block('nemohooker_alert', u.textValue('param', 'WOW')),
         u.block('nemohooker_prompt', u.textValue('param', '请输入文本')),
@@ -916,7 +1054,8 @@ const isBrushHooked = async () => {
         u.line('隐藏积木'),
         u.block('warp'),
         u.block('calculate', u.textValue('input', 'sin(114)')),
-        u.block('multiline_text')
+        u.block('multiline_text'),
+        u.flyout_bottom()
     ];
     // 工具箱对象配置
     const toolboxObject = {
@@ -934,16 +1073,21 @@ const isBrushHooked = async () => {
         const toolbox = Blockly.mainWorkspace.get_toolbox();
         toolbox.add(toolbox.new_node(toolboxObject));
 
+        Blockly.mainWorkspace.toolbox_.children_[7].blocks.pop();
         Blockly.mainWorkspace.toolbox_.children_[7].blocks.push(
             str2xml(u.line('Better Nemo 扩展积木')),
             str2xml(u.block('nemohooker_factorial', u.numValue('num', 5))),
-            str2xml(u.block('nemohooker_trig_common', u.optionValue('SIN'), u.numValue('xita', 45)))
+            str2xml(u.block('nemohooker_trig_common', u.optionValue('SIN'), u.numValue('xita', 45))),
+            str2xml(u.flyout_bottom())
         );
+        Blockly.mainWorkspace.toolbox_.children_[5].blocks.pop();
         Blockly.mainWorkspace.toolbox_.children_[5].blocks.push(
             str2xml(u.line('Better Nemo 扩展积木')),
             str2xml(u.block('nemohooker_draw_image_stamp')),
+            str2xml(u.block('nemohooker_draw_custom_image_stamp', u.textValue('src', 'https://www.runoob.com/try/demo_source/smiley-2.gif'))),
             str2xml(u.block('nemohooker_put_pixel', u.numValue('x', 0), u.numValue('y', 0), u.numValue('r', 0), u.numValue('g', 0), u.numValue('b', 0), u.numValue('a', 255))),
-            str2xml(u.block('nemohooker_fill_triangle', u.numValue('x0', 0), u.numValue('y0', 0), u.numValue('x1', 0), u.numValue('y1', 0), u.numValue('x2', 0), u.numValue('y2', 0), u.numValue('r', 0), u.numValue('g', 0), u.numValue('b', 0), u.numValue('a', 255)))
+            str2xml(u.block('nemohooker_fill_triangle', u.numValue('x0', 0), u.numValue('y0', 0), u.numValue('x1', 0), u.numValue('y1', 0), u.numValue('x2', 0), u.numValue('y2', 0), u.numValue('r', 0), u.numValue('g', 0), u.numValue('b', 0), u.numValue('a', 255))),
+            str2xml(u.flyout_bottom())
         );
     }, 1000)
     console.log("[async] 积木注入完成");
@@ -967,6 +1111,19 @@ const isBrushHooked = async () => {
     // 注册自定义代码块的执行函数
     regDomainFunction("nemohooker_eval", (params, uuid, uuid2, utils) => {
         eval(String(params.js));
+    });
+    regDomainFunction("nemohooker_clipboard_write", (params, rbid, entity_id, internals) => {
+        console.log("params.value", params.value);
+        (async function writeClipboardText(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+            } catch (error) {
+                console.error(error.message);
+            }
+        })('' + params.value);
+    });
+    regDomainFunction("nemohooker_clipboard_read", async (params, rbid, entity_id, internals) => {
+        return await navigator.clipboard.readText();
     });
     regDomainFunction("nemohooker_alert", (params, rbid, entity_id, internals) => {
         alert(params.param);
@@ -1050,6 +1207,11 @@ const isBrushHooked = async () => {
         var actor = get_stage_target(uuid2);
         if (!actor) return;
         actor.get_brush().draw_image_stamp();
+    });
+    regDomainFunction("nemohooker_draw_custom_image_stamp", (params, uuid, uuid2, utils) => {
+        var actor = get_stage_target(uuid2);
+        if (!actor) return;
+        actor.get_brush().draw_custom_image_stamp(params.src);
     });
     regDomainFunction("nemohooker_put_pixel", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
