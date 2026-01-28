@@ -154,7 +154,8 @@ function disableCatBlock() {
     document.removeEventListener('mousemove', catBlock);
     document.removeEventListener('touchmove', catBlock);
     document.querySelectorAll("g.cat_hat").forEach(cat => {
-        cat.parentElement?.setAttribute('data-cat-hat', 'false');
+        if (!cat.parentElement) return;
+        cat.parentElement.setAttribute('data-cat-hat', 'false');
         cat.remove();
     })
 }
