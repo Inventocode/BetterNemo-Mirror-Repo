@@ -4,7 +4,16 @@ version
 icon
 build
 
+workspace.bundle.79d6432e01ccdecb492a.js
+plugin.js
+hideStage.js
+helps.html
+version.json
+template.html
+hot_update.html
+init.js
 desktop.ini
+
 0013325635f1a2c1ef26a60f9725ee48.mp3
 0062cd306b54b2f8fc5f464bbef9428a.mp3
 00875ebe6dbcc49128a2b576596a473e.mp3
@@ -208,11 +217,3 @@ fefcb1f6a2bddd63d9bf9932a43783bc.mp3
 helps.bundle.e4d0903f2dd8ee370199.js
 helps.bundle.e4d0903f2dd8ee370199.js.map
 plugin.js.map
-workspace.bundle.79d6432e01ccdecb492a.js
-
-plugin.js
-hideStage.js
-helps.html
-version.json
-template.html
-hot_update.html

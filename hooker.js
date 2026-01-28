@@ -205,10 +205,9 @@ if (storage.get('cat'))
         load: (page = UI.home) => {
             UI.clear();
             if (UI.pageHistory && page != UI.home) {
-                windowContent.innerHTML = `<li style="background:none;padding:0;" class="menu-item">
-              <i class="fas fa-circle-chevron-left" style="font-size: 16px;"></i></li>`;
+                windowContent.innerHTML = '<li class="menu-item menu-title"><i class="fas fa-circle-chevron-left"></i><span></span></li>';
                 setTimeout(() => {
-                    const backButton = document.querySelector('#floatWindow > div.window-content > li.menu-item');
+                    const backButton = document.querySelector('#floatWindow > div.window-content > li.menu-title');
                     backButton.ontouchend = (e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -216,12 +215,17 @@ if (storage.get('cat'))
                     };
                 }, 10)
             }
+            windowContent.innerHTML += '<div class="status-info" style="display:none"><span></span></div>';
             UI.pageHistory.push(page);
             page();
         },
-        addStatus: (text) => { windowContent.innerHTML = `<div class="status-info"><span>${text}</span></div>` + windowContent.innerHTML; },
-        setStatus: (text) => { document.querySelector("#floatWindow > div.window-content > div.status-info").outerHTML = `<div class="status-info"><span>${text}</span></div>`; },
-        removeStatus: () => { document.querySelector("#floatWindow > div.window-content > div.status-info").outerHTML = ''; },
+        setTitle: (text) => { windowContent.querySelector(".menu-title > span").innerHTML = text; },
+        setStatus: (text) => {
+            const status = windowContent.querySelector("div.status-info");
+            if (!status) return;
+            status.style.display = text ? 'block' : 'none';
+            status.outerHTML = `<div class="status-info"><span>${text}</span></div>`;
+        },
         button: (callback, name = '功能', icon = '') => {
             const menuItem = document.createElement('li');
             menuItem.innerHTML = `${icon ? `<i class="fas fa-${icon}"></i>` : ''}<span>${name}</span>`;
@@ -274,13 +278,13 @@ if (storage.get('cat'))
     eruda.init();
     const Page = {
         home: () => {
-            UI.addStatus('Version: ' + NemoHookerVersion);
+            UI.setStatus('Version: ' + NemoHookerVersion);
             UI.button(() => {
                 alert('你在期待什么？');
             }, '功能', 'home');
             UI.button(() => {
                 UI.load(() => {
-                    UI.addStatus('请进行二次确认');
+                    UI.setStatus('请进行二次确认');
                     UI.button(() => {
                         location.reload();
                     }, '刷新Webview', 'sync-alt');
@@ -290,14 +294,14 @@ if (storage.get('cat'))
                 if (erudaEnabled) eruda.destroy();
                 else eruda.init();
                 erudaEnabled = !erudaEnabled;
-                console.log('eruda', erudaEnabled);
                 UI.load();
             }, (erudaEnabled ? '关闭' : '开启') + 'Eruda', 'screwdriver-wrench');
             UI.button(() => { UI.load(Page.editorConfig) }, '编辑器', 'laptop-code');
             UI.button(() => { UI.load(Page.runtimeConfig) }, 'Runtime', 'cog');
         },
         editorConfig: () => {
-            UI.addStatus('此配置跟随Webview存储');
+            UI.setTitle('编辑器设置')
+            UI.setStatus('此配置跟随Webview存储');
             UI.textInput((value) => {
                 storage.set('backgroundImage', value);
                 backgroundImage = value;
@@ -310,6 +314,8 @@ if (storage.get('cat'))
             }, (storage.get('cat') ? '关闭' : '打开') + '猫块', 'save');
         },
         runtimeConfig: () => {
+            UI.setTitle('Runtime 设置')
+            UI.setStatus('此配置跟随Webview存储');
             // 默认高级配置
             const defualtConfig = {
                 "block_pool_preallocation_size": 50,
@@ -350,11 +356,9 @@ if (storage.get('cat'))
               }*/
             let newConfig = get_run_mgr().config.get();
             function save() {
-                console.log('newConfig', newConfig);
                 get_run_mgr().config.set(newConfig);
                 storage.set('runtimeConfig', newConfig);
             }
-            UI.addStatus('此配置跟随Webview存储');
             UI.numberInput((value) => {
                 newConfig.per_entity_clone_limit = value;
                 save();
@@ -381,7 +385,6 @@ if (storage.get('cat'))
                 let targetElement = event.target;
                 const workspaceElement = document.querySelector("#workspace > div > svg.blocklySvg");
                 if (workspaceElement && workspaceElement.contains(targetElement)) {
-                    console.log('双击');
                     if (floatBall.classList.contains('hide')) floatBall.classList.remove('hide');
                     else floatBall.classList.add('hide');
                 }
@@ -626,12 +629,18 @@ const isUtilsHooked = async () => {
     }
     return;
 };
+const waitHook = async (name) => {
+    while (!window['Hook' + name]) {
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+    }
+    return window['Hook' + name].exports;
+};
 // ------------------画笔原型注入------------------
 (async () => {
-    console.log("[async] 等待画笔原型,utils获取");
+    console.log("[nemohooker::init] 等待画笔原型,Utils获取");
     await isBrushHooked();
     await isUtilsHooked();
-    console.log("[async] 画笔原型注入开始");
+    console.log("[nemohooker::init] 画笔原型注入开始");
     HookBrush.exports.Brush.prototype.put_pixel = function (x, y, r, g, b, a) {
         var ctx = this.ctx;
         if (!ctx) {
@@ -692,35 +701,95 @@ const isUtilsHooked = async () => {
         ctx.restore();
         actor.parent_scene.should_update_brush();
     };
-    console.log("[async] 画笔原型注入完成");
+    HookBrush.exports.Brush.prototype.better_draw_text_stamp = function (text, style, weight, size, font, align, base_line, rotation) {
+        var ctx = this.ctx;
+        if (!ctx) {
+            return;
+        }
+        var _a = this.app.get_app().stage
+            .toGlobal(this.actor.position), x = _a.x, y = _a.y;
+        var stamp_rotation = rotation !== undefined ? rotation : this.actor.rotation;
+        ctx.save();
+        ctx.font = style + ' ' + weight + ' ' + size + "px " + font + ", Arial, 'Microsoft YaHei'";
+        ctx.fillStyle = "#" + this.stroke_color;
+        ctx.globalAlpha = this.alpha;
+        ctx.textBaseline = base_line;
+        ctx.textAlign = align;
+        ctx.translate(x, y);
+        ctx.rotate(stamp_rotation);
+        ctx.fillText(text, 0, 0);
+        ctx.restore();
+        this.actor.parent_scene.should_update_brush();
+    };
+    HookBrush.exports.Brush.prototype.rectangle_clear = function (x, y, width, height) {
+        if (!this.ctx) {
+            return;
+        }
+        var _a = this.app.get_app().view, width2 = _a.width, height2 = _a.height;
+        var center_x = width2 / 2;
+        var center_y = height2 / 2;
+
+        this.ctx.clearRect(center_x + x, center_y - y, width, height);
+        this.actor.parent_scene.should_update_brush();
+    };
+    console.log("[nemohooker::init] 画笔原型注入完成");
+})();
+// ------------------Scene原型注入------------------
+(async () => {
+    console.log("[nemohooker::init] 等待Scene原型获取");
+    const Scene = (await waitHook("Scene")).Scene;
+    console.log("[nemohooker::init] Scene原型注入开始");
+    HookScene.exports.Scene.prototype.get_brush_gl = function () {
+        if (!this.brush_gl) {
+            this.brush_gl = this.brush_canvas.getContext('webgl2');
+        }
+        return this.brush_gl;
+    }
+    console.log("[nemohooker::init] Scene原型注入完成");
 })();
 // --------------------积木注入----------------
 (async () => {
-    console.log("[async] 等待Blockly加载");
+    console.log("[nemohooker::init] 等待Blockly加载");
     await isBlocklyLoaded();
     // --------------------变形器----------------
-    Blockly.extensions.register_mutator("nemohooker_on_key_event_mutator", {
+    /*Blockly.extensions.register_mutator("nemohooker_on_key_event_mutator", {
         itemCount_: 0,
         mutationToDom: function () {
             const e = document.createElement("mutation");
             return e.setAttribute("items", String(this.itemCount_)), e;
         },
         domToMutation: function (t) {
-            console.log("domToMutation");
             var n = parseInt(t.getAttribute("items") || "0");
             if (0 === n) {
                 var r = this.append_math_shadow("param", 2)
-                    , i = '<block type="nemohooker_on_key_event_param"></block>';
+                    , i = '<block type="nemohooker_on_key_event_param_copy"></block>';
                 this.append_block_input(i, r),
                     this.itemCount_++
             } else
                 this.append_math_shadow("param", 2),
                     this.itemCount_ = Number(n)
         }
-    })
-    console.log("[async] 等待Workspace加载");
+    })*/
+    console.log("[nemohooker::init] 等待Workspace加载");
     await isBlocklyMainworkspaceLoaded();
-    console.log("[async] 积木注入开始");
+    console.log("[nemohooker::init] 积木注入开始");
+    /*Blockly.mainWorkspace.add_change_listener(() => {
+        Blockly.mainWorkspace.get_all_blocks()
+            .filter(block => block.type == 'nemohooker_on_key_event_param_copy')
+            .forEach(block => {
+                if (!block.get_parent()) block.dispose();
+            });
+        Blockly.mainWorkspace.get_all_blocks()
+            .filter(block => block.type == 'nemohooker_on_key_event')
+            .forEach(block => {
+                console.log(block.get_input('param'));
+                if (!block.get_input('param')) {
+                    var r = block.append_math_shadow("param", 1)
+                        , i = '<block type="nemohooker_on_key_event_param_copy"></block>';
+                    block.append_block_input(i, r)
+                }
+            });
+    })*/
     const BLOCK_COLOR = "%{BKY_GREEN_5}";
     const BLOCK_HEAD = {
         "type": "field_icon",
@@ -731,66 +800,60 @@ const isUtilsHooked = async () => {
         "alt": "*"
     }
     const ANY_TYPE = ["Number", "String", "Boolean", "Array"]
-    // Blockly.define_block_with_object('nemohooker_on_key_event_param', {
-    //     init: function () {
-    //         var thisBlock = this;
-    //         n = Blockly.di_container.get(p.BINDING.FieldLabelSerializable);
-    //         r = Blockly.di_container.get(p.BINDING.CreateEvent);
-    //         this.append_dummy_input().append_field(i, "TEXT");
-    //         this.set_output(true);
-    //         this.set_inputs_inline(true);
-    //         this.set_colour(Blockly.theme.block_color.BLUE_2.fill, Blockly.theme.block_color.BLUE_2.border);
-    //         this.on_mouse_down = function (n) {
-    //             var i = Blockly.events.get_group();
-    //             if (Blockly.events.set_group(i || true),
-    //                 __IS_PC__ && 0 !== n.button)
-    //                 return n.preventDefault(),
-    //                     void n.stopPropagation();
-    //             var a = thisBlock.workspace.get_gesture(n);
-    //             if (a) {
-    //                 var o = a.handle_move.bind(a)
-    //                     , s = a.handle_up.bind(a)
-    //                     , c = 0
-    //                 a.handle_move = function (i) {
-    //                     if (false)
-    //                         o(i);
-    //                     else if (c < 10)
-    //                         c++;
-    //                     else if (a.is_dragging_block = true,
-    //                         true || __IS_PC__) {
-    //                         var s = function () {
-    //                             Blockly.events.disable();
-    //                             var n = thisBlock.get_field_value("TEXT") || ""
-    //                                 , i = thisBlock.workspace.new_block('nemohooker_on_key_event_param')
-    //                                 , a = thisBlock.get_relative_to_surface_xy();
-    //                             return i.move_by(a),
-    //                                 i.set_field_value(n, "TEXT"),
-    //                                 i.init_svg(),
-    //                                 i.render(),
-    //                                 Blockly.events.enable(),
-    //                                 Blockly.events.is_enabled() && Blockly.events.fire(r({
-    //                                     block: i,
-    //                                     source: "other"
-    //                                 })),
-    //                                 i
-    //                         }();
-    //                         s.select(),
-    //                             a.handle_block_start(n, s),
-    //                             a.target_block = s,
-    //                             false = true
-    //                     } else
-    //                         a.cancel()
-    //                 }
-    //                     ,
-    //                     a.handle_up = function (t) {
-    //                         s(t),
-    //                             Blockly.events.set_group(i),
-    //                             true = true
-    //                     }
-    //             }
-    //         }
-    //     }
-    // })
+    Blockly.define_block_with_object('nemohooker_on_key_event_param_copy', {
+        init: function () {
+            var thisBlock = this;
+            this.append_dummy_input().append_field('可复制参数', "TEXT");
+            this.set_output(true);
+            this.set_inputs_inline(true);
+            this.set_colour(Blockly.theme.block_color.GREEN_5.fill, Blockly.theme.block_color.GREEN_5.border);
+            const n = Blockly.di_container.get(HookDi.exports.BINDING.FieldLabelSerializable);
+            const r = Blockly.di_container.get(HookDi.exports.BINDING.CreateEvent);
+            const __IS_PC__ = false;
+            this.on_mouse_down = function (n) {
+                var i = Blockly.events.get_group();
+                if (Blockly.events.set_group(i || true),
+                    __IS_PC__ && 0 !== n.button)
+                    return n.preventDefault(),
+                        void n.stopPropagation();
+                var a = thisBlock.workspace.get_gesture(n);
+                if (a) {
+                    var o = a.handle_move.bind(a)
+                        , s = a.handle_up.bind(a)
+                        , c = 0
+                    a.handle_move = function (i) {
+                        if (a.is_dragging_block = true,
+                            true || __IS_PC__) {
+                            var s = function () {
+                                Blockly.events.disable();
+                                var n = thisBlock.get_field_value("TEXT") || ""
+                                    , i = thisBlock.workspace.new_block('nemohooker_on_key_event_param')
+                                    , a = thisBlock.get_relative_to_surface_xy();
+                                return i.move_by(a),
+                                    i.init_svg(),
+                                    i.render(),
+                                    Blockly.events.enable(),
+                                    Blockly.events.is_enabled() && Blockly.events.fire(r({
+                                        block: i,
+                                        source: "other"
+                                    })),
+                                    i
+                            }();
+                            s.select(),
+                                a.handle_block_start(n, s),
+                                a.target_block = s
+                        } else
+                            a.cancel()
+                    }
+                        ,
+                        a.handle_up = function (t) {
+                            s(t),
+                                Blockly.events.set_group(i)
+                        }
+                }
+            }
+        }
+    })
     // 定义自定义代码块对象数组
     const blockObjects = [
         {
@@ -863,7 +926,15 @@ const isUtilsHooked = async () => {
             nextStatement: true,
             colour: BLOCK_COLOR,
             inputsInline: true,
-            mutator: "nemohooker_on_key_event_mutator"
+            // mutator: "nemohooker_on_key_event_mutator"
+        },
+        {
+            type: "nemohooker_on_key_event_param",
+            message0: "参数",
+            args0: [],
+            colour: BLOCK_COLOR,
+            inputsInline: true,
+            output: "String"
         },
         // 对象操作
         {
@@ -1009,6 +1080,62 @@ const isUtilsHooked = async () => {
             previousStatement: true,
             nextStatement: true,
             inputsInline: true
+        },
+        {
+            type: "nemohooker_better_draw_text_stamp",
+            message0: "[B] 样式文字印章 文本 %1 %2 粗细 %3 大小 %4 字体 %5 对齐方式 %6 %7",
+            // 文本 样式 粗细 大小 字体 水平 垂直
+            args0: [
+                { "type": "input_value", "name": "text", "check": ["String", "Number"] },
+                {
+                    "type": "field_dropdown",
+                    "name": "style",
+                    "options": [
+                        ["正常", "normal"],
+                        ["斜体", "italic"],
+                        ["强制斜体", "oblique"]
+                    ]
+                },
+                { "type": "input_value", "name": "weight", "check": ["String", "Number"] },
+                { "type": "input_value", "name": "size", "check": "Number" },
+                { "type": "input_value", "name": "font", "check": "String" },
+                {
+                    "type": "field_dropdown",
+                    "name": "align",
+                    "options": [
+                        ["居中对齐", "center"],
+                        ["左对齐", "left"],
+                        ["右对齐", "right"]
+                    ]
+                },
+                {
+                    "type": "field_dropdown",
+                    "name": "base_line",
+                    "options": [
+                        ["居中对齐", "middle"],
+                        ["顶部对齐", "top"],
+                        ["底部对齐", "bottom"]
+                    ]
+                }
+            ],
+            colour: "%{BKY_PEN_HUE}",
+            previousStatement: true,
+            nextStatement: true,
+            inputsInline: true
+        },
+        {
+            type: "nemohooker_rectangle_clear",
+            message0: "[B] 擦除矩形区域 起始点 x %1 y %2 宽度 %3 高度 %4",
+            args0: [
+                { "type": "input_value", "name": "x", "check": "Number" },
+                { "type": "input_value", "name": "y", "check": "Number" },
+                { "type": "input_value", "name": "width", "check": "Number" },
+                { "type": "input_value", "name": "height", "check": "Number" }
+            ],
+            colour: "%{BKY_PEN_HUE}",
+            previousStatement: true,
+            nextStatement: true,
+            inputsInline: true
         }
     ];
 
@@ -1040,7 +1167,8 @@ const isUtilsHooked = async () => {
     // 定义工具箱的XML结构
     let blockToolboxXML = [
         u.title('NemoHooker'),
-        // u.block('nemohooker_on_key_event'),
+        u.block('nemohooker_on_key_event'),
+        u.block('nemohooker_on_key_event_param'),
         u.block('nemohooker_clipboard_write', u.textValue('value', '(～￣▽￣)～')),
         u.block('nemohooker_clipboard_read'),
         u.block('nemohooker_eval', u.textValue('js', `console.log("Hello world!")`)),
@@ -1072,7 +1200,19 @@ const isUtilsHooked = async () => {
         // 获取主工作区的工具箱并添加自定义工具箱节点
         const toolbox = Blockly.mainWorkspace.get_toolbox();
         toolbox.add(toolbox.new_node(toolboxObject));
-
+        // 画笔扩展
+        Blockly.mainWorkspace.toolbox_.children_[5].blocks.pop();
+        Blockly.mainWorkspace.toolbox_.children_[5].blocks.push(
+            str2xml(u.line('Better Nemo 扩展积木')),
+            str2xml(u.block('nemohooker_draw_image_stamp')),
+            str2xml(u.block('nemohooker_draw_custom_image_stamp', u.textValue('src', 'https://www.runoob.com/try/demo_source/smiley-2.gif'))),
+            str2xml(u.block('nemohooker_rectangle_clear', u.numValue('x', 0), u.numValue('y', 0), u.numValue('width', 100), u.numValue('height', 100))),
+            str2xml(u.block('nemohooker_better_draw_text_stamp', u.textValue('text', ''), u.optionValue('normal'), u.textValue('weight', 'bold'), u.numValue('size', 24), u.textValue('font', 'Arial'), u.optionValue('center'), u.optionValue('middle'))),
+            str2xml(u.block('nemohooker_put_pixel', u.numValue('x', 0), u.numValue('y', 0), u.numValue('r', 0), u.numValue('g', 0), u.numValue('b', 0), u.numValue('a', 255))),
+            str2xml(u.block('nemohooker_fill_triangle', u.numValue('x0', 0), u.numValue('y0', 0), u.numValue('x1', 0), u.numValue('y1', 0), u.numValue('x2', 0), u.numValue('y2', 0), u.numValue('r', 0), u.numValue('g', 0), u.numValue('b', 0), u.numValue('a', 255))),
+            str2xml(u.flyout_bottom())
+        );
+        // 运算扩展
         Blockly.mainWorkspace.toolbox_.children_[7].blocks.pop();
         Blockly.mainWorkspace.toolbox_.children_[7].blocks.push(
             str2xml(u.line('Better Nemo 扩展积木')),
@@ -1080,22 +1220,14 @@ const isUtilsHooked = async () => {
             str2xml(u.block('nemohooker_trig_common', u.optionValue('SIN'), u.numValue('xita', 45))),
             str2xml(u.flyout_bottom())
         );
-        Blockly.mainWorkspace.toolbox_.children_[5].blocks.pop();
-        Blockly.mainWorkspace.toolbox_.children_[5].blocks.push(
-            str2xml(u.line('Better Nemo 扩展积木')),
-            str2xml(u.block('nemohooker_draw_image_stamp')),
-            str2xml(u.block('nemohooker_draw_custom_image_stamp', u.textValue('src', 'https://www.runoob.com/try/demo_source/smiley-2.gif'))),
-            str2xml(u.block('nemohooker_put_pixel', u.numValue('x', 0), u.numValue('y', 0), u.numValue('r', 0), u.numValue('g', 0), u.numValue('b', 0), u.numValue('a', 255))),
-            str2xml(u.block('nemohooker_fill_triangle', u.numValue('x0', 0), u.numValue('y0', 0), u.numValue('x1', 0), u.numValue('y1', 0), u.numValue('x2', 0), u.numValue('y2', 0), u.numValue('r', 0), u.numValue('g', 0), u.numValue('b', 0), u.numValue('a', 255))),
-            str2xml(u.flyout_bottom())
-        );
     }, 1000)
-    console.log("[async] 积木注入完成");
+    console.log("[nemohooker::init] 积木注入完成");
 })();
 (async () => {
-    console.log("[async] 等待RunMgr获取");
+    console.log("[nemohooker::init] 等待Runtime,RunMgr获取");
     await isRunmgrHooked();
-    console.log("[async] RunMgr获取成功");
+    const Runtime = (await waitHook('Runtime')).get_webview_runtime();
+    console.log("[nemohooker::init] Runtime,RunMgr获取成功");
     if (storage.get('runtimeConfig'))
         get_run_mgr().config.set(storage.get('runtimeConfig'));
     // 注册域函数的工具函数
@@ -1105,6 +1237,36 @@ const isUtilsHooked = async () => {
         registry.domain_function_list.push(func);
         registry.domain_function_index[name] = registry.domain_function_types.push(name) - 1;
     }
+    function regAction(action_type) {
+        const registry = get_run_mgr().registry;
+        var r = {
+            namespace: "",
+            id: action_type.id,
+        };
+        if (action_type.statefulness !== void 0) {
+            r.statefulness = action_type.statefulness;
+        }
+        registry.register_action_type(r);
+        action_type.responder_blocks.forEach(function (r) {
+            registry.register({
+                namespace: "",
+                id: r.id,
+                respond: {
+                    to_action: {
+                        namespace: "",
+                        id: action_type.id,
+                    },
+                    type: r.type,
+                    async: r.async,
+                    priority: r.priority,
+                    entity_specific: action_type.entity_specific,
+                    trigger_function: r.trigger_function,
+                    filter_arg_names: r.filter_arg_names,
+                },
+            });
+        });
+        return;
+    }
     function typeOf(value) {
         return Object.prototype.toString.call(value).substring(8, Object.prototype.toString.call(value).length - 1);
     }
@@ -1112,8 +1274,42 @@ const isUtilsHooked = async () => {
     regDomainFunction("nemohooker_eval", (params, uuid, uuid2, utils) => {
         eval(String(params.js));
     });
+    regDomainFunction("nemohooker_on_key_event", () => { });
+    regAction({
+        id: "nemohooker_on_key_event",
+        entity_specific: false,
+        responder_blocks: [
+            {
+                id: "nemohooker_on_key_event",
+                type: "action",
+                async: false,
+            },
+        ],
+    });
+    document.addEventListener("keydown", function (event) {
+        Runtime.send_action({
+            id: "nemohooker_on_key_event",
+            namespace: "",
+            parameters: {
+                key: event.key
+            },
+        });
+    });
+    regDomainFunction(
+        "nemohooker_on_key_event_param",
+        (params, rbid, entity_id, utils) => {
+            const action_parameters =
+                utils.runtime_manager.interpreters[
+                    Object.keys(utils.runtime_manager.interpreters)[0]
+                ].action_parameters;
+            if (action_parameters && action_parameters.key) {
+                return action_parameters["key"];
+            }
+            console.warn("error no action_parameters", action_parameters);
+            return "[ERROR_NOT_IN_ACTION]";
+        }
+    );
     regDomainFunction("nemohooker_clipboard_write", (params, rbid, entity_id, internals) => {
-        console.log("params.value", params.value);
         (async function writeClipboardText(text) {
             try {
                 await navigator.clipboard.writeText(text);
@@ -1145,7 +1341,6 @@ const isUtilsHooked = async () => {
 
     regDomainFunction("nemohooker_object_get", (params, rbid, entity_id, internals) => {
         const value = JSON.parse(params.obj)[params.key];
-        console.log("value", value);
         function func(value) {
             return value.map(item => {
                 if (typeOf(item) === "Array") return func(item);
@@ -1155,7 +1350,6 @@ const isUtilsHooked = async () => {
         }
         if (typeOf(value) === "Array") return func(value);
         if (typeOf(value) === "Object") return JSON.stringify(value);
-        console.log("not object")
         return value;
     });
     regDomainFunction("nemohooker_object_set", (params, rbid, entity_id, internals) => {
@@ -1239,5 +1433,31 @@ const isUtilsHooked = async () => {
         const a = parseFloat(params.a);
         actor.get_brush().fill_triangle(x0, y0, x1, y1, x2, y2, r, g, b, a);
     });
-    console.log("[async] 解释器注入完成");
+    regDomainFunction("nemohooker_better_draw_text_stamp", (params, uuid, uuid2, utils) => {
+        var actor = get_stage_target(uuid2);
+        if (!actor) return;
+
+        const text = String(params.text);
+        const style = String(params.style);
+        const weight = String(params.weight);
+        const size = String(params.size);
+        const font = String(params.font);
+        const align = String(params.align);
+        const base_line = String(params.base_line);
+
+        actor.get_brush().better_draw_text_stamp(text, style, weight, size, font, align, base_line);
+    });
+    regDomainFunction("nemohooker_rectangle_clear", (params, uuid, uuid2, utils) => {
+        var actor = get_stage_target(uuid2);
+        if (!actor) return;
+
+        const x = parseInt(params.x);
+        const y = parseInt(params.y);
+        const width = parseInt(params.width);
+        const height = parseInt(params.height);
+
+        actor.get_brush().rectangle_clear(x, y, width, height);
+    });
+
+    console.log("[nemohooker::init] 解释器注入完成");
 })();
