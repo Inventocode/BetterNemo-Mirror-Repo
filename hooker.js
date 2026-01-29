@@ -42,7 +42,7 @@ class Storage {
 }
 const storage = new Storage();
 
-// 试试在这里分割
+
 
 const experimentalConfig = {
     "disable_repeat_forever_in_warp": false,
@@ -751,9 +751,9 @@ const waitHook = async (name) => {
 
         source.onload = function () {
             ctx.save();
-        ctx.drawImage(source, Math.floor(-actor.width / 2), Math.floor(-actor.height / 2), Math.floor(actor.width), Math.floor(actor.height));
-        ctx.restore();
-        actor.parent_scene.should_update_brush();
+            ctx.drawImage(source, Math.floor(-actor.width / 2), Math.floor(-actor.height / 2), Math.floor(actor.width), Math.floor(actor.height));
+            ctx.restore();
+            actor.parent_scene.should_update_brush();
         };
 
         source.src = url;
@@ -815,7 +815,7 @@ const waitHook = async (name) => {
             ctx.drawImage(source, Math.floor(-actor.width / 2), Math.floor(-actor.height / 2), Math.floor(actor.width), Math.floor(actor.height));
             ctx.restore();
             actor.parent_scene.should_update_brush();
-    };
+        };
         source.src = svgURL;
     }
 
@@ -863,18 +863,18 @@ const waitHook = async (name) => {
     Blockly.mainWorkspace.add_change_listener(() => {
         if (experimentalConfig.disable_repeat_forever_in_warp) {
             Blockly.mainWorkspace.get_all_blocks()
-            .filter(block => block.type == 'repeat_forever')
-            .forEach(block => {
-                const parent = block.get_parent();
-                if (parent) {
-                    if (parent.type == 'warp') {
-                        block.set_colour('#aaaaaa');
-                        setTimeout(() => {
-                            block.dispose()
-                        }, 1000);
+                .filter(block => block.type == 'repeat_forever')
+                .forEach(block => {
+                    const parent = block.get_parent();
+                    if (parent) {
+                        if (parent.type == 'warp') {
+                            block.set_colour('#aaaaaa');
+                            setTimeout(() => {
+                                block.dispose()
+                            }, 1000);
+                        }
                     }
-                }
-            });
+                });
         }
     })
     const BLOCK_COLOR = "%{BKY_GREEN_5}";
@@ -1357,6 +1357,7 @@ const waitHook = async (name) => {
         u.block('warp'),
         u.block('calculate', u.textValue('input', 'sin(114)')),
         u.block('multiline_text'),
+        u.block('color_picker'),
         u.flyout_bottom()
     ];
     const networkXML = [
@@ -1388,7 +1389,7 @@ const waitHook = async (name) => {
         regToolbox('nemohooker', 'icon-feature', '#54c0ff', nemohookerXML);
         // 画笔扩展
         Blockly.mainWorkspace.toolbox_.children_[5].blocks.pop();
-        Blockly.mainWorkspace.toolbox_.children_[5].blocks.concat([
+        Blockly.mainWorkspace.toolbox_.children_[5].blocks = Blockly.mainWorkspace.toolbox_.children_[5].blocks.concat([
             u.line('Better Nemo 扩展积木'),
             u.block('nemohooker_draw_image_stamp'),
             u.block('nemohooker_draw_custom_image_stamp', u.textValue('src', 'https://www.runoob.com/try/demo_source/smiley-2.gif')),
@@ -1403,13 +1404,12 @@ const waitHook = async (name) => {
         console.log(Blockly.mainWorkspace.toolbox_.children_[5].blocks)
         // 运算扩展
         Blockly.mainWorkspace.toolbox_.children_[7].blocks.pop();
-        Blockly.mainWorkspace.toolbox_.children_[7].blocks.concat([
+        Blockly.mainWorkspace.toolbox_.children_[7].blocks = Blockly.mainWorkspace.toolbox_.children_[7].blocks.concat([
             u.line('Better Nemo 扩展积木'),
             u.block('nemohooker_factorial', u.numValue('num', 5)),
             u.block('nemohooker_trig_common', u.optionValue('SIN'), u.numValue('xita', 45)),
             u.flyout_bottom()
         ].map(block => str2xml(block)));
-        console.log(Blockly.mainWorkspace.toolbox_.children_[7].blocks)
     }, 1000)
     console.log("[NemoHooker::init] 积木注入完成");
 })();
