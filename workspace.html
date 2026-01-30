@@ -62,11 +62,12 @@
     hook("./node_modules/@crc/stage/build/core/utils/index.js", "HookUtils");
     hook("./node_modules/@crc/blink/dist/core/di/index.js", "HookDi");
     hook("./node_modules/@crc/stage/build/core/scenes/scene.js", "HookScene");
+    hook("./src/i18n/zh_CN.ts", "HookMsgZhCN");
     console.log(
-        "%cWelcome to ❤ NemoHooker - " +
-        NemoHookerVersion +
-        " ❤ for Nemo o(*￣▽￣*)ブ",
-        "\n  color: rgb(22, 93, 255);\n  text-shadow: 0 1px 0 #404182;"
+      "%cWelcome to ❤ NemoHooker - " +
+      NemoHookerVersion +
+      " ❤ for Nemo o(*￣▽￣*)ブ",
+      "\n  color: rgb(22, 93, 255);\n  text-shadow: 0 1px 0 #404182;"
     );
   </script>
   <script type="module" src="hooker.js"></script>

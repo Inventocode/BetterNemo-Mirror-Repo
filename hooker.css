@@ -5,8 +5,72 @@
 div.blocklyTreeNode:has(#advanced) {
   display: none !important;
 }
-#nemohooker.blocklyTreeSelected > div > svg {fill: white;}
-#network.blocklyTreeSelected > div > svg {fill: white;}
+
+#nemohooker.blocklyTreeSelected>div>svg {
+  fill: white;
+}
+
+#network.blocklyTreeSelected>div>svg {
+  fill: white;
+}
+
+div.blocklyWidgetDiv>div.dropdown-triangle.lower {
+  display: none !important;
+}
+
+div.blocklyDropdownMenu {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 10px;
+  backdrop-filter: blur(20px);
+}
+
+div.blocklyDropdownMenu div.menu-item.menu_item_selected {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+}
+
+div.blocklyDropdownMenu div.menu-item {
+  color: white !important;
+  background: rgba(255, 255, 255, 0) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0);
+  transition: all 0.2s ease;
+  border-radius: 5px;
+}
+
+.blocklyToolboxDiv .blocklyTreeRoot .blocklyTreeNode .blocklyTreeRow {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 30% !important;
+  margin-top: 5px;
+}
+
+div.blocklyToolboxDiv {
+  background-color: #221c50 !important;
+}
+
+svg.blocklyFlyout {
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 15px;
+  transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+svg.blocklyFlyout>path.blocklyFlyoutBackground {
+  fill: #393362 !important;
+}
+
+div.flyout_add_btn,
+div.flyout_config_btn {
+  backdrop-filter: blur(10px);
+  background: rgba(63, 39, 101, 0.2) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 15px !important;
+}
+
 /* 悬浮球 */
 .float-ball {
   position: fixed;
@@ -135,19 +199,19 @@ div.blocklyTreeNode:has(#advanced) {
   background: transparent;
 }
 
-.menu-item.menu-title {
+.bn-menu-item.menu-title {
   background: none;
   padding: 4px;
   background: rgba(255, 255, 255, 0.2);
   color: white
 }
 
-.menu-item.menu-title>span {
+.bn-menu-item.menu-title>span {
   font-size: 14px;
 }
 
 /* 菜单按钮 */
-.menu-item {
+.bn-menu-item {
   padding: 5px 15px;
   margin-bottom: 12px;
   background: rgba(255, 255, 255, 0.2);
@@ -162,33 +226,33 @@ div.blocklyTreeNode:has(#advanced) {
   transition: all 0.2s ease;
 }
 
-.menu-item:active {
+.bn-menu-item:active {
   border: 1.5px solid rgba(255, 255, 255, 1);
   transform: translateY(2px);
 }
 
-.menu-item i {
+.bn-menu-item i {
   color: white;
   font-size: 16px;
   width: 24px;
   text-align: center;
 }
 
-.menu-item span {
+.bn-menu-item span {
   color: white;
   font-size: 16px;
   font-weight: 500;
 }
 
 /* 输入 */
-li.menu-input {
+li.bn-menu-input {
   color: white;
   display: flex;
   align-items: center;
   margin-bottom: 10px;
 }
 
-li.menu-input>button {
+li.bn-menu-input>button {
   background-color: rgba(255, 255, 255, 0.2);
   border-left-width: 0;
   border-radius: 0 20px 20px 0px;
@@ -200,13 +264,13 @@ li.menu-input>button {
   transition: 0.25s ease;
 }
 
-li.menu-input>button:focus-within {
+li.bn-menu-input>button:focus-within {
 
   border-color: rgba(255, 255, 255, 1);
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 
-li.menu-input>input {
+li.bn-menu-input>input {
   color: white;
   background: rgba(255, 255, 255, 0.2);
   border: 1.5px solid rgba(255, 255, 255, 0.2);
@@ -217,8 +281,8 @@ li.menu-input>input {
   display: flex;
 }
 
-li.menu-input>input[type="text"],
-li.menu-input>input[type="number"] {
+li.bn-menu-input>input[type="text"],
+li.bn-menu-input>input[type="number"] {
   border-radius: 20px 0 0 20px;
   font-size: 14px;
   width: 100px;
@@ -226,14 +290,14 @@ li.menu-input>input[type="number"] {
   box-sizing: border-box;
 }
 
-li.menu-input>input[type="text"]:focus,
-li.menu-input>input[type="number"]:focus {
+li.bn-menu-input>input[type="text"]:focus,
+li.bn-menu-input>input[type="number"]:focus {
   outline: none;
   border-color: rgba(255, 255, 255, 1);
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 
-li.menu-input>select {
+li.bn-menu-input>select {
   font-size: 14px;
   height: 35px;
   background: rgba(255, 255, 255, 0.2);
@@ -246,11 +310,13 @@ li.menu-input>select {
   transition-property: backgroud;
   display: flex;
 }
-li.menu-input>select:focus {
+
+li.bn-menu-input>select:focus {
   outline: none;
   border-color: rgba(255, 255, 255, 1);
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
+
 /* 状态信息 */
 .status-info {
   margin-bottom: 15px;

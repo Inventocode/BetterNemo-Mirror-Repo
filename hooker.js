@@ -192,6 +192,27 @@ if (storage.get('cat'))
         if (backgroundImage == presetBackgroundImage[0]) {
             injectionDiv.style.setProperty("background-color", "#201F52", "important");
         } else injectionDiv.style.setProperty("background-color", "#221D4E", "important");
+        const flyout = document.querySelector("#workspace > div > svg.blocklyFlyout");
+        if (flyout) {
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            flyout.style.transform = `translate(${vw - Number(flyout.getAttribute('width')) - 70}px, 10px) scale(1)`;
+            flyout.style.height = `${Number(flyout.getAttribute('height')) - 20}px`;
+            if (flyout.classList.contains('blocklyFlyoutHidden')) {
+                flyout.style.transform = `translate(${vw}px, 10px) scale(1)`;
+            }
+            const selected = document.querySelector("div.blocklyTreeRow.blocklyTreeSelected");
+            if (selected) {
+                if (selected.id == 'variables' || selected.id == 'lists' || selected.id == 'procedures' || selected.id == 'cloud_var') {
+                    document.querySelectorAll("svg.blocklyFlyout.blocklyFlyoutVisible > foreignObject").forEach(foreignObject => {
+                        const height = Number(foreignObject.getAttribute('height').split('px')[0]);
+                        const transformX = foreignObject.getAttribute('transform').split('(')[1].split(',')[0];
+                        if (height && transformX)
+                            foreignObject.setAttribute('transform', `translate(${transformX}, ${vh - height - 20}), scale(1)`);
+                    });
+                }
+            }
+        }
     }, 100);
     // 拖拽相关变量
     let isDragging = false;
@@ -214,7 +235,7 @@ if (storage.get('cat'))
         load: (page = UI.home) => {
             UI.clear();
             if (UI.pageHistory && page != UI.home) {
-                windowContent.innerHTML = '<li class="menu-item menu-title"><i class="fas fa-circle-chevron-left"></i><span></span></li>';
+                windowContent.innerHTML = '<li class="bn-menu-item menu-title"><i class="fas fa-circle-chevron-left"></i><span></span></li>';
                 setTimeout(() => {
                     const backButton = document.querySelector('#floatWindow > div.window-content > li.menu-title');
                     backButton.ontouchend = (e) => {
@@ -238,7 +259,7 @@ if (storage.get('cat'))
         button: (callback, name = '功能', icon = '') => {
             const menuItem = document.createElement('li');
             menuItem.innerHTML = `${icon ? `<i class="fas fa-${icon}"></i>` : ''}<span>${name}</span>`;
-            menuItem.className = 'menu-item';
+            menuItem.className = 'bn-menu-item';
             menuItem.ontouchend = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
@@ -250,7 +271,7 @@ if (storage.get('cat'))
         numberInput: (callback, name = '数字', value = 0, defualtValue = 0, width = '100px') => {
             const menuItem = document.createElement('li');
             menuItem.innerHTML = `<label style="margin-right: 10px">${name}</label><input style="width:${width}" type="number" value="${value}""><button>${UI.reset_icon}</button>`;
-            menuItem.className = 'menu-input';
+            menuItem.className = 'bn-menu-input';
             menuItem.querySelector('input').onchange = (e) => {
                 callback(Number(e.target.value));
             };
@@ -266,7 +287,7 @@ if (storage.get('cat'))
             if (!Array.isArray(defualtValue)) defualtValue = [defualtValue];
             const menuItem = document.createElement('li');
             menuItem.innerHTML = `<label style="margin-right: 10px">${name}</label><input style="width:${width}" type="text" value="${value}""><button>${UI.reset_icon}</button>`;
-            menuItem.className = 'menu-input';
+            menuItem.className = 'bn-menu-input';
             menuItem.querySelector('input').onchange = (e) => {
                 callback(e.target.value);
             };
@@ -291,7 +312,7 @@ if (storage.get('cat'))
                 option => `<option value="${option[1]}"${option == valueOption ? ' selected' : ''}>${option[0]}</option>`
             ).join('')}
             </select><button>${UI.reset_icon}</button>`;
-            menuItem.className = 'menu-input';
+            menuItem.className = 'bn-menu-input';
             menuItem.querySelector('select').onchange = (e) => {
                 callback(e.target.value);
             };
@@ -1323,6 +1344,7 @@ const waitHook = async (name) => {
     (function regToolboxIcon() {
         document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML('beforeend', '<symbol id="icon-feature" viewBox="-1100 -1050 3200 3200"><path d="M484.352 199.918933a55.296 55.296 0 0 1 50.517333-2.4576l4.778667 2.4576 228.795733 132.096c15.5648 8.977067 25.668267 24.8832 27.409067 42.530134l0.238933 5.358933v264.192a55.296 55.296 0 0 1-23.1424 44.987733l-4.5056 2.901334-228.795733 132.096a55.296 55.296 0 0 1-50.517333 2.4576l-4.778667-2.4576-228.795733-132.096a55.296 55.296 0 0 1-27.409067-42.530134l-0.238933-5.358933v-264.192c0-17.954133 8.704-34.679467 23.1424-44.987733l4.5056-2.901334 228.795733-132.096z m27.648 54.954667l-222.651733 128.580267v257.092266L512 769.092267l222.651733-128.546134v-257.092266L512 254.907733z m120.900267 147.319467a30.72 30.72 0 0 1 2.628266 40.311466l-2.730666 3.140267-88.507734 87.9616v102.570667a30.72 30.72 0 0 1-61.201066 3.857066l-0.238934-3.857066v-101.5808l-88.576-89.088a30.72 30.72 0 0 1 40.413867-46.08l3.140267 2.7648 75.298133 75.741866 76.322133-75.844266a30.72 30.72 0 0 1 43.451734 0.1024z"></path></symbol>');
         document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML('beforeend', '<symbol id="icon-widget-http-client" viewBox="-2000 -2000 5000 5000"><path d="M512 98.133333c143.914667 0 266.837333 99.882667 301.653333 237.781334l2.56 10.965333 9.301334 2.730667c105.6 33.450667 181.12 131.669333 185.472 246.528l0.213333 10.496c0 145.237333-113.066667 263.808-254.848 268.970666l-9.685333 0.213334-164.352-0.042667 40.746666 42.154667a29.866667 29.866667 0 0 1 2.517334 38.570666l-3.242667 3.626667a29.866667 29.866667 0 0 1-38.570667 2.517333l-3.626666-3.242666-89.6-92.714667a29.866667 29.866667 0 0 1-2.901334-37.973333l3.029334-3.712 89.6-91.306667a29.866667 29.866667 0 0 1 45.781333 38.058667l-3.114667 3.754666-39.850666 40.533334H746.666667c112.981333 0 204.8-93.610667 204.8-209.408 0-98.005333-66.261333-181.845333-157.525334-203.818667l-9.216-2.005333-20.778666-3.968-3.114667-20.906667C742.144 251.050667 636.586667 157.866667 512 157.866667c-135.722667 0-246.613333 109.909333-251.605333 246.357333l-0.085334 10.88 1.28 27.946667-27.776 3.114666c-91.306667 10.24-161.28 89.472-161.28 184.405334 0 99.541333 76.586667 180.608 172.544 185.301333l8.789334 0.213333h23.466666a29.866667 29.866667 0 0 1 4.053334 59.434667l-4.053334 0.298667h-23.466666C120.576 875.818667 12.8 765.866667 12.8 630.570667c0-115.072 78.293333-212.949333 185.344-238.677334l3.285333-0.768 0.597334-7.082666c15.018667-156.970667 142.549333-280.533333 299.690666-285.738667L512 98.133333z m55.978667 374.912c13.269333 0 23.253333 0.853333 30.72 2.133334 10.794667 1.706667 19.925333 5.632 28.202666 11.221333 7.893333 5.589333 14.506667 13.781333 19.114667 23.68 4.949333 10.325333 7.04 21.546667 6.613333 32.298667 0 19.84-6.229333 37.077333-18.645333 50.432-12.458667 14.208-33.237333 21.077333-63.914667 21.077333h-35.285333v78.421333l-49.792 0.426667v-219.733333h82.986667z m145.237333 0v219.690667H663.04v-219.733333h50.218667z m-319.957333 0l86.741333 219.690667H423.978667l-21.973334-58.581333H342.186667l-20.352 58.581333H267.946667l81.322666-219.733333h43.989334z m-21.546667 76.672l-12.885333 37.034667h26.154666l-12.885333-35.754667-0.426667-1.28z m198.357333-27.562666h-34.858666v42.666666h35.242666c16.64 0 22.826667-3.925333 25.344-6.058666 3.712-3.413333 5.802667-9.045333 5.802667-15.957334a22.613333 22.613333 0 0 0-3.328-12.928 16.981333 16.981333 0 0 0-8.704-6.4c-1.28-0.469333-5.418667-1.322667-19.498667-1.322666z"></path></symbol>');
+        document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML('beforeend', '<symbol id="icon-cubes" viewBox="-1200 -1230 3000 3000"><path d="M290.8 48.6l78.4 29.7L288 109.5 206.8 78.3l78.4-29.7c1.8-.7 3.8-.7 5.7 0zM136 92.5l0 112.2c-1.3 .4-2.6 .8-3.9 1.3l-96 36.4C14.4 250.6 0 271.5 0 294.7L0 413.9c0 22.2 13.1 42.3 33.5 51.3l96 42.2c14.4 6.3 30.7 6.3 45.1 0L288 457.5l113.5 49.9c14.4 6.3 30.7 6.3 45.1 0l96-42.2c20.3-8.9 33.5-29.1 33.5-51.3l0-119.1c0-23.3-14.4-44.1-36.1-52.4l-96-36.4c-1.3-.5-2.6-.9-3.9-1.3l0-112.2c0-23.3-14.4-44.1-36.1-52.4l-96-36.4c-12.8-4.8-26.9-4.8-39.7 0l-96 36.4C150.4 48.4 136 69.3 136 92.5zM392 210.6l-82.4 31.2 0-89.2L392 121l0 89.6zM154.8 250.9l78.4 29.7L152 311.7 70.8 280.6l78.4-29.7c1.8-.7 3.8-.7 5.7 0zm18.8 204.4l0-100.5L256 323.2l0 95.9-82.4 36.2zM421.2 250.9c1.8-.7 3.8-.7 5.7 0l78.4 29.7L424 311.7l-81.2-31.1 78.4-29.7zM523.2 421.2l-77.6 34.1 0-100.5L528 323.2l0 90.7c0 3.2-1.9 6-4.8 7.3z"></path></symbol>');
     })();
     const str2xml = function (str) {
         const parser = new DOMParser();
@@ -1333,6 +1355,7 @@ const waitHook = async (name) => {
         title: (text) => `<label text="${text}" type="normal" gap="24" web-class="flyout-toolbox-title" vertical_padding="0"></label>`,
         block: (type, ...values) => `<block type="${type}">${values.join('')}</block>`,
         line: (text, height = 25) => `<label type="flyout_line" height="${height}" text="${text}"/>`,
+        sep: (gap = 50) => `<sep gap="${gap}"></sep>`,
         flyout_bottom: (width = 130, height = 16) => `<label type="flyout_bottom" align="center" width="${width}" height="${height}"></label>`,
         numValue: (name, value) => `<value name="${name}"><shadow type="math_number"><field name="NUM">${value}</field></shadow></value>`,
         textValue: (name, value) => `<value name="${name}"><shadow type="text"><field name="TEXT">${value}</field></shadow></value>`,
@@ -1383,6 +1406,8 @@ const waitHook = async (name) => {
         toolbox.add(toolbox.new_node(toolboxObject));
     }
     setTimeout(() => {
+        // 注册3D积木盒
+        // regToolbox('3d_toolbox', 'icon-cubes', '#54c0ff', _3dXML);
         // 注册网络积木盒
         regToolbox('network', 'icon-widget-http-client', '#54c0ff', networkXML);
         // 注册扩展积木盒
@@ -1432,6 +1457,12 @@ const waitHook = async (name) => {
         registry.domain_function_list.push(func);
         registry.domain_function_index[name] = registry.domain_function_types.push(name) - 1;
     }
+    function rewriteDomainFunction(name, func) {
+        const registry = get_run_mgr().registry;
+        registry.domain_function[name] = func;
+        const index = registry.domain_function_index[name];
+        registry.domain_function_list[index] = func;
+    }
     function regAction(action_type) {
         const registry = get_run_mgr().registry;
         var r = {
@@ -1465,6 +1496,15 @@ const waitHook = async (name) => {
     function typeOf(value) {
         return Object.prototype.toString.call(value).substring(8, Object.prototype.toString.call(value).length - 1);
     }
+    // 重写text_length函数
+    rewriteDomainFunction('text_length', function (args, rbid, entity_id, utils) {
+        let value = args.VALUE;
+        if (value == 'getBetterNemoVersion') return NemoHookerVersion;
+        if (Array.isArray(value)) {
+            value = stage_list_to_string(value);
+        }
+        return (isNaN(value)) ? value.length : value.toString().length;
+    });
     // 注册自定义代码块的执行函数
     regDomainFunction("nemohooker_eval", (params, uuid, uuid2, utils) => {
         eval(String(params.js));
