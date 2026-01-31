@@ -6,14 +6,6 @@ div.blocklyTreeNode:has(#advanced) {
   display: none !important;
 }
 
-#nemohooker.blocklyTreeSelected>div>svg {
-  fill: white;
-}
-
-#network.blocklyTreeSelected>div>svg {
-  fill: white;
-}
-
 div.blocklyWidgetDiv>div.dropdown-triangle.lower {
   display: none !important;
 }
@@ -55,12 +47,16 @@ svg.blocklyFlyout {
   border: 1.5px solid rgba(255, 255, 255, 0.2);
   border-radius: 15px;
   transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(5px);
   background: rgba(255, 255, 255, 0.2) !important;
 }
 
+svg.blocklySvgCopy {
+  display: none;
+}
+
 svg.blocklyFlyout>path.blocklyFlyoutBackground {
-  fill: #393362 !important;
+  fill: rgb(255, 255, 255, 0) !important;
 }
 
 div.flyout_add_btn,

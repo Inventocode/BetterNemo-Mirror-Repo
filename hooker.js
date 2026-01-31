@@ -325,8 +325,7 @@ if (storage.get('cat'))
             windowContent.appendChild(menuItem);
         },
     };
-    let erudaEnabled = true;
-    eruda.init();
+    let erudaEnabled = false;
     const Page = {
         home: () => {
             UI.setStatus('Version: ' + NemoHookerVersion);
@@ -437,25 +436,25 @@ if (storage.get('cat'))
         }
     };
     UI.home = Page.home;
-    (function doubleTap() {
-        let lastTouchEnd = 0;
-        document.addEventListener('touchend', function (event) {
-            const now = (new Date()).getTime();
-            if (now - lastTouchEnd <= 200) {
-                event.preventDefault();
-                // 查找被点击的元素是否包含在 #workspace 内
-                let targetElement = event.target;
-                const workspaceElement = document.querySelector("#workspace > div > svg.blocklySvg");
-                if (workspaceElement && workspaceElement.contains(targetElement)) {
-                    if (floatBall.classList.contains('hide')) floatBall.classList.remove('hide');
-                    else floatBall.classList.add('hide');
-                }
-                lastTouchEnd = 0;
-            } else {
-                lastTouchEnd = now;
+    // 双击隐藏悬浮球
+    let lastTouchEnd = 0;
+    function handleTouchend(event) {
+        const now = (new Date()).getTime();
+        if (now - lastTouchEnd <= 200) {
+            event.preventDefault();
+            // 查找被点击的元素是否包含在 #workspace 内
+            let targetElement = event.target;
+            const workspaceElement = document.querySelector("#workspace > div > svg.blocklySvg");
+            if (workspaceElement && workspaceElement.contains(targetElement)) {
+                if (floatBall.classList.contains('hide')) floatBall.classList.remove('hide');
+                else floatBall.classList.add('hide');
             }
-        }, false);
-    })();
+            lastTouchEnd = 0;
+        } else {
+            lastTouchEnd = now;
+        }
+    }
+    document.addEventListener('touchend', handleTouchend, false);
     // 关闭悬浮窗口
     function closeFloatWindow() {
         floatWindow.classList.remove('active');
@@ -724,7 +723,7 @@ const waitHook = async (name) => {
         ctx.restore();
         this.actor.parent_scene.should_update_brush();
     };
-    HookBrush.exports.Brush.prototype.fill_triangle = function (x0, y0, x1, y1, x2, y2, r, g, b, a) {
+    HookBrush.exports.Brush.prototype.fill_polygon = function (point, color) {
         var ctx = this.ctx;
         if (!ctx) {
             return;
@@ -732,13 +731,39 @@ const waitHook = async (name) => {
         var _a = this.app.get_app().view, width = _a.width, height = _a.height;
         var center_x = width / 2;
         var center_y = height / 2;
+        let points;
+        try {
+            points = JSON.parse(point);
+        } catch(error) {
+            console.error(error + "\n坐标数组字符串格式不合规。格式：\"[[x1, y1], [x2, y2], ...]\"。")
+            return;
+        }
 
         ctx.beginPath();
-        ctx.moveTo(center_x + x0, center_y - y0);
-        ctx.lineTo(center_x + x1, center_y - y1);
-        ctx.lineTo(center_x + x2, center_y - y2);
+        ctx.moveTo(center_x + points[0][0], center_y - points[0][1]);
+        for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(center_x + points[i][0], center_y - points[i][1]);
+        }
         ctx.closePath()
-        ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${a})`;
+        
+        var color2 = color;
+        if ( color2.substring(0, 1) == "[" ) {
+            try {
+                color2 = JSON.parse(color2);
+                var gradient = ctx.createLinearGradient(color2[0], color2[1], color2[2], color2[3]);
+                
+                for (let i = 4; i < color2.length; i++) {
+                    gradient.addColorStop(color2[i][0], color2[i][1]);
+                }
+                ctx.fillStyle = gradient;
+            } catch (error) {
+                console.error(error + "\n渐变数组/颜色字符串格式不合规。格式：\"[x1, y1, x2, y2, [progress1, \"color1\"], [progress2, \"color2\"], ...]\"，progress∈[0,1]。");
+                return;
+            }
+        } else {
+            ctx.fillStyle = color;
+        }
+        
         ctx.fill();
 
         ctx.restore();
@@ -780,7 +805,7 @@ const waitHook = async (name) => {
         source.src = url;
 
     };
-    HookBrush.exports.Brush.prototype.better_draw_text_stamp = function (text, style, weight, size, font, align, base_line, rotation) {
+    HookBrush.exports.Brush.prototype.better_draw_text_stamp = function (text, color, style, weight, size, font, align, base_line, rotation) {
         var ctx = this.ctx;
         if (!ctx) {
             return;
@@ -790,7 +815,25 @@ const waitHook = async (name) => {
         var stamp_rotation = rotation !== undefined ? rotation : this.actor.rotation;
         ctx.save();
         ctx.font = style + ' ' + weight + ' ' + size + "px " + font + ", Arial, 'Microsoft YaHei'";
-        ctx.fillStyle = "#" + this.stroke_color;
+        
+        var color2 = color;
+        if ( color2.substring(0, 1) == "[" ) {
+            try {
+                color2 = JSON.parse(color2);
+                var gradient = ctx.createLinearGradient(color2[0], color2[1], color2[2], color2[3]);
+                
+                for (let i = 4; i < color2.length; i++) {
+                    gradient.addColorStop(color2[i][0], color2[i][1]);
+                }
+                ctx.fillStyle = gradient;
+            } catch (error) {
+                console.error(error + "\n渐变数组/颜色字符串格式不合规。格式：\"[x1, y1, x2, y2, [progress1, \"color1\"], [progress2, \"color2\"], ...]\"，progress∈[0,1]。");
+                return;
+            }
+        } else {
+            ctx.fillStyle = color;
+        }
+        
         ctx.globalAlpha = this.alpha;
         ctx.textBaseline = base_line;
         ctx.textAlign = align;
@@ -838,7 +881,7 @@ const waitHook = async (name) => {
             actor.parent_scene.should_update_brush();
         };
         source.src = svgURL;
-    }
+    };
 
     console.log("[NemoHooker::init] 画笔原型注入完成");
 })();
@@ -860,7 +903,7 @@ const waitHook = async (name) => {
     console.log("[NemoHooker::init] 等待Blockly加载");
     await isBlocklyLoaded();
     // --------------------变形器----------------
-    /*Blockly.extensions.register_mutator("nemohooker_on_key_event_mutator", {
+    /*Blockly.extensions.register_mutator("nemohooker_on_key_down_mutator", {
         itemCount_: 0,
         mutationToDom: function () {
             const e = document.createElement("mutation");
@@ -882,6 +925,25 @@ const waitHook = async (name) => {
     await isBlocklyMainworkspaceLoaded();
     console.log("[NemoHooker::init] 积木注入开始");
     Blockly.mainWorkspace.add_change_listener(() => {
+        function checkRootBlock(blockType, ...rootBlockTypes) {
+            Blockly.mainWorkspace.get_all_blocks()
+                .filter(block => block.type == blockType)
+                .forEach(block => {
+                    if (block.get_colour() != Blockly.theme.disabled_color.fill)
+                        block._color = block.get_colour();
+                    if (block.get_root_block())
+                        if (rootBlockTypes.includes(block.get_root_block().type))
+                            if (block._color) {
+                                block.set_deletable(false);
+                                block.set_colour(block._color);
+                                return;
+                            }
+                    block.set_deletable(true);
+                    block.set_colour(Blockly.theme.disabled_color.fill)
+                });
+        }
+        checkRootBlock('nemohooker_on_key_event_param', 'nemohooker_on_key_down', 'nemohooker_on_key_up');
+        // 实验性功能：禁用一步执行中的死循环
         if (experimentalConfig.disable_repeat_forever_in_warp) {
             Blockly.mainWorkspace.get_all_blocks()
                 .filter(block => block.type == 'repeat_forever')
@@ -897,20 +959,68 @@ const waitHook = async (name) => {
                     }
                 });
         }
-    })
+    });
+    (function regToolboxIcon() {
+        document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML('beforeend', '<symbol id="icon-feature" viewBox="-1100 -1050 3200 3200"><path d="M484.352 199.918933a55.296 55.296 0 0 1 50.517333-2.4576l4.778667 2.4576 228.795733 132.096c15.5648 8.977067 25.668267 24.8832 27.409067 42.530134l0.238933 5.358933v264.192a55.296 55.296 0 0 1-23.1424 44.987733l-4.5056 2.901334-228.795733 132.096a55.296 55.296 0 0 1-50.517333 2.4576l-4.778667-2.4576-228.795733-132.096a55.296 55.296 0 0 1-27.409067-42.530134l-0.238933-5.358933v-264.192c0-17.954133 8.704-34.679467 23.1424-44.987733l4.5056-2.901334 228.795733-132.096z m27.648 54.954667l-222.651733 128.580267v257.092266L512 769.092267l222.651733-128.546134v-257.092266L512 254.907733z m120.900267 147.319467a30.72 30.72 0 0 1 2.628266 40.311466l-2.730666 3.140267-88.507734 87.9616v102.570667a30.72 30.72 0 0 1-61.201066 3.857066l-0.238934-3.857066v-101.5808l-88.576-89.088a30.72 30.72 0 0 1 40.413867-46.08l3.140267 2.7648 75.298133 75.741866 76.322133-75.844266a30.72 30.72 0 0 1 43.451734 0.1024z"></path></symbol>');
+        document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML('beforeend', '<symbol id="icon-widget-http-client" viewBox="-2000 -2000 5000 5000"><path d="M512 98.133333c143.914667 0 266.837333 99.882667 301.653333 237.781334l2.56 10.965333 9.301334 2.730667c105.6 33.450667 181.12 131.669333 185.472 246.528l0.213333 10.496c0 145.237333-113.066667 263.808-254.848 268.970666l-9.685333 0.213334-164.352-0.042667 40.746666 42.154667a29.866667 29.866667 0 0 1 2.517334 38.570666l-3.242667 3.626667a29.866667 29.866667 0 0 1-38.570667 2.517333l-3.626666-3.242666-89.6-92.714667a29.866667 29.866667 0 0 1-2.901334-37.973333l3.029334-3.712 89.6-91.306667a29.866667 29.866667 0 0 1 45.781333 38.058667l-3.114667 3.754666-39.850666 40.533334H746.666667c112.981333 0 204.8-93.610667 204.8-209.408 0-98.005333-66.261333-181.845333-157.525334-203.818667l-9.216-2.005333-20.778666-3.968-3.114667-20.906667C742.144 251.050667 636.586667 157.866667 512 157.866667c-135.722667 0-246.613333 109.909333-251.605333 246.357333l-0.085334 10.88 1.28 27.946667-27.776 3.114666c-91.306667 10.24-161.28 89.472-161.28 184.405334 0 99.541333 76.586667 180.608 172.544 185.301333l8.789334 0.213333h23.466666a29.866667 29.866667 0 0 1 4.053334 59.434667l-4.053334 0.298667h-23.466666C120.576 875.818667 12.8 765.866667 12.8 630.570667c0-115.072 78.293333-212.949333 185.344-238.677334l3.285333-0.768 0.597334-7.082666c15.018667-156.970667 142.549333-280.533333 299.690666-285.738667L512 98.133333z m55.978667 374.912c13.269333 0 23.253333 0.853333 30.72 2.133334 10.794667 1.706667 19.925333 5.632 28.202666 11.221333 7.893333 5.589333 14.506667 13.781333 19.114667 23.68 4.949333 10.325333 7.04 21.546667 6.613333 32.298667 0 19.84-6.229333 37.077333-18.645333 50.432-12.458667 14.208-33.237333 21.077333-63.914667 21.077333h-35.285333v78.421333l-49.792 0.426667v-219.733333h82.986667z m145.237333 0v219.690667H663.04v-219.733333h50.218667z m-319.957333 0l86.741333 219.690667H423.978667l-21.973334-58.581333H342.186667l-20.352 58.581333H267.946667l81.322666-219.733333h43.989334z m-21.546667 76.672l-12.885333 37.034667h26.154666l-12.885333-35.754667-0.426667-1.28z m198.357333-27.562666h-34.858666v42.666666h35.242666c16.64 0 22.826667-3.925333 25.344-6.058666 3.712-3.413333 5.802667-9.045333 5.802667-15.957334a22.613333 22.613333 0 0 0-3.328-12.928 16.981333 16.981333 0 0 0-8.704-6.4c-1.28-0.469333-5.418667-1.322667-19.498667-1.322666z"></path></symbol>');
+        document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML('beforeend', '<symbol id="icon-cubes" viewBox="-1200 -1230 3000 3000"><path d="M290.8 48.6l78.4 29.7L288 109.5 206.8 78.3l78.4-29.7c1.8-.7 3.8-.7 5.7 0zM136 92.5l0 112.2c-1.3 .4-2.6 .8-3.9 1.3l-96 36.4C14.4 250.6 0 271.5 0 294.7L0 413.9c0 22.2 13.1 42.3 33.5 51.3l96 42.2c14.4 6.3 30.7 6.3 45.1 0L288 457.5l113.5 49.9c14.4 6.3 30.7 6.3 45.1 0l96-42.2c20.3-8.9 33.5-29.1 33.5-51.3l0-119.1c0-23.3-14.4-44.1-36.1-52.4l-96-36.4c-1.3-.5-2.6-.9-3.9-1.3l0-112.2c0-23.3-14.4-44.1-36.1-52.4l-96-36.4c-12.8-4.8-26.9-4.8-39.7 0l-96 36.4C150.4 48.4 136 69.3 136 92.5zM392 210.6l-82.4 31.2 0-89.2L392 121l0 89.6zM154.8 250.9l78.4 29.7L152 311.7 70.8 280.6l78.4-29.7c1.8-.7 3.8-.7 5.7 0zm18.8 204.4l0-100.5L256 323.2l0 95.9-82.4 36.2zM421.2 250.9c1.8-.7 3.8-.7 5.7 0l78.4 29.7L424 311.7l-81.2-31.1 78.4-29.7zM523.2 421.2l-77.6 34.1 0-100.5L528 323.2l0 90.7c0 3.2-1.9 6-4.8 7.3z"></path></symbol>');
+        document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML('beforeend', '<symbol id="icon-mqtt" viewBox="-365 -365 1000 1000"><path d="M34.9,144c-0.2,0-0.4,0-0.6,0v77.6c0,5.6,4.6,10.2,10.2,10.2h79.9C123.7,183.3,83.8,144,34.9,144z"></path><path d="M34.9,80c-0.2,0-0.4,0-0.6,0v33c65.9,0.3,119.5,53.3,120.2,118.8h34.2C188.1,148,119.3,80,34.9,80z"></path><path d="M237.2,221.7v-70.1C214,94.8,167.3,50,109.1,29H44.5c-5.6,0-10.2,4.6-10.2,10.2V49   c101.4,0.3,183.9,82,184.5,182.8h8.2C232.6,231.8,237.2,227.3,237.2,221.7z"></path><path d="M210.5,57.3c9.4,9.4,19,21.3,26.7,31.8v-50c0-5.6-4.5-10.1-10.1-10.1h-51.5   C187.5,37.3,199.9,46.8,210.5,57.3z"></path></symbol>');
+    })();
+    const str2xml = function (str) {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(str, "text/xml");
+        return doc.firstChild;
+    };
+    function regToolbox(name, icon, color, blocks) {
+        function addStyle(style) {
+            const styleElement = document.getElementById('toolbox-style');
+            if (!styleElement) {
+                const styleElement = document.createElement('style');
+                styleElement.id = 'toolbox-style';
+                styleElement.textContent = style;
+                document.head.appendChild(styleElement);
+            } else styleElement.textContent += style;
+        }
+        const toolboxObject = {
+            color,
+            name: 'toolbox-' + name,
+            icon: { font_id: icon },
+            blocks: blocks.map(block => str2xml(block)),
+        };
+        const toolbox = Blockly.mainWorkspace.get_toolbox();
+        toolbox.add(toolbox.new_node(toolboxObject));
+        addStyle(`#toolbox-${name}.blocklyTreeSelected>div>svg { fill: white;}`);
+    }
     const BLOCK_COLOR = "%{BKY_GREEN_5}";
     const Color = {
-        video: '%{BKY_VIDEO_HUE}'
-    }
+        video: '%{BKY_VIDEO_HUE}',
+        mqtt: '%{BKY_MQTT_HUE}'
+    };
+    Blockly.theme.block_color['MQTT_HUE'] = {
+        "fill": "#bb00bb",
+        "border": "#660066",
+    };
     const method_block = {
         previousStatement: true,
         nextStatement: true,
         inputsInline: true
+    };
+    const event_block = {
+        nextStatement: true,
+        inputsInline: true
     }
-    const green_on_start_icon = {
+    const keyboard_event_icon_field = {
         "type": "field_icon",
         "is_head": true,
-        "src": 'data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzNiIgaGVpZ2h0PSIzNiIgdmlld0JveD0iMCAwIDM2IDM2Ij48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0xOCAzNmM5Ljk0MSAwIDE4LTguMDU5IDE4LTE4UzI3Ljk0MSAwIDE4IDAgMCA4LjA1OSAwIDE4czguMDU5IDE4IDE4IDE4eiIgZmlsbD0iIzE0QjM5MCIvPjxwYXRoIGQ9Ik0xOCAzNWM5LjM4OSAwIDE3LTcuNjExIDE3LTE3UzI3LjM4OSAxIDE4IDEgMSA4LjYxMSAxIDE4czcuNjExIDE3IDE3IDE3eiIgZmlsbD0iI0ZGRiIvPjxwYXRoIGQ9Ik0yNS41NiAxNi40NTdjMS45MTUgMS4xMyAxLjkyNSAyLjk1NCAwIDQuMDlsLTEwLjA5NCA1Ljk1N0MxMy41NTIgMjcuNjM0IDEyIDI2Ljc2NiAxMiAyNC41OFYxMi40MjRjMC0yLjE5MiAxLjU0MS0zLjA2IDMuNDY2LTEuOTI0bDEwLjA5NCA1Ljk1N3oiIGZpbGw9IiMxNEIzOTAiLz48L2c+PC9zdmc+',
+        "src": 'data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iNDBweCIgaGVpZ2h0PSI0MHB4IiB2aWV3Qm94PSIwIDAgNDAgNDAiIHZlcnNpb249IjEuMSI+CiAgICA8ZyBpZD0i5Zu+5qCHL+S6i+S7tuenr+acqF/mkq3mlL4iPgogICAgICAgICAgICAgICAgICAgIDxwYXRoIGQ9Ik0yMCwzOSBDMzAuNDkzNDEwMiwzOSAzOSwzMC40OTM0MTA1IDM5LDIwIEMzOSw5LjUwNjU4OTgxIDMwLjQ5MzQxMDIsMSAyMCwxIEM5LjUwNjU4OTgxLDEgMSw5LjUwNjU4OTgxIDEsMjAgQzEsMzAuNDkzNDEwNSA5LjUwNjU4OTgxLDM5IDIwLDM5IFoiIGlkPSJwYXRoLTEiIGZpbGw9IiNGRkZGRkYiIGZpbGwtcnVsZT0ibm9uemVybyIvPgogICAgICAgICAgICAgICAgICAgIDxnIGlkPSLnvJbnu4QiIHRyYW5zZm9ybT0idHJhbnNsYXRlKDguMDAwMDAwLCA4LjAwMDAwMCkiPgogICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgPHBhdGggZD0iTTE5Ljc1LDUgQzIwLjk5MjY0MDcsNSAyMiw2LjAwNzM1OTMxIDIyLDcuMjUgTDIyLDE2Ljc1IEMyMiwxNy45OTI2NDA3IDIwLjk5MjY0MDcsMTkgMTkuNzUsMTkgTDQuMjUsMTkgQzMuMDA3MzU5MzEsMTkgMiwxNy45OTI2NDA3IDIsMTYuNzUgTDIsNy4yNSBDMiw2LjAwNzM1OTMxIDMuMDA3MzU5MzEsNSA0LjI1LDUgTDE5Ljc1LDUgWiBNMTcuMjUsMTUgTDYuNzUsMTUgQzYuMTk3NzE1MjUsMTUgNiwxNS41IDYsMTUuNzUgQzYsMTUuOTgwNzY5MiA2LjE2ODQ2NzQzLDE2LjQyNDU1NjIgNi42Mjg3NzI0MSwxNi40OTE0NjU2IEw2Ljc1LDE2LjUgTDE3LjI1LDE2LjUgQzE3LjgwMjI4NDcsMTYuNSAxOCwxNiAxOCwxNS43NSBDMTgsMTUuNSAxNy44MDIyODQ3LDE1IDE3LjI1LDE1IFogTTYsMTEgQzUuNDQ3NzE1MjUsMTEgNSwxMS40NDc3MTUzIDUsMTIgQzUsMTIuNTUyMjg0NyA1LjQ0NzcxNTI1LDEzIDYsMTMgQzYuNTUyMjg0NzUsMTMgNywxMi41NTIyODQ3IDcsMTIgQzcsMTEuNDQ3NzE1MyA2LjU1MjI4NDc1LDExIDYsMTEgWiBNMTAsMTEgQzkuNDQ3NzE1MjUsMTEgOSwxMS40NDc3MTUzIDksMTIgQzksMTIuNTUyMjg0NyA5LjQ0NzcxNTI1LDEzIDEwLDEzIEMxMC41NTIyODQ3LDEzIDExLDEyLjU1MjI4NDcgMTEsMTIgQzExLDExLjQ0NzcxNTMgMTAuNTUyMjg0NywxMSAxMCwxMSBaIE0xNCwxMSBDMTMuNDQ3NzE1MywxMSAxMywxMS40NDc3MTUzIDEzLDEyIEMxMywxMi41NTIyODQ3IDEzLjQ0NzcxNTMsMTMgMTQsMTMgQzE0LjU1MjI4NDcsMTMgMTUsMTIuNTUyMjg0NyAxNSwxMiBDMTUsMTEuNDQ3NzE1MyAxNC41NTIyODQ3LDExIDE0LDExIFogTTE4LDExIEMxNy40NDc3MTUzLDExIDE3LDExLjQ0NzcxNTMgMTcsMTIgQzE3LDEyLjU1MjI4NDcgMTcuNDQ3NzE1MywxMyAxOCwxMyBDMTguNTUyMjg0NywxMyAxOSwxMi41NTIyODQ3IDE5LDEyIEMxOSwxMS40NDc3MTUzIDE4LjU1MjI4NDcsMTEgMTgsMTEgWiBNNiw3IEM1LjQ0NzcxNTI1LDcgNSw3LjQ0NzcxNTI1IDUsOCBDNSw4LjU1MjI4NDc1IDUuNDQ3NzE1MjUsOSA2LDkgQzYuNTUyMjg0NzUsOSA3LDguNTUyMjg0NzUgNyw4IEM3LDcuNDQ3NzE1MjUgNi41NTIyODQ3NSw3IDYsNyBaIE0xMCw3IEM5LjQ0NzcxNTI1LDcgOSw3LjQ0NzcxNTI1IDksOCBDOSw4LjU1MjI4NDc1IDkuNDQ3NzE1MjUsOSAxMCw5IEMxMC41NTIyODQ3LDkgMTEsOC41NTIyODQ3NSAxMSw4IEMxMSw3LjQ0NzcxNTI1IDEwLjU1MjI4NDcsNyAxMCw3IFogTTE0LDcgQzEzLjQ0NzcxNTMsNyAxMyw3LjQ0NzcxNTI1IDEzLDggQzEzLDguNTUyMjg0NzUgMTMuNDQ3NzE1Myw5IDE0LDkgQzE0LjU1MjI4NDcsOSAxNSw4LjU1MjI4NDc1IDE1LDggQzE1LDcuNDQ3NzE1MjUgMTQuNTUyMjg0Nyw3IDE0LDcgWiBNMTgsNyBDMTcuNDQ3NzE1Myw3IDE3LDcuNDQ3NzE1MjUgMTcsOCBDMTcsOC41NTIyODQ3NSAxNy40NDc3MTUzLDkgMTgsOSBDMTguNTUyMjg0Nyw5IDE5LDguNTUyMjg0NzUgMTksOCBDMTksNy40NDc3MTUyNSAxOC41NTIyODQ3LDcgMTgsNyBaIiBpZD0i5b2i54q257uT5ZCIIiBmaWxsPSIjMTRCMzkwIi8+CiAgICAgICAgICAgICAgICAgICAgPC9nPgogICAgICAgICAgICAgICAgPC9nPgogICAgCjwvc3ZnPg==',
+        "width": 38,
+        "height": 38,
+        "alt": "*"
+    };
+    const mqtt_event_icon_filed = {
+        "type": "field_icon",
+        "is_head": true,
+        "src": 'data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMzhweCIgaGVpZ2h0PSIzOHB4IiB2aWV3Qm94PSIwIDAgMzggMzgiIHZlcnNpb249IjEuMSI+CiAgICA8dGl0bGU+aWNuX2Jsb2NrbHlfaGVhZF9pbnRlcm5ldDwvdGl0bGU+CiAgICA8ZyBpZD0iaWNuX2Jsb2NrbHlfaGVhZF9pbnRlcm5ldCI+CiAgICAgICAgICAgICAgICAgICAgPGNpcmNsZSBpZD0iT3ZhbC0zIiBzdHJva2U9IiNiYjAwYmIiIHN0cm9rZS13aWR0aD0iMS4wOCIgZmlsbD0iI0ZGRkZGRiIgY3g9IjE5IiBjeT0iMTkiIHI9IjE4LjQ2Ii8+CiAgICAgICAgICAgICAgICAgICAgPGcgaWQ9Iue8lue7hCIgdHJhbnNmb3JtPSJ0cmFuc2xhdGUoNy4wMDAwMDAsIDcuMDAwMDAwKSI+CiAgICAgICAgICAgICAgICAgICAgICAgIAogICAgICAgICAgICAgICAgICAgICAgICA8cGF0aCBkPSJNOC42MTEzOTQxNSw5LjY4NTUzNzQ3IEM4LjYxMTM5NDE1LDkuNjg1NTM3NDcgMTAuMTQ2MTY5Myw5Ljc4MzcyNzc1IDEwLjQwNTUyMiw3Ljk2MDM3NDEgQzEwLjQwNTUyMiw3Ljk2MDM3NDEgMTMuNDQ0NjksOC4yNDMwNjU0MSAxNS44Njg0MzQyLDkuNjg1NTM3NDcgQzE1Ljg2ODQzNDIsOS42ODU1Mzc0NyAxNS4yODQzMzg3LDExLjUyOTkxNjkgMTYuNzg2NDE4NywxMi40MzI3NjI5IEMxNi43ODY0MTg3LDEyLjQzMjc2MjkgMTUuMjcxNTEyOSwxNC43MTg1NzgxIDExLjgyMjM0MjYsMTYuMzYwNzk0OCBDMTEuODIyMzQyNiwxNi4zNjA3OTQ4IDExLjE0MDE2MTksMTQuNzc1ODczMiA5LjM1NTM5MDU2LDE1LjA3MDEyODcgQzkuMzU2NTQ2OTgsMTUuMDcwMTI4NyA4LjYzMTI2MzQ5LDEzLjY2OTcwODIgOC42MTEzOTQxNSw5LjY4NTUzNzQ3IEw4LjYxMTM5NDE1LDkuNjg1NTM3NDcgWiBNOS41MTg5NzA5NSw1LjYxNDk1MDkxIEM5LjUxODk3MDk1LDUuNjE0OTUwOTEgMTAuMjk5MjM2OCw2LjI0NTcyMzYyIDEwLjMyODM1NzUsNi44MjAzNTc1NiBDMTAuMzI4MzU3NSw2LjgyMDM1NzU2IDEzLjYyNjg3ODIsNy4wMjU4ODQzMyAxNi40ODUxMTk2LDguODI1ODk5MzkgQzE2LjQ4NTExOTYsOC44MjU4OTkzOSAxNy43NjE4MDM2LDcuNzczNDU1MTIgMTguOTk2MzMwOSw4LjU1NzE5MDIyIEMxOC45OTYzMzA5LDguNTU3MTkwMjIgMTkuNjczODg1OSw3LjI5ODA2Mjc2IDE5LjgxNjMzNTUsNC45ODQxNzgyIEMxOS44MTYzMzU1LDQuOTg0MTc4MiAxNy4yNjUzODU1LDEuNjIwMjY3MzMgMTEuOTQzNzY2NCwxLjUgQzExLjk0MTQ1MzUsMS41MDExNTY0MiA5Ljg2NDczOTUyLDQuMzMzNjQxMjcgOS41MTg5NzA5NSw1LjYxNDk1MDkxIEw5LjUxODk3MDk1LDUuNjE0OTUwOTEgWiBNMjAuNzI4NTM3OSw2LjI5MzU1NzIyIEMyMC43Mjg1Mzc5LDYuMjkzNTU3MjIgMjMuMzg4MTkxMSw5LjM1Mzg1NjE1IDIyLjE4OTgyOCwxNC41NDgwNTkyIEMyMi4xODk4MjgsMTQuNTQ4MDU5MiAyMC43MTMzOTk0LDEyLjE2MDU4NDUgMTkuOTc4NjU0MywxMS42MDY5NzYzIEMxOS45Nzg2NTQzLDExLjYwNjk3NjMgMjAuNjM3NDk2NCwxMC4zMjY4MjMxIDE5Ljg4MTcyNTYsOS4zODI5NzY4MiBDMTkuODgxNzI1Niw5LjM4MTgyMDQxIDIwLjU4NDkzMiw4LjAwMjQyNTYyIDIwLjcyODUzNzksNi4yOTQ3MTM2MyBMMjAuNzI4NTM3OSw2LjI5MzU1NzIyIFogTTExLjM3MDI4ODksMTguODE0OTIxMiBDMTEuMzcwMjg4OSwxOC44MTQ5MjEyIDExLjgyNDY1NTUsMTguNjE2MzMyOSAxMS45OTI4NjE1LDE3LjUxMTMyNDIgQzExLjk5Mjg2MTUsMTcuNTExMzI0MiAxNS42NTIyODk0LDE2LjIyNTM4ODkgMTcuOTA4OTgzOSwxMi43NzQ5NTcxIEMxNy45MDg5ODM5LDEyLjc3NDk1NzEgMTguNjIzNzU0NSwxMi44MjE3Mzk0IDE5LjEyNDkwMzQsMTIuNDMyNzYyOSBDMTkuMTI0OTAzNCwxMi40MzI3NjI5IDIwLjgzMjUxMDMsMTQuMDI3MTQ2IDIxLjY0MjAwMTksMTYuMTEwOTAzNyBDMjEuNjQyMDAxOSwxNi4xMTA5MDM3IDIwLjA0ODc3NTIsMjAuNjY5NzA4MyAxNC44OTE4OTI5LDIyLjEzNTYyNDEgQzE0Ljg4OTU4MDEsMjIuMTM1NjI0MSAxMi41Njk5MTM0LDIwLjYyMTg3NDcgMTEuMzcwMjg4OSwxOC44MTM3NjQ4IEwxMS4zNzAyODg5LDE4LjgxNDkyMTIgWiBNMy44NDExNzU1MiwxOC42NTEzNDA4IEMzLjg0MTE3NTUyLDE4LjY1MTM0MDggNi42ODA1OTg4OCwyMy4wNDg5ODMgMTMuMjY3MTI3NSwyMi40NDM5NjY4IEMxMy4yNjcxMjc1LDIyLjQ0Mzk2NjggMTAuOTI3NTkxNSwyMC4yMTUzNDE3IDEwLjQ0NjQxNzEsMTkuNDk4MTUzMSBDMTAuNDQ2NDE3MSwxOS40OTgxNTMxIDguNjEyNTUwNTYsMTkuOTUzNzgxMyA3Ljk3OTQ2NTAyLDE4LjY1Mzc1ODcgQzcuOTc4MzA4NiwxOC42NTEzNDA4IDUuNjA5NTQ2ODIsMTkuMDA5OTM1MSAzLjg0MTE3NTUyLDE4LjY1MTM0MDggTDMuODQxMTc1NTIsMTguNjUxMzQwOCBaIE02LjA3OTA1MTk3LDguMTgyMzAwOTcgQzYuMDc5MDUxOTcsOC4xODIzMDA5NyAzLjQwMzEwMzg3LDguNzUyMzA5MjQgMS42ODM4Mjc3MiwxMC4wMjMxMDYgQzEuNjgzODI3NzIsMTAuMDIzMTA2IDAuNzg5MDc2NjMyLDEzLjgwMTY0NDggMi45NDc1ODA4NSwxNy4zMzUwMjMzIEMyLjk0NzU4MDg1LDE3LjMzNTAyMzMgNS4xNzE1ODAzLDE3LjgyMjA4NDkgNy40MDk1NjE4NywxNy41OTU0MjczIEM3LjQwOTU2MTg3LDE3LjU5NTQyNzMgNy4zOTQzMTgyLDE2LjE5Mzg1MDMgOC4zMDMwNTE0MiwxNS40OTI5NTY3IEM4LjMwMzA1MTQyLDE1LjQ5Mjk1NjcgNy4yMDA0NjA3MiwxMi42NDY0ODk3IDcuNDc0OTUxOTgsOS42MTc4MzQ1MyBDNy40NzQ5NTE5OCw5LjYxNjU3Mjk4IDYuMzM5NTYxMSw5LjM0MDkyNTMxIDYuMDgwMzEzNTIsOC4xODM0NTczOSBMNi4wNzkwNTE5Nyw4LjE4MjMwMDk3IFogTTIuMTM4MTk0MzMsOC4zOTYwMjc3OSBDMi4xMzgxOTQzMyw4LjM5NjAyNzc5IDMuOTg3MDk0MjcsMi43MTM2MDY3IDEwLjMzMDc3NTQsMS42Mzc4MjM4NCBDMTAuMzMwNzc1NCwxLjYzNzgyMzg0IDkuMzU3NzAzMzksMy4wMzcwODc5NyA4LjQzMjY3NTIxLDUuMjY4MDI1OTIgQzguNDMyNjc1MjEsNS4yNjgwMjU5MiA2LjQ4Njc0MTQsNS4wNTQyOTkxIDYuMDMxMjE4MzcsNy4wNDExMjgwMSBDNi4wMzEyMTgzNyw3LjA0MjI4NDQyIDMuOTUzMjQyODEsNy40MTg0MzUyMiAyLjEzNjkzMjc5LDguMzk2MDI3NzkgTDIuMTM4MTk0MzMsOC4zOTYwMjc3OSBaIiBpZD0i572R57ucIiBmaWxsPSIjYmIwMGJiIi8+CiAgICAgICAgICAgICAgICAgICAgPC9nPgogICAgICAgICAgICAgICAgPC9nPgo8L3N2Zz4=',
         "width": 38,
         "height": 38,
         "alt": "*"
@@ -1010,6 +1120,43 @@ const waitHook = async (name) => {
             output: "String"
         },
         {
+            type: "nemohooker_on_key_down",
+            message0: "%1 当 (按键) 被按下",
+            args0: [keyboard_event_icon_field],
+            nextStatement: true,
+            colour: BLOCK_COLOR,
+            inputsInline: true
+        },
+        {
+            type: "nemohooker_on_key_up",
+            message0: "%1 当 (按键) 被放开",
+            args0: [keyboard_event_icon_field],
+            nextStatement: true,
+            colour: BLOCK_COLOR,
+            inputsInline: true
+        },
+        {
+            type: "nemohooker_on_key_event_param",
+            message0: "按下/放开的键Code",
+            args0: [],
+            colour: BLOCK_COLOR,
+            inputsInline: true,
+            output: "String"
+        },
+        {
+            type: "nemohooker_check_down_key",
+            message0: "按下 %1",
+            args0: [{
+                    "type": "field_dropdown",
+                    "name": "style",
+                    "options": [["A","KeyA"],["B","KeyB"],["C","KeyC"],["D","KeyD"],["E","KeyE"],["F","KeyF"],["G","KeyG"],["H","KeyH"],["I","KeyI"],["J","KeyJ"],["K","KeyK"],["L","KeyL"],["M","KeyM"],["N","KeyN"],["O","KeyO"],["P","KeyP"],["Q","KeyQ"],["R","KeyR"],["S","KeyS"],["T","KeyT"],["U","KeyU"],["V","KeyV"],["W","KeyW"],["X","KeyX"],["Y","KeyY"],["Z","KeyZ"]]
+                }],
+            colour: BLOCK_COLOR,
+            inputsInline: true,
+            output: "Boolean"
+        },
+        // 网络
+        {
             type: "nemohooker_http_get",
             message0: "网络 GET %1",
             args0: [{ "type": "input_value", "name": "param", "check": ["String", "Number"] }],
@@ -1025,22 +1172,6 @@ const waitHook = async (name) => {
                 { "type": "input_value", "name": "body", "check": ["String", "Number"] },
                 { "type": "input_value", "name": "headers", "check": ["String", "Number"] }
             ],
-            colour: BLOCK_COLOR,
-            inputsInline: true,
-            output: "String"
-        },
-        {
-            type: "nemohooker_on_key_event",
-            message0: "%1 当 按键事件",
-            args0: [green_on_start_icon],
-            nextStatement: true,
-            colour: BLOCK_COLOR,
-            inputsInline: true
-        },
-        {
-            type: "nemohooker_on_key_event_param",
-            message0: "按下的键KEY",
-            args0: [],
             colour: BLOCK_COLOR,
             inputsInline: true,
             output: "String"
@@ -1144,30 +1275,12 @@ const waitHook = async (name) => {
                     type: "field_dropdown",
                     name: "ttype",
                     options: [
-                        [
-                            "Math.sin",
-                            "SIN"
-                        ],
-                        [
-                            "Math.cos",
-                            "COS"
-                        ],
-                        [
-                            "Math.tan",
-                            "TAN"
-                        ],
-                        [
-                            "Math.asin",
-                            "ASIN"
-                        ],
-                        [
-                            "Math.acos",
-                            "ACOS"
-                        ],
-                        [
-                            "Math.atan",
-                            "ATAN"
-                        ]
+                        [ "Math.sin", "SIN" ],
+                        [ "Math.cos", "COS" ],
+                        [ "Math.tan", "TAN" ],
+                        [ "Math.asin", "ASIN" ],
+                        [ "Math.acos", "ACOS" ],
+                        [ "Math.atan", "ATAN" ]
                     ]
                 },
                 {
@@ -1226,14 +1339,14 @@ const waitHook = async (name) => {
         },
         {
             type: "nemohooker_draw_custom_image_stamp",
-            message0: "网络图像印章 %1",
+            message0: "网络图像印章 URL %1",
             args0: [{ "type": "input_value", "name": "src", "check": "String" }],
             colour: "%{BKY_PEN_HUE}",
             ...method_block
         },
         {
             type: "nemohooker_draw_video_stamp",
-            message0: "视频印章 %1 x %2 y %3 缩放 %4",
+            message0: "视频印章 ID %1 x %2 y %3 缩放 %4",
             args0: [
                 { "type": "input_value", "name": "id", "check": "String" },
                 { "type": "input_value", "name": "x", "check": "Number" },
@@ -1245,42 +1358,33 @@ const waitHook = async (name) => {
         },
         {
             type: "nemohooker_put_pixel",
-            message0: "放置像素 x %1 y %2 颜色 r %3 g %4 b %5 a %6",
+            message0: "放置像素 x %1 y %2 HEX/RGB数组 %3 不透明度 %4",
             args0: [
                 { "type": "input_value", "name": "x", "check": "Number" },
                 { "type": "input_value", "name": "y", "check": "Number" },
-                { "type": "input_value", "name": "r", "check": "Number" },
-                { "type": "input_value", "name": "g", "check": "Number" },
-                { "type": "input_value", "name": "b", "check": "Number" },
-                { "type": "input_value", "name": "a", "check": "Number" }
+                { "type": "input_value", "name": "hex", "check": ["String", "Array"] },
+                { "type": "input_value", "name": "a", "check": "Number" },
             ],
             colour: "%{BKY_PEN_HUE}",
             ...method_block
         },
         {
-            type: "nemohooker_fill_triangle",
-            message0: "绘制三角形 坐标 %1 %2 %3 %4 %5 %6 RGBA %7 %8 %9 %10",
+            type: "nemohooker_fill_polygon",
+            message0: "绘制多边形 坐标数组 %1 颜色 %2",
             args0: [
-                { "type": "input_value", "name": "x0", "check": "Number" },
-                { "type": "input_value", "name": "y0", "check": "Number" },
-                { "type": "input_value", "name": "x1", "check": "Number" },
-                { "type": "input_value", "name": "y1", "check": "Number" },
-                { "type": "input_value", "name": "x2", "check": "Number" },
-                { "type": "input_value", "name": "y2", "check": "Number" },
-                { "type": "input_value", "name": "r", "check": "Number" },
-                { "type": "input_value", "name": "g", "check": "Number" },
-                { "type": "input_value", "name": "b", "check": "Number" },
-                { "type": "input_value", "name": "a", "check": "Number" }
+                { "type": "input_value", "name": "point", "check": "String" },
+                { "type": "input_value", "name": "color", "check": "String" }
             ],
             colour: "%{BKY_PEN_HUE}",
             ...method_block
         },
         {
             type: "nemohooker_better_draw_text_stamp",
-            message0: "样式文字印章 文本 %1 %2 粗细 %3 大小 %4 字体 %5 对齐方式 %6 %7",
-            // 文本 样式 粗细 大小 字体 水平 垂直
+            message0: "样式文字印章 文本 %1 颜色 %2 %3 粗细 %4 大小 %5 字体 %6 对齐方式 %7 %8",
+            // 文本 颜色 样式 粗细 大小 字体 水平 垂直
             args0: [
                 { "type": "input_value", "name": "text", "check": ["String", "Number"] },
+                { "type": "input_value", "name": "color", "check": "String" },
                 {
                     "type": "field_dropdown",
                     "name": "style",
@@ -1329,37 +1433,125 @@ const waitHook = async (name) => {
         },
         {
             type: "nemohooker_draw_svg",
-            message0: "绘制矢量图 %1",
+            message0: "绘制矢量图 XML %1",
             args0: [
                 { "type": "input_value", "name": "svg", "check": "String" }
             ],
             colour: "%{BKY_PEN_HUE}",
             ...method_block
+        },
+        {
+            type: "nemohooker_color",
+            message0: "%1",
+            args0: [
+                { "type": "field_colour", "name": "color", "colour": "#cc66cc" }
+            ],
+            colour: "%{BKY_PEN_HUE}",
+            inputsInline: true,
+            output: "String"
+        },
+        {
+            type: "nemohooker_hex_to_array",
+            message0: "HEX %1 转 %2 数组",
+            args0: [
+                { "type": "input_value", "name": "hex", "check": "String" },
+                {
+                    "type": "field_dropdown",
+                    "name": "pattern",
+                    "options": [
+                        ["RGB", "rgb"],
+                        ["HSV", "hsv"],
+                        ["HSL", "hsl"]
+                    ]
+                }
+            ],
+            colour: "%{BKY_PEN_HUE}",
+            inputsInline: true,
+            output: "Array"
+        },
+        {
+            type: "nemohooker_set_pen_color_hex",
+            message0: "设置画笔颜色为 HEX/RGB数组 %1 不透明度 %2",
+            args0: [
+                { "type": "input_value", "name": "hex", "check": ["String", "Array"] },
+                { "type": "input_value", "name": "a", "check": "Number" }
+            ],
+            colour: "%{BKY_PEN_HUE}",
+            ...method_block
+        },
+        {
+            type: "nemohooker_set_fill_color_hex",
+            message0: "设置填充颜色为 HEX/RGB数组 %1",
+            args0: [
+                { "type": "input_value", "name": "hex", "check": ["String", "Array"] }
+            ],
+            colour: "%{BKY_PEN_HUE}",
+            ...method_block
+        },
+        // MQTT
+        {
+            type: "nemohooker_mqtt_connect",
+            message0: "连接到 %1 地址 %2 客户端ID %3 用户 %4 密码 %5",
+            args0: [
+                { "type": "input_dummy" },
+                { "type": "input_value", "name": "address", "check": "String" },
+                { "type": "input_value", "name": "clientID", "check": "String" },
+                { "type": "input_value", "name": "user", "check": "String" },
+                { "type": "input_value", "name": "password", "check": "String" },
+            ],
+            colour: Color.mqtt,
+            ...method_block,
+            inputsInline: false
+        },
+        {
+            type: "nemohooker_mqtt_on_connect",
+            message0: "%1 当 连接成功",
+            args0: [mqtt_event_icon_filed],
+            colour: Color.mqtt,
+            ...event_block
+        },
+        {
+            type: "nemohooker_mqtt_on_disconnect",
+            message0: "%1 当 断开连接",
+            args0: [mqtt_event_icon_filed],
+            colour: Color.mqtt,
+            ...event_block
+        },
+        {
+            type: "nemohooker_mqtt_on_offline",
+            message0: "%1 当 客户端下线",
+            args0: [mqtt_event_icon_filed],
+            colour: Color.mqtt,
+            ...event_block
+        },
+        {
+            type: "nemohooker_mqtt_on_error",
+            message0: "%1 当 发生错误",
+            args0: [mqtt_event_icon_filed],
+            colour: Color.mqtt,
+            ...event_block
+        },
+        {
+            type: "nemohooker_mqtt_on_message",
+            message0: "%1 当 收到消息",
+            args0: [mqtt_event_icon_filed],
+            colour: Color.mqtt,
+            ...event_block
         }
     ];
 
     // 使用JSON数组定义Blockly代码块
     Blockly.define_blocks_with_json_array(blockObjects);
 
-    (function regToolboxIcon() {
-        document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML('beforeend', '<symbol id="icon-feature" viewBox="-1100 -1050 3200 3200"><path d="M484.352 199.918933a55.296 55.296 0 0 1 50.517333-2.4576l4.778667 2.4576 228.795733 132.096c15.5648 8.977067 25.668267 24.8832 27.409067 42.530134l0.238933 5.358933v264.192a55.296 55.296 0 0 1-23.1424 44.987733l-4.5056 2.901334-228.795733 132.096a55.296 55.296 0 0 1-50.517333 2.4576l-4.778667-2.4576-228.795733-132.096a55.296 55.296 0 0 1-27.409067-42.530134l-0.238933-5.358933v-264.192c0-17.954133 8.704-34.679467 23.1424-44.987733l4.5056-2.901334 228.795733-132.096z m27.648 54.954667l-222.651733 128.580267v257.092266L512 769.092267l222.651733-128.546134v-257.092266L512 254.907733z m120.900267 147.319467a30.72 30.72 0 0 1 2.628266 40.311466l-2.730666 3.140267-88.507734 87.9616v102.570667a30.72 30.72 0 0 1-61.201066 3.857066l-0.238934-3.857066v-101.5808l-88.576-89.088a30.72 30.72 0 0 1 40.413867-46.08l3.140267 2.7648 75.298133 75.741866 76.322133-75.844266a30.72 30.72 0 0 1 43.451734 0.1024z"></path></symbol>');
-        document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML('beforeend', '<symbol id="icon-widget-http-client" viewBox="-2000 -2000 5000 5000"><path d="M512 98.133333c143.914667 0 266.837333 99.882667 301.653333 237.781334l2.56 10.965333 9.301334 2.730667c105.6 33.450667 181.12 131.669333 185.472 246.528l0.213333 10.496c0 145.237333-113.066667 263.808-254.848 268.970666l-9.685333 0.213334-164.352-0.042667 40.746666 42.154667a29.866667 29.866667 0 0 1 2.517334 38.570666l-3.242667 3.626667a29.866667 29.866667 0 0 1-38.570667 2.517333l-3.626666-3.242666-89.6-92.714667a29.866667 29.866667 0 0 1-2.901334-37.973333l3.029334-3.712 89.6-91.306667a29.866667 29.866667 0 0 1 45.781333 38.058667l-3.114667 3.754666-39.850666 40.533334H746.666667c112.981333 0 204.8-93.610667 204.8-209.408 0-98.005333-66.261333-181.845333-157.525334-203.818667l-9.216-2.005333-20.778666-3.968-3.114667-20.906667C742.144 251.050667 636.586667 157.866667 512 157.866667c-135.722667 0-246.613333 109.909333-251.605333 246.357333l-0.085334 10.88 1.28 27.946667-27.776 3.114666c-91.306667 10.24-161.28 89.472-161.28 184.405334 0 99.541333 76.586667 180.608 172.544 185.301333l8.789334 0.213333h23.466666a29.866667 29.866667 0 0 1 4.053334 59.434667l-4.053334 0.298667h-23.466666C120.576 875.818667 12.8 765.866667 12.8 630.570667c0-115.072 78.293333-212.949333 185.344-238.677334l3.285333-0.768 0.597334-7.082666c15.018667-156.970667 142.549333-280.533333 299.690666-285.738667L512 98.133333z m55.978667 374.912c13.269333 0 23.253333 0.853333 30.72 2.133334 10.794667 1.706667 19.925333 5.632 28.202666 11.221333 7.893333 5.589333 14.506667 13.781333 19.114667 23.68 4.949333 10.325333 7.04 21.546667 6.613333 32.298667 0 19.84-6.229333 37.077333-18.645333 50.432-12.458667 14.208-33.237333 21.077333-63.914667 21.077333h-35.285333v78.421333l-49.792 0.426667v-219.733333h82.986667z m145.237333 0v219.690667H663.04v-219.733333h50.218667z m-319.957333 0l86.741333 219.690667H423.978667l-21.973334-58.581333H342.186667l-20.352 58.581333H267.946667l81.322666-219.733333h43.989334z m-21.546667 76.672l-12.885333 37.034667h26.154666l-12.885333-35.754667-0.426667-1.28z m198.357333-27.562666h-34.858666v42.666666h35.242666c16.64 0 22.826667-3.925333 25.344-6.058666 3.712-3.413333 5.802667-9.045333 5.802667-15.957334a22.613333 22.613333 0 0 0-3.328-12.928 16.981333 16.981333 0 0 0-8.704-6.4c-1.28-0.469333-5.418667-1.322667-19.498667-1.322666z"></path></symbol>');
-        document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML('beforeend', '<symbol id="icon-cubes" viewBox="-1200 -1230 3000 3000"><path d="M290.8 48.6l78.4 29.7L288 109.5 206.8 78.3l78.4-29.7c1.8-.7 3.8-.7 5.7 0zM136 92.5l0 112.2c-1.3 .4-2.6 .8-3.9 1.3l-96 36.4C14.4 250.6 0 271.5 0 294.7L0 413.9c0 22.2 13.1 42.3 33.5 51.3l96 42.2c14.4 6.3 30.7 6.3 45.1 0L288 457.5l113.5 49.9c14.4 6.3 30.7 6.3 45.1 0l96-42.2c20.3-8.9 33.5-29.1 33.5-51.3l0-119.1c0-23.3-14.4-44.1-36.1-52.4l-96-36.4c-1.3-.5-2.6-.9-3.9-1.3l0-112.2c0-23.3-14.4-44.1-36.1-52.4l-96-36.4c-12.8-4.8-26.9-4.8-39.7 0l-96 36.4C150.4 48.4 136 69.3 136 92.5zM392 210.6l-82.4 31.2 0-89.2L392 121l0 89.6zM154.8 250.9l78.4 29.7L152 311.7 70.8 280.6l78.4-29.7c1.8-.7 3.8-.7 5.7 0zm18.8 204.4l0-100.5L256 323.2l0 95.9-82.4 36.2zM421.2 250.9c1.8-.7 3.8-.7 5.7 0l78.4 29.7L424 311.7l-81.2-31.1 78.4-29.7zM523.2 421.2l-77.6 34.1 0-100.5L528 323.2l0 90.7c0 3.2-1.9 6-4.8 7.3z"></path></symbol>');
-    })();
-    const str2xml = function (str) {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(str, "text/xml");
-        return doc.firstChild;
-    };
     const u = {
         title: (text) => `<label text="${text}" type="normal" gap="24" web-class="flyout-toolbox-title" vertical_padding="0"></label>`,
         block: (type, ...values) => `<block type="${type}">${values.join('')}</block>`,
         line: (text, height = 25) => `<label type="flyout_line" height="${height}" text="${text}"/>`,
-        sep: (gap = 50) => `<sep gap="${gap}"></sep>`,
         flyout_bottom: (width = 130, height = 16) => `<label type="flyout_bottom" align="center" width="${width}" height="${height}"></label>`,
+        sep: (gap=50) => `<sep gap="${gap}"></sep>`,
         numValue: (name, value) => `<value name="${name}"><shadow type="math_number"><field name="NUM">${value}</field></shadow></value>`,
         textValue: (name, value) => `<value name="${name}"><shadow type="text"><field name="TEXT">${value}</field></shadow></value>`,
-        optionValue: (value) => `<field name="OP">${value}</field>`
+        optionValue: (value) => `<field name="OP">${value}</field>`,
     }
 
     // 定义NemoHooker积木盒
@@ -1369,8 +1561,10 @@ const waitHook = async (name) => {
         u.block('nemohooker_play_video', u.textValue('id', 'example')),
         u.block('nemohooker_pause_video', u.textValue('id', 'example')),
         u.block('nemohooker_set_video_current_time', u.textValue('id', 'example'), u.numValue('time', 10)),
-        u.block('nemohooker_on_key_event'),
+        u.block('nemohooker_on_key_down'),
+        u.block('nemohooker_on_key_up'),
         u.block('nemohooker_on_key_event_param'),
+        u.block('nemohooker_check_down_key', u.textValue('key', 'a')),
         u.block('nemohooker_clipboard_write', u.textValue('value', '(～￣▽￣)～')),
         u.block('nemohooker_clipboard_read'),
         u.block('nemohooker_eval', u.textValue('js', `console.log("Hello world!")`)),
@@ -1383,6 +1577,7 @@ const waitHook = async (name) => {
         u.block('color_picker'),
         u.flyout_bottom()
     ];
+    // 定义网络积木盒
     const networkXML = [
         u.title('网络 · Network'),
         u.block('nemohooker_http_get', u.textValue('param', '')),
@@ -1393,21 +1588,25 @@ const waitHook = async (name) => {
         u.block('nemohooker_array_get', u.textValue('arr', '[1, 2, 3]'), u.numValue('index', 1)),
         u.block('nemohooker_array_set', u.textValue('arr', '[1, 2, 3]'), u.numValue('index', 1), u.numValue('value', 123)),
         u.block('nemohooker_array_include_value', u.textValue('arr', '[1, 2, 3]'), u.numValue('value', 1)),
-        u.block('nemohooker_array_length', u.textValue('arr', '[1, 2, 3]'))
+        u.block('nemohooker_array_length', u.textValue('arr', '[1, 2, 3]')),
+        u.flyout_bottom()
     ];
-    function regToolbox(name, icon, color, blocks) {
-        const toolboxObject = {
-            color,
-            name,
-            icon: { font_id: icon },
-            blocks: blocks.map(block => str2xml(block)),
-        };
-        const toolbox = Blockly.mainWorkspace.get_toolbox();
-        toolbox.add(toolbox.new_node(toolboxObject));
-    }
+    // 定义MQTT积木盒
+    const mqttXML = [
+        u.title('消息队列遥测传输协议 · MQTT'),
+        u.block('nemohooker_mqtt_on_connect'),
+        u.block('nemohooker_mqtt_on_disconnect'),
+        u.block('nemohooker_mqtt_on_offline'),
+        u.block('nemohooker_mqtt_on_error'),
+        u.block('nemohooker_mqtt_on_message'),
+        u.block(
+            'nemohooker_mqtt_connect', u.textValue('address', 'wss://bemfa.com:9504/wss'),
+            u.textValue('clientID', ''), u.textValue('user', ''), u.textValue('password', '')
+        ),
+    ]
     setTimeout(() => {
-        // 注册3D积木盒
-        // regToolbox('3d_toolbox', 'icon-cubes', '#54c0ff', _3dXML);
+        // 注册MQTT积木盒
+        regToolbox('mqtt_toolbox', 'icon-mqtt', '#660066', mqttXML);
         // 注册网络积木盒
         regToolbox('network', 'icon-widget-http-client', '#54c0ff', networkXML);
         // 注册扩展积木盒
@@ -1416,14 +1615,18 @@ const waitHook = async (name) => {
         Blockly.mainWorkspace.toolbox_.children_[5].blocks.pop();
         Blockly.mainWorkspace.toolbox_.children_[5].blocks = Blockly.mainWorkspace.toolbox_.children_[5].blocks.concat([
             u.line('Better Nemo 扩展积木'),
+            u.block('nemohooker_color'),
+            u.block('nemohooker_hex_to_array', u.textValue('hex', '#FFFFFF'), u.optionValue('rgb')),
+            u.block('nemohooker_set_pen_color_hex', u.textValue('hex', '#000000'), u.numValue('a', 255)),
+            u.block('nemohooker_set_fill_color_hex', u.textValue('hex', '#000000')),
             u.block('nemohooker_draw_image_stamp'),
             u.block('nemohooker_draw_custom_image_stamp', u.textValue('src', 'https://www.runoob.com/try/demo_source/smiley-2.gif')),
             u.block('nemohooker_draw_video_stamp', u.textValue('id', 'example'), u.numValue('x', 0), u.numValue('y', 0), u.numValue('scale', 1)),
             u.block('nemohooker_draw_svg', u.textValue('svg', '')),
             u.block('nemohooker_rectangle_clear', u.numValue('x', 0), u.numValue('y', 0), u.numValue('width', 100), u.numValue('height', 100)),
-            u.block('nemohooker_better_draw_text_stamp', u.textValue('text', ''), u.optionValue('normal'), u.textValue('weight', 'bold'), u.numValue('size', 24), u.textValue('font', 'Arial'), u.optionValue('center'), u.optionValue('middle')),
-            u.block('nemohooker_put_pixel', u.numValue('x', 0), u.numValue('y', 0), u.numValue('r', 0), u.numValue('g', 0), u.numValue('b', 0), u.numValue('a', 255)),
-            u.block('nemohooker_fill_triangle', u.numValue('x0', 0), u.numValue('y0', 0), u.numValue('x1', 0), u.numValue('y1', 0), u.numValue('x2', 0), u.numValue('y2', 0), u.numValue('r', 0), u.numValue('g', 0), u.numValue('b', 0), u.numValue('a', 255)),
+            u.block('nemohooker_better_draw_text_stamp', u.textValue('text', ''), u.textValue('color', '#000000'), u.optionValue('normal'), u.textValue('weight', 'bold'), u.numValue('size', 24), u.textValue('font', 'Arial'), u.optionValue('center'), u.optionValue('middle')),
+            u.block('nemohooker_put_pixel', u.numValue('x', 0), u.numValue('y', 0), u.textValue('hex', '#000000'), u.numValue('a', 255)),
+            u.block('nemohooker_fill_polygon', u.textValue('point', '[[-100, 100], [100, 100], [-100, -100]'), u.textValue('color', '#000000')),
             u.flyout_bottom()
         ].map(block => str2xml(block)));
         console.log(Blockly.mainWorkspace.toolbox_.children_[5].blocks)
@@ -1445,7 +1648,6 @@ const waitHook = async (name) => {
     console.log("[NemoHooker::init] Runtime,RunMgr获取成功");
     if (storage.get('runtimeConfig'))
         get_run_mgr().config.set(storage.get('runtimeConfig'));
-
     setInterval(() => {
         if (!Runtime.heart.heart.get_runtime_data().is_running())
             document.querySelectorAll('.custom-video').forEach(e => e.remove());
@@ -1493,9 +1695,6 @@ const waitHook = async (name) => {
         });
         return;
     }
-    function typeOf(value) {
-        return Object.prototype.toString.call(value).substring(8, Object.prototype.toString.call(value).length - 1);
-    }
     // 重写text_length函数
     rewriteDomainFunction('text_length', function (args, rbid, entity_id, utils) {
         let value = args.VALUE;
@@ -1505,28 +1704,55 @@ const waitHook = async (name) => {
         }
         return (isNaN(value)) ? value.length : value.toString().length;
     });
-    // 注册自定义代码块的执行函数
+    // -------------EVAL-----------
     regDomainFunction("nemohooker_eval", (params, uuid, uuid2, utils) => {
         eval(String(params.js));
     });
-    regDomainFunction("nemohooker_on_key_event", () => { });
+    // -------------按键------------
+    regDomainFunction("nemohooker_on_key_down", () => { });
     regAction({
-        id: "nemohooker_on_key_event",
+        id: "nemohooker_on_key_down",
         entity_specific: false,
         responder_blocks: [
             {
-                id: "nemohooker_on_key_event",
+                id: "nemohooker_on_key_down",
                 type: "action",
                 async: false,
             },
         ],
     });
-    document.addEventListener("keydown", function (event) {
+    regAction({
+        id: "nemohooker_on_key_up",
+        entity_specific: false,
+        responder_blocks: [
+            {
+                id: "nemohooker_on_key_up",
+                type: "action",
+                async: false,
+            },
+        ],
+    });
+    // 按键状态
+    const keyStates = {};
+    // 监听按键按下
+    document.addEventListener('keydown', (e) => {
+        keyStates[e.code] = true;
         Runtime.send_action({
-            id: "nemohooker_on_key_event",
+            id: "nemohooker_on_key_down",
             namespace: "",
             parameters: {
-                key: event.key
+                key: e.code
+            },
+        });
+    });
+    // 监听按键释放
+    document.addEventListener('keyup', (e) => {
+        keyStates[e.code] = false;
+        Runtime.send_action({
+            id: "nemohooker_on_key_up",
+            namespace: "",
+            parameters: {
+                key: e.code
             },
         });
     });
@@ -1544,6 +1770,10 @@ const waitHook = async (name) => {
             return "[ERROR_NOT_IN_ACTION]";
         }
     );
+    regDomainFunction('nemohooker_check_down_key', (params, rbid, entity_id, utils) => {
+        return keyState[params.key] || false;
+    })
+    // ------------剪切板----------
     regDomainFunction("nemohooker_clipboard_write", (params, rbid, entity_id, internals) => {
         (async function writeClipboardText(text) {
             try {
@@ -1556,12 +1786,14 @@ const waitHook = async (name) => {
     regDomainFunction("nemohooker_clipboard_read", async (params, rbid, entity_id, internals) => {
         return await navigator.clipboard.readText();
     });
+    // ------------Alert与Prompt-------------
     regDomainFunction("nemohooker_alert", (params, rbid, entity_id, internals) => {
         alert(params.param);
     });
     regDomainFunction("nemohooker_prompt", (params, rbid, entity_id, internals) => {
         return prompt(params.param);
     });
+    // ------------网络-------------
     regDomainFunction("nemohooker_http_get", async (params, rbid, entity_id, internals) => {
         return await (await fetch(params.param)).text();
     });
@@ -1604,6 +1836,9 @@ const waitHook = async (name) => {
     });
     // -----------对象操作 -------------------
 
+    function typeOf(value) {
+        return Object.prototype.toString.call(value).substring(8, Object.prototype.toString.call(value).length - 1);
+    }
     regDomainFunction("nemohooker_object_get", (params, rbid, entity_id, internals) => {
         const value = JSON.parse(params.obj)[params.key];
         function func(value) {
@@ -1738,26 +1973,33 @@ const waitHook = async (name) => {
         if (!actor) return;
         const x = parseFloat(params.x);
         const y = parseFloat(params.y);
-        const r = parseFloat(params.r);
-        const g = parseFloat(params.g);
-        const b = parseFloat(params.b);
+        
+        var r = 0;
+        var g = 0;
+        var b = 0;
+        
+        var hex = params.hex;
+        if (String(hex).substring(0, 1) == "#") {
+            hex = String(hex).substr(1);
+            r = parseInt(hex.substring(0, 2), 16);
+            g = parseInt(hex.substring(2, 4), 16);
+            b = parseInt(hex.substring(4, 6), 16);
+        } else {
+            r = hex[0];
+            g = hex[1];
+            b = hex[2];
+        };
+        
         const a = parseFloat(params.a);
         actor.get_brush().put_pixel(x, y, r, g, b, a);
     });
     regDomainFunction("nemohooker_fill_triangle", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
         if (!actor) return;
-        const x0 = parseFloat(params.x0);
-        const y0 = parseFloat(params.y0);
-        const x1 = parseFloat(params.x1);
-        const y1 = parseFloat(params.y1);
-        const x2 = parseFloat(params.x2);
-        const y2 = parseFloat(params.y2);
-        const r = parseFloat(params.r);
-        const g = parseFloat(params.g);
-        const b = parseFloat(params.b);
-        const a = parseFloat(params.a);
-        actor.get_brush().fill_triangle(x0, y0, x1, y1, x2, y2, r, g, b, a);
+        const point = String(params.point);
+        const color = String(params.color);
+        
+        actor.get_brush().fill_polygon(point, color);
     });
     regDomainFunction("nemohooker_better_draw_text_stamp", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
@@ -1770,8 +2012,9 @@ const waitHook = async (name) => {
         const font = String(params.font);
         const align = String(params.align);
         const base_line = String(params.base_line);
+        const color = String(params.color);
 
-        actor.get_brush().better_draw_text_stamp(text, style, weight, size, font, align, base_line);
+        actor.get_brush().better_draw_text_stamp(text, color, style, weight, size, font, align, base_line);
     });
     regDomainFunction("nemohooker_rectangle_clear", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
@@ -1792,6 +2035,129 @@ const waitHook = async (name) => {
 
         actor.get_brush().draw_svg(svg);
     });
-
+    regDomainFunction("nemohooker_color", (params, uuid, uuid2, utils) => {
+        return params.color;
+    });
+    regDomainFunction("nemohooker_hex_to_array", (params, uuid, uuid2, utils) => {
+        const hex = String(params.hex).substr(1);
+        var r = parseInt(hex.substring(0, 2), 16);
+        var g = parseInt(hex.substring(2, 4), 16);
+        var b = parseInt(hex.substring(4, 6), 16);
+        
+        const pattern = String(params.pattern);
+        
+        if (pattern == "rgb") return [r, g, b];
+        
+        r /= 255;
+        g /= 255;
+        b /= 255;
+        
+        if (pattern == "hsv") {
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            const diff = max - min;
+          
+            var h = 0;
+            var s = 0;
+            const v = max;
+        
+            if (max !== 0) {
+                s = diff / max;
+            }
+          
+            if (diff !== 0) {
+                if (max === r) {
+                    h = (g - b) / diff + (g < b ? 6 : 0);
+                } else if (max === g) {
+                    h = (b - r) / diff + 2;
+                } else {
+                    h = (r - g) / diff + 4;
+                }
+                h *= 60;
+            }
+          
+            return [Math.round(h), Math.round(s * 100), Math.round(v * 100)];
+        };
+        if (pattern == "hsl") {
+            
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            const l = (max + min) / 2;
+          
+            var h = 0;
+            var s = 0;
+          
+            if (max !== min) {
+                const diff = max - min;
+                s = l > 0.5 ? diff / (2 - max - min) : diff / (max + min);
+            
+                if (max === r) {
+                    h = (g - b) / diff + (g < b ? 6 : 0);
+                } else if (max === g) {
+                    h = (b - r) / diff + 2;
+                } else {
+                    h = (r - g) / diff + 4;
+                }
+                h *= 60;
+            }
+          
+          return [ Math.round(h), Math.round(s * 100), Math.round(l * 100) ];
+            
+        };
+        return undefined;
+    });
+    regDomainFunction("nemohooker_set_pen_color_hex", (params, uuid, uuid2, utils) => {
+        var actor = get_stage_target(uuid2);
+        if (!actor) {
+            return;
+        }
+        
+        var color = params.hex;
+        if (String(color).substring(0, 1) == "#") {
+            actor.get_brush().set_color(color.substr(1));
+        } else {
+            var r = color[0];
+            var g = color[1];
+            var b = color[2];
+            
+            var rStr = r.toString(16).padStart(2, "0");
+            var gStr = g.toString(16).padStart(2, "0");
+            var bStr = b.toString(16).padStart(2, "0");
+            
+            var hexStr = rStr + gStr + bStr;
+            actor.get_brush().set_color(hexStr);
+        };
+        actor.get_brush().set_alpha(parseInt(params.a / 255 * 100));
+    });
+    regDomainFunction("nemohooker_set_fill_color_hex", (params, uuid, uuid2, utils) => {
+        var actor = get_stage_target(uuid2);
+        if (!actor) {
+            return;
+        }
+        
+        //const a = parseFloat(params.a) / 255;
+        var color = params.hex;
+        if (String(color).substring(0, 1) == "#") {
+            color = color.substr(1);
+            var r = parseInt(color.substring(0, 2), 16);
+            var g = parseInt(color.substring(2, 4), 16);
+            var b = parseInt(color.substring(4, 6), 16);
+            actor.get_brush().set_fill_color(color);
+            
+        } else {
+            var r = color[0];
+            var g = color[1];
+            var b = color[2];
+            
+            var rStr = r.toString(16).padStart(2, "0");
+            var gStr = g.toString(16).padStart(2, "0");
+            var bStr = b.toString(16).padStart(2, "0");
+            
+            var hexStr = rStr + gStr + bStr;
+            actor.get_brush().set_fill_color(hexStr);
+            
+        };
+    });
+    // -----------------MQTT-----------------
     console.log("[NemoHooker::init] 解释器注入完成");
 })();
