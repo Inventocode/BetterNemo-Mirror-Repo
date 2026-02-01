@@ -1,4 +1,4 @@
-const blockObjects = [];
+let blockObjects = [];
 (async () => {
     console.log("[NemoHooker::blocks] 等待Blockly加载");
     await isBlocklyLoaded();
