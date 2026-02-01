@@ -76,8 +76,15 @@
         u.block('nemohooker_mqtt_publish', u.textValue('topic', 'light002'), u.textValue('massage', 'on')),
         u.block('nemohooker_mqtt_subscribe', u.textValue('topic', 'light002')),
         u.flyout_bottom()
-    ]
+    ];
+    const threeDboxXML = [
+       u.title('〈TEST〉3D库'),
+       u.block('nemohooker_test', u.textValue('test', '123')),
+       u.flyout_bottom()
+   ];
     setTimeout(() => {
+        // 注册3D积木盒
+        // regToolbox('threeDbox', 'icon-cubes', '#77D657', threeDboxXML);
         // 注册MQTT积木盒
         regToolbox('mqtt_toolbox', 'icon-mqtt', '#660066', mqttXML);
         // 注册网络积木盒
@@ -93,13 +100,17 @@
             u.block('nemohooker_set_pen_color_hex', u.textValue('hex', '#000000'), u.numValue('a', 255)),
             u.block('nemohooker_set_fill_color_hex', u.textValue('hex', '#000000')),
             u.block('nemohooker_draw_image_stamp'),
-            u.block('nemohooker_draw_custom_image_stamp', u.textValue('src', 'https://www.runoob.com/try/demo_source/smiley-2.gif')),
+            u.block('nemohooker_draw_custom_image_stamp', u.textValue('src', 'https://www.runoob.com/try/demo_source/smiley-2.gif'), u.textValue('range', '[-100,100,200,200]')),
             u.block('nemohooker_draw_video_stamp', u.textValue('id', 'example'), u.numValue('x', 0), u.numValue('y', 0), u.numValue('scale', 1)),
             u.block('nemohooker_draw_svg', u.textValue('svg', '')),
             u.block('nemohooker_rectangle_clear', u.numValue('x', 0), u.numValue('y', 0), u.numValue('width', 100), u.numValue('height', 100)),
             u.block('nemohooker_better_draw_text_stamp', u.textValue('text', ''), u.textValue('color', '#000000'), u.optionValue('normal'), u.textValue('weight', 'bold'), u.numValue('size', 24), u.textValue('font', 'Arial'), u.optionValue('center'), u.optionValue('middle')),
             u.block('nemohooker_put_pixel', u.numValue('x', 0), u.numValue('y', 0), u.textValue('hex', '#000000'), u.numValue('a', 255)),
             u.block('nemohooker_fill_polygon', u.textValue('point', '[[-100, 100], [100, 100], [-100, -100]'), u.textValue('color', '#000000')),
+            u.sep(),
+            u.block('nemohooker_dataURL_actor'),
+            u.block('nemohooker_dataURL_stage', u.textValue('range', '[-100,100,200,200]')),
+            //u.block('nemohooker_dataURL_URL', u.textValue('url', '')),
             u.flyout_bottom()
         ].map(block => str2xml(block)));
         console.log(Blockly.mainWorkspace.toolbox_.children_[5].blocks)
@@ -107,8 +118,11 @@
         Blockly.mainWorkspace.toolbox_.children_[7].blocks.pop();
         Blockly.mainWorkspace.toolbox_.children_[7].blocks = Blockly.mainWorkspace.toolbox_.children_[7].blocks.concat([
             u.line('Better Nemo 扩展积木'),
+            u.block('nemohooker_3D_array', u.numValue('x', 0), u.numValue('y', 0), u.numValue('z', 0)),
             u.block('nemohooker_factorial', u.numValue('num', 5)),
             u.block('nemohooker_trig_common', u.optionValue('SIN'), u.numValue('xita', 45)),
+            u.block('nemohooker_3D_rotation', u.textValue('point', '[0,0,0]'), u.textValue('camera', '[0,0,0]'), u.textValue('angles', '[0,0,0]')),
+            u.block('nemohooker_regular_polygon', u.textValue('center', '[0,0]'), u.numValue('r', 100), u.numValue('n', 8), u.numValue('start', 0)),
             u.flyout_bottom()
         ].map(block => str2xml(block)));
     }, 1000)

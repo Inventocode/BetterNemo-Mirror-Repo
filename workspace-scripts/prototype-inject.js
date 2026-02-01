@@ -33,12 +33,13 @@
         var _a = this.app.get_app().view, width = _a.width, height = _a.height;
         var center_x = width / 2;
         var center_y = height / 2;
-        let points;
+
+        var points = 0;
+
         try {
             points = JSON.parse(point);
         } catch (error) {
-            console.error(error + "\n坐标数组字符串格式不合规。格式：\"[[x1, y1], [x2, y2], ...]\"。")
-            return;
+            console.error(error + "\n坐标数组字符串格式不合规。格式：\"[[x1, y1], [x2, y2], ...]\"。");
         }
 
         ctx.beginPath();
@@ -52,14 +53,19 @@
         if (color2.substring(0, 1) == "[") {
             try {
                 color2 = JSON.parse(color2);
-                var gradient = ctx.createLinearGradient(color2[0], color2[1], color2[2], color2[3]);
-
-                for (let i = 4; i < color2.length; i++) {
+                var gradient;
+                if (color2[0] == "Linear") {
+                    gradient = ctx.createLinearGradient(center_x + color2[1][0], center_y - color2[1][1], center_x + color2[1][2], center_y - color2[1][3]);
+                }
+                if (color2[0] == "Radial") {
+                    gradient = ctx.createRadialGradient(center_x + color2[1][0], center_y - color2[1][1], color2[1][2], center_x + color2[1][3], center_y - color2[1][4], color2[1][5]);
+                }
+                for (let i = 2; i < color2.length; i++) {
                     gradient.addColorStop(color2[i][0], color2[i][1]);
                 }
                 ctx.fillStyle = gradient;
             } catch (error) {
-                console.error(error + "\n渐变数组/颜色字符串格式不合规。格式：\"[x1, y1, x2, y2, [progress1, \"color1\"], [progress2, \"color2\"], ...]\"，progress∈[0,1]。");
+                console.error(error + "\n渐变数组/颜色字符串格式不合规。格式：\"[type, [gradient_params], [progress1, \"color1\"], [progress2, \"color2\"], ...]\"，progress∈[0,1]。");
                 return;
             }
         } else {
@@ -78,31 +84,31 @@
         var _a = this.app.get_app().view, width2 = _a.width, height2 = _a.height;
         var center_x = width2 / 2;
         var center_y = height2 / 2;
-        console.log("draw_image", image, x, y, width, height);
+        // console.log("draw_image", image, x, y, width, height);
         this.ctx.drawImage(image, center_x + x, center_y - y, width, height);
         this.actor.parent_scene.should_update_brush();
     };
-    Brush.prototype.draw_custom_image_stamp = function (url) {
+    Brush.prototype.draw_custom_image_stamp = function (url, x, y, w, h) {
         var ctx = this.ctx;
         if (!ctx) {
             return;
         }
         var actor = this.actor;
-        var center_point = Utils.get_actor_center(actor, actor.position);
-        var rotation = this.actor.rotation;
-        var _a = this.app.get_app().view, view_height = _a.height, view_width = _a.width;
+        var _a = this.app.get_app().view, width2 = _a.width, height2 = _a.height;
+        var center_x = width2 / 2;
+        var center_y = height2 / 2;
 
-        ctx.translate(center_point.x + view_width / 2, center_point.y + view_height / 2);
-        ctx.rotate(rotation);
-        ctx.scale(actor.scale.x < 0 ? -1 : 1, actor.scale.y < 0 ? -1 : 1);
         const source = new Image(100, 200);
 
         source.onload = function () {
             ctx.save();
-            ctx.drawImage(source, Math.floor(-actor.width / 2), Math.floor(-actor.height / 2), Math.floor(actor.width), Math.floor(actor.height));
+
+            ctx.drawImage(source, center_x + x, center_y - y, w, h);
             ctx.restore();
             actor.parent_scene.should_update_brush();
         };
+
+        //console.log([1, Math.floor(-actor.width / 2), Math.floor(-actor.height / 2)]);
 
         source.src = url;
 
@@ -115,6 +121,9 @@
         var _a = this.app.get_app().stage
             .toGlobal(this.actor.position), x = _a.x, y = _a.y;
         var stamp_rotation = rotation !== undefined ? rotation : this.actor.rotation;
+        var _a2 = this.app.get_app().view, width2 = _a2.width, height2 = _a2.height;
+        var center_x = width2 / 2;
+        var center_y = height2 / 2;
         ctx.save();
         ctx.font = style + ' ' + weight + ' ' + size + "px " + font + ", Arial, 'Microsoft YaHei'";
 
@@ -122,14 +131,19 @@
         if (color2.substring(0, 1) == "[") {
             try {
                 color2 = JSON.parse(color2);
-                var gradient = ctx.createLinearGradient(color2[0], color2[1], color2[2], color2[3]);
-
-                for (let i = 4; i < color2.length; i++) {
+                var gradient;
+                if (color2[0] == "Linear") {
+                    gradient = ctx.createLinearGradient(center_x + color2[1][0], center_y - color2[1][1], center_x + color2[1][2], center_y - color2[1][3]);
+                }
+                if (color2[0] == "Radial") {
+                    gradient = ctx.createRadialGradient(center_x + color2[1][0], center_y - color2[1][1], color2[1][2], center_x + color2[1][3], center_y - color2[1][4], color2[1][5]);
+                }
+                for (let i = 2; i < color2.length; i++) {
                     gradient.addColorStop(color2[i][0], color2[i][1]);
                 }
                 ctx.fillStyle = gradient;
             } catch (error) {
-                console.error(error + "\n渐变数组/颜色字符串格式不合规。格式：\"[x1, y1, x2, y2, [progress1, \"color1\"], [progress2, \"color2\"], ...]\"，progress∈[0,1]。");
+                console.error(error + "\n渐变数组/颜色字符串格式不合规。格式：\"[type, [gradient_params], [progress1, \"color1\"], [progress2, \"color2\"], ...]\"，progress∈[0,1]。");
                 return;
             }
         } else {
@@ -184,7 +198,67 @@
         };
         source.src = svgURL;
     };
+    // 图像处理
+    /*
+    Brush.prototype.dataURL_actor = function () {
+        
+        var actor = this.actor;
+        const source = actor.texture.baseTexture.getDrawableSource && actor.texture.baseTexture.getDrawableSource();
+        
+        const canvasD = document.createElement('canvas');
+        const ctxD = canvasD.getContext('2d');
+        
+        canvasD.width = source.width;
+        canvasD.height = source.height;
+        
+        ctxD.drawImage(source, 0, 0);
+        
+        return canvasD.toDataURL();
+        
+    };
+    */
+    Brush.prototype.dataURL_stage = function (imgdata) {
+        const source = imgdata;
 
+        const canvasD = document.createElement('canvas');
+        const ctxD = canvasD.getContext('2d');
+
+        canvasD.width = source.width;
+        canvasD.height = source.height;
+
+        ctxD.putImageData(source, 0, 0);
+
+        return canvasD.toDataURL();
+
+    };
+    //舞台长宽
+    Brush.prototype.stage_size = function () {
+        var _a = this.app.get_app().view, width2 = _a.width, height2 = _a.height;
+        var center_x = width2 / 2;
+        var center_y = height2 / 2;
+
+        //console.log([2,center_x,center_y]);
+        return [center_x, center_y];
+    };
+    Brush.prototype.dataURL_URL = function (url) {
+
+        var img = new Image();
+
+        img.crossOrigin = 'anonymous';
+
+        const canvasD = document.createElement('canvas');
+        const ctxD = canvasD.getContext('2d');
+
+        img.onload = function () {
+            canvasD.width = img.width;
+            canvasD.height = img.height;
+
+            ctxD.drawImage(img, 0, 0);
+            return canvasD.toDataURL();
+        };
+
+        img.src = url;
+    };
     console.log("[NemoHooker::prototype-inject] 画笔原型注入完成");
 })();
 // ------------------Scene原型注入------------------

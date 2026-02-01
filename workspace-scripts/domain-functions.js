@@ -253,6 +253,68 @@
         if (option == "ACOS") return Math.acos(xita) * 180 / Math.PI;
         return Math.atan(xita) * 180 / Math.PI;
     });
+    regDomainFunction("nemohooker_3D_rotation", (params, uuid, uuid2, utils) => {
+    
+        const radians = Math.PI / 180;
+        const angles = JSON.parse(params.angles);
+        const yaw = angles[2] * radians;
+        const pitch = angles[0] * radians;
+        const roll = angles[1] * radians;
+        
+        const sinY = Math.sin(yaw);
+        const sinP = Math.sin(pitch);
+        const sinR = Math.sin(roll);
+        const cosY = Math.cos(yaw);
+        const cosP = Math.cos(pitch);
+        const cosR = Math.cos(roll);
+        
+        const point = JSON.parse(params.point);
+        const camera = JSON.parse(params.camera);
+        
+        const dx = point[0] - camera[0];
+        const dy = point[1] - camera[1];
+        const dz = point[2] - camera[2];
+        
+        const xr = dx * (cosY * cosP) 
+                 + dy * (sinY * cosP)
+                 + dz * (-sinP);
+        
+        const yr = dx * (cosY * sinP * sinR - sinY * cosR)
+                 + dy * (sinY * sinP * sinR + cosY * cosR)
+                 + dz * (cosP * sinR);
+        
+        const zr = dx * (cosY * sinP * cosR + sinY * sinR)
+                 + dy * (sinY * sinP * cosR - cosY * sinR)
+                 + dz * (cosP * cosR);
+        
+    
+        return [xr, yr, zr];
+    });
+    regDomainFunction("nemohooker_3D_array", (params, uuid, uuid2, utils) => {
+        return "[" + String(params.x) + "," + String(params.y) + "," + String(params.z) +"]";
+    });
+    regDomainFunction("nemohooker_regular_polygon", (params, uuid, uuid2, utils) => {
+        const center = JSON.parse(params.center);
+        const r = parseFloat(params.r);
+        const n = parseInt(params.n);
+        const start = parseFloat(params.start) * Math.PI / 180;
+        
+        if (n < 3) return;
+        
+        var points = [];
+        const angleStep = (2 * Math.PI) / n;
+        
+        for (let i = 0; i < n; i++) {
+            const angle = start +  i * angleStep;
+            
+            const x = center[0] + r * Math.cos(angle);
+            const y = center[1] + r * Math.sin(angle);
+            
+            points.push([x, y]);
+        }
+        
+        return JSON.stringify(points);
+    });
     // --------------画笔扩展-------------------
     function get_stage_target(target_id) {
         const stage = Runtime.stage;
@@ -275,7 +337,14 @@
     regDomainFunction("nemohooker_draw_image_stamp", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
         if (!actor) return;
-        actor.get_brush().draw_image_stamp();
+        
+        const range = JSON.parse(params.range);
+        const x = range[0];
+        const y = range[1];
+        const w = range[2];
+        const h = range[3];
+        
+        actor.get_brush().draw_custom_image_stamp(params.src, x, y, w, h);
     });
     regDomainFunction("nemohooker_draw_custom_image_stamp", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
@@ -471,6 +540,49 @@
             actor.get_brush().set_fill_color(hexStr);
 
         };
+    });
+    // -----------图像处理---------
+    regDomainFunction("nemohooker_dataURL_actor", (params, uuid, uuid2, utils) => {
+        var actor = get_stage_target(uuid2);
+        if (!actor) {
+            return;
+        }
+        
+        return String(actor.get_brush().dataURL_actor());
+    });
+    regDomainFunction("nemohooker_dataURL_stage", (params, uuid, uuid2, utils) => {
+        var actor = get_stage_target(uuid2);
+        if (!actor) {
+            return;
+        }
+        var range = [];
+        try {
+            range = JSON.parse(params.range);
+        } catch(error) {
+            console.error(error + "\n范围数组不合规。格式：\"[x, y, width, height]\"。");
+            return;
+        }
+        var x = range[0];
+        var y = range[1];
+        const width = range[2];
+        const height = range[3];
+        
+        const stageSize = actor.get_brush().stage_size();
+        x = stageSize[0] + x;
+        y = stageSize[1] - y;
+        //console.log([3,x,y]);
+        const data = HookRuntime.exports.get_webview_runtime().stage.core.extract_pixels(x, y, width, height);
+        
+        return String(actor.get_brush().dataURL_stage(new ImageData(new Uint8ClampedArray(data), width, height)));
+    });
+    regDomainFunction("nemohooker_dataURL_URL", (params, uuid, uuid2, utils) => {
+        var actor = get_stage_target(uuid2);
+        if (!actor) {
+            return;
+        }
+        
+        const url = params.url;
+        return String(actor.get_brush().dataURL_URL(url));
     });
     // -----------------MQTT-----------------
     console.log("[NemoHooker::domain-functions] 解释器注入完成");

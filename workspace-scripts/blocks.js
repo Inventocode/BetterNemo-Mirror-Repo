@@ -493,6 +493,73 @@ let blockObjects = [];
             colour: "%{BKY_PEN_HUE}",
             ...method_block
         },
+        {
+            type: "nemohooker_regular_polygon",
+            message0: "正多边形 中心 %1 半径 %2 边数 %3 起始角 %4",
+            args0: [
+                { "type": "input_value", "name": "center", "check": "String" },
+                { "type": "input_value", "name": "r", "check": "Number" },
+                { "type": "input_value", "name": "n", "check": "Number" },
+                { "type": "input_value", "name": "start", "check": "Number" }
+            ],
+            colour: "%{BKY_MATH_HUE}",
+            inputsInline: true,
+            output: "String"
+        },
+        {
+            type: "nemohooker_dataURL_actor",
+            message0: "从 角色造型 获取DataURL",
+            args0: [],
+            colour: "%{BKY_APPEARANCE_HUE}",
+            inputsInline: true,
+            output: "String"
+        },
+        {
+            type: "nemohooker_dataURL_stage",
+            message0: "从 舞台 获取DataURL 范围 %1",
+            args0: [
+                { "type": "input_value", "name": "range", "check": "String" }
+            ],
+            colour: "%{BKY_APPEARANCE_HUE}",
+            inputsInline: true,
+            output: "String"
+        },
+        /*
+        {
+            type: "nemohooker_dataURL_URL",
+            message0: "从 HttpURL 获取DataURL URL %1",
+            args0: [
+                { "type": "input_value", "name": "url", "check": "String" }
+            ],
+            colour: "%{BKY_APPEARANCE_HUE}",
+            inputsInline: true,
+            output: "String"
+        },*/
+        // 3D
+        {
+            type: "nemohooker_3D_rotation",
+            message0: "三维旋转矩阵 点坐标 %1 相机坐标 %2 欧拉角 %3",
+            args0: [
+                { "type": "input_value", "name": "point", "check": ["String", "Array"] },
+                { "type": "input_value", "name": "camera", "check": ["String", "Array"] },
+                { "type": "input_value", "name": "angles", "check": ["String", "Array"] }
+            ],
+            colour: "%{BKY_MATH_HUE}",
+            inputsInline: true,
+            output: "Array"
+        },
+        {
+            type: "nemohooker_3D_array",
+            message0: "3D %1 %2 %3",
+            args0: [
+                { "type": "input_value", "name": "x", "check": "Number" },
+                { "type": "input_value", "name": "y", "check": "Number" },
+                { "type": "input_value", "name": "z", "check": "Number" }
+            ],
+            colour: "%{BKY_MATH_HUE}",
+            inputsInline: true,
+            output: "String"
+        },
         // MQTT
         {
             type: "nemohooker_mqtt_connect",
