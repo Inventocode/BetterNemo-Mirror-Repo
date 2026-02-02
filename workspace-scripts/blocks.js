@@ -1,4 +1,5 @@
 let blockObjects = [];
+let rootBlockChecks = [];
 (async () => {
     console.log("[NemoHooker::blocks] 等待Blockly加载");
     await isBlocklyLoaded();
@@ -6,24 +7,9 @@ let blockObjects = [];
     await isBlocklyMainworkspaceLoaded();
     console.log("[NemoHooker::blocks] 积木注入开始");
     Blockly.mainWorkspace.add_change_listener(() => {
-        function checkRootBlock(blockType, ...rootBlockTypes) {
-            Blockly.mainWorkspace.get_all_blocks()
-                .filter(block => block.type == blockType)
-                .forEach(block => {
-                    if (block.get_colour() != Blockly.theme.disabled_color.fill)
-                        block._color = block.get_colour();
-                    if (block.get_root_block())
-                        if (rootBlockTypes.includes(block.get_root_block().type))
-                            if (block._color) {
-                                block.set_deletable(false);
-                                block.set_colour(block._color);
-                                return;
-                            }
-                    block.set_deletable(true);
-                    block.set_colour(Blockly.theme.disabled_color.fill)
-                });
-        }
-        checkRootBlock('nemohooker_on_key_event_param', 'nemohooker_on_key_down', 'nemohooker_on_key_up');
+        rootBlockChecks.forEach(check => {
+            checkRootBlock(check);
+        });
         // 实验性功能：禁用一步执行中的死循环
         if (experimentalConfig.disable_repeat_forever_in_warp) {
             Blockly.mainWorkspace.get_all_blocks()
@@ -56,6 +42,10 @@ let blockObjects = [];
         "fill": "#bb00bb",
         "border": "#660066",
     };
+    Blockly.theme.block_color['DISABLED_COLOR'] = {
+        "fill": "#9399a4",
+        "border": "#9399a4",
+    };
     const method_block = {
         previousStatement: true,
         nextStatement: true,
@@ -87,14 +77,14 @@ let blockObjects = [];
         {
             type: "nemohooker_eval",
             message0: "执行JavaScript %1",
-            args0: [{ "type": "input_value", "name": "js", "check": "String" }],
+            args0: [{ type: "input_value", name: "js", check: "String", value: 'console.log("Hello world!")' }],
             colour: BLOCK_COLOR,
             ...method_block
         },
         {
             type: "nemohooker_clipboard_write",
             message0: "写入 剪切板 %1",
-            args0: [{ "type": "input_value", "name": "value", "check": ["String", "Number"] }],
+            args0: [{ type: "input_value", name: "value", check: ["String", "Number"], value: "(～￣▽￣)～" }],
             colour: BLOCK_COLOR,
             ...method_block
         },
@@ -109,14 +99,14 @@ let blockObjects = [];
         {
             type: "nemohooker_alert",
             message0: "调用 提示 %1",
-            args0: [{ "type": "input_value", "name": "param", "check": ["String", "Number"] }],
+            args0: [{ type: "input_value", name: "param", check: ["String", "Number"], value: "WOW" }],
             colour: BLOCK_COLOR,
             ...method_block
         },
         {
             type: "nemohooker_prompt",
             message0: "调用 询问 %1",
-            args0: [{ "type": "input_value", "name": "param", "check": ["String", "Number"] }],
+            args0: [{ type: "input_value", name: "param", check: ["String", "Number"], value: "请输入文本" }],
             colour: BLOCK_COLOR,
             inputsInline: true,
             output: "String"
@@ -132,10 +122,7 @@ let blockObjects = [];
         {
             type: "nemohooker_on_key_up",
             message0: "%1 当 (按键) 被放开",
-            args0: [
-                keyboard_event_icon_field
-
-            ],
+            args0: [keyboard_event_icon_field],
             nextStatement: true,
             colour: BLOCK_COLOR,
             inputsInline: true
@@ -153,8 +140,9 @@ let blockObjects = [];
             message0: "按下 %1",
             args0: [{
                 "type": "field_dropdown",
-                "name": "style",
-                "options": [["A", "KeyA"], ["B", "KeyB"], ["C", "KeyC"], ["D", "KeyD"], ["E", "KeyE"], ["F", "KeyF"], ["G", "KeyG"], ["H", "KeyH"], ["I", "KeyI"], ["J", "KeyJ"], ["K", "KeyK"], ["L", "KeyL"], ["M", "KeyM"], ["N", "KeyN"], ["O", "KeyO"], ["P", "KeyP"], ["Q", "KeyQ"], ["R", "KeyR"], ["S", "KeyS"], ["T", "KeyT"], ["U", "KeyU"], ["V", "KeyV"], ["W", "KeyW"], ["X", "KeyX"], ["Y", "KeyY"], ["Z", "KeyZ"]]
+                name: "style",
+                "options": [["A", "KeyA"], ["B", "KeyB"], ["C", "KeyC"], ["D", "KeyD"], ["E", "KeyE"], ["F", "KeyF"], ["G", "KeyG"], ["H", "KeyH"], ["I", "KeyI"], ["J", "KeyJ"], ["K", "KeyK"], ["L", "KeyL"], ["M", "KeyM"], ["N", "KeyN"], ["O", "KeyO"], ["P", "KeyP"], ["Q", "KeyQ"], ["R", "KeyR"], ["S", "KeyS"], ["T", "KeyT"], ["U", "KeyU"], ["V", "KeyV"], ["W", "KeyW"], ["X", "KeyX"], ["Y", "KeyY"], ["Z", "KeyZ"]],
+                value: "KeyA"
             }],
             colour: BLOCK_COLOR,
             inputsInline: true,
@@ -163,19 +151,19 @@ let blockObjects = [];
         // 网络
         {
             type: "nemohooker_http_get",
-            message0: "网络 GET %1",
-            args0: [{ "type": "input_value", "name": "param", "check": ["String", "Number"] }],
+            message0: "网络 GET URL %1",
+            args0: [{ type: "input_value", name: "param", check: ["String", "Number"], value: "" }],
             colour: BLOCK_COLOR,
             inputsInline: true,
             output: "String"
         },
         {
             type: "nemohooker_http_post",
-            message0: "网络 POST %1 %2 %3",
+            message0: "网络 POST URL %1 body %2 headers %3",
             args0: [
-                { "type": "input_value", "name": "param", "check": ["String", "Number"] },
-                { "type": "input_value", "name": "body", "check": ["String", "Number"] },
-                { "type": "input_value", "name": "headers", "check": ["String", "Number"] }
+                { type: "input_value", name: "param", check: ["String", "Number"], value: "" },
+                { type: "input_value", name: "body", check: ["String", "Number"], value: "" },
+                { type: "input_value", name: "headers", check: ["String", "Number"], value: "" }
             ],
             colour: BLOCK_COLOR,
             inputsInline: true,
@@ -186,8 +174,8 @@ let blockObjects = [];
             type: "nemohooker_object_include_key",
             message0: "%1 包含键 %2",
             args0: [
-                { "type": "input_value", "name": "obj", "check": "String" },
-                { "type": "input_value", "name": "key", "check": ["String", "Number"] }
+                { type: "input_value", name: "obj", check: "String", value: '{"abc":114514}' },
+                { type: "input_value", name: "key", check: ["String", "Number"], value: "abc" }
             ],
             colour: "%{BKY_SOUND_HUE}",
             inputsInline: true,
@@ -197,8 +185,8 @@ let blockObjects = [];
             type: "nemohooker_object_get",
             message0: "%1 键 %2 的值",
             args0: [
-                { "type": "input_value", "name": "obj", "check": "String" },
-                { "type": "input_value", "name": "key", "check": ["String", "Number"] }
+                { type: "input_value", name: "obj", check: "String", value: '{"abc":114514}' },
+                { type: "input_value", name: "key", check: ["String", "Number"], value: "abc" }
             ],
             colour: "%{BKY_SOUND_HUE}",
             inputsInline: true,
@@ -208,9 +196,9 @@ let blockObjects = [];
             type: "nemohooker_object_set",
             message0: "%1 键 %2 设为 %3",
             args0: [
-                { "type": "input_value", "name": "obj", "check": "String" },
-                { "type": "input_value", "name": "key", "check": ["String", "Number"] },
-                { "type": "input_value", "name": "value", "check": ["String", "Number"] }
+                { type: "input_value", name: "obj", check: "String", value:'{"abc":114514}' },
+                { type: "input_value", name: "key", check: ["String", "Number"], value: "abc" },
+                { type: "input_value", name: "value", check: ["String", "Number"], value: "1919810" }
             ],
             colour: "%{BKY_SOUND_HUE}",
             inputsInline: true,
@@ -221,8 +209,8 @@ let blockObjects = [];
             type: "nemohooker_array_include_value",
             message0: "%1 包含 %2",
             args0: [
-                { "type": "input_value", "name": "arr", "check": "String" },
-                { "type": "input_value", "name": "value", "check": ["String", "Number"] }
+                { type: "input_value", name: "arr", check: "String", value: "[1, 2, 3]" },
+                { type: "input_value", name: "value", check: ["String", "Number"], value: "4" }
             ],
             colour: "%{BKY_SOUND_HUE}",
             inputsInline: true,
@@ -232,8 +220,8 @@ let blockObjects = [];
             type: "nemohooker_array_get",
             message0: "%1 第 %2 项",
             args0: [
-                { "type": "input_value", "name": "arr", "check": "String" },
-                { "type": "input_value", "name": "index", "check": "Number" }
+                { type: "input_value", name: "arr", check: "String", value: "[1, 2, 3]" },
+                { type: "input_value", name: "index", check: "Number", value: "1" }
             ],
             colour: "%{BKY_SOUND_HUE}",
             inputsInline: true,
@@ -243,9 +231,9 @@ let blockObjects = [];
             type: "nemohooker_array_set",
             message0: "%1 第 %2 项设为 %3",
             args0: [
-                { "type": "input_value", "name": "arr", "check": "String" },
-                { "type": "input_value", "name": "index", "check": "Number" },
-                { "type": "input_value", "name": "value", "check": ["String", "Number"] }
+                { type: "input_value", name: "arr", check: "String", value: "[1, 2, 3]" },
+                { type: "input_value", name: "index", check: "Number", value: "3" },
+                { type: "input_value", name: "value", check: ["String", "Number"], value: "6" }
             ],
             colour: "%{BKY_SOUND_HUE}",
             inputsInline: true,
@@ -255,7 +243,7 @@ let blockObjects = [];
             type: "nemohooker_array_length",
             message0: "%1 的长度",
             args0: [
-                { "type": "input_value", "name": "arr", "check": "String" }
+                { type: "input_value", name: "arr", check: "String", value: "[1, 2, 3]" }
             ],
             colour: "%{BKY_SOUND_HUE}",
             inputsInline: true,
@@ -266,7 +254,7 @@ let blockObjects = [];
             type: "nemohooker_factorial",
             message0: "[B] 阶乘 %1",
             args0: [
-                { "type": "input_value", "name": "num", "check": "Number" }
+                { type: "input_value", name: "num", check: "Number", value: "5" }
             ],
             colour: "%{BKY_MATH_HUE}",
             inputsInline: true,
@@ -286,12 +274,12 @@ let blockObjects = [];
                         ["Math.asin", "ASIN"],
                         ["Math.acos", "ACOS"],
                         ["Math.atan", "ATAN"]
-                    ]
+                    ], value: "SIN"
                 },
                 {
                     type: "input_value",
                     name: "xita",
-                    check: "Number"
+                    check: "Number", value: "45"
                 }
             ],
             colour: "%{BKY_MATH_HUE}",
@@ -303,8 +291,8 @@ let blockObjects = [];
             type: "nemohooker_create_video",
             message0: "创建视频 %1 URL %2",
             args0: [
-                { "type": "input_value", "name": "id", "check": "String" },
-                { "type": "input_value", "name": "src", "check": "String" }
+                { type: "input_value", name: "id", check: "String", value: "example" },
+                { type: "input_value", name: "src", check: "String", value: "https://static.codemao.cn/coco/course/lesson1.mp4" }
             ],
             colour: Color.video,
             ...method_block
@@ -312,14 +300,14 @@ let blockObjects = [];
         {
             type: "nemohooker_play_video",
             message0: "播放视频 %1",
-            args0: [{ "type": "input_value", "name": "id", "check": "String" }],
+            args0: [{ type: "input_value", name: "id", check: "String", value: "example" }],
             colour: Color.video,
             ...method_block
         },
         {
             type: "nemohooker_pause_video",
             message0: "暂停视频 %1",
-            args0: [{ "type": "input_value", "name": "id", "check": "String" }],
+            args0: [{ type: "input_value", name: "id", check: "String", value: "example" }],
             colour: Color.video,
             ...method_block
         },
@@ -327,8 +315,8 @@ let blockObjects = [];
             type: "nemohooker_set_video_current_time",
             message0: "设置视频 %1 位置 %2 秒",
             args0: [
-                { "type": "input_value", "name": "id", "check": "String" },
-                { "type": "input_value", "name": "time", "check": "Number" }
+                { type: "input_value", name: "id", check: "String", value: "example" },
+                { type: "input_value", name: "time", check: "Number", value: 10 }
             ],
             colour: Color.video,
             ...method_block
@@ -345,7 +333,9 @@ let blockObjects = [];
         {
             type: "nemohooker_draw_custom_image_stamp",
             message0: "网络图像印章 URL %1",
-            args0: [{ "type": "input_value", "name": "src", "check": "String" }],
+            args0: [
+                { type: "input_value", name: "src", check: "String", value: "https://www.runoob.com/try/demo_source/smiley-2.gif" }
+            ],
             colour: "%{BKY_PEN_HUE}",
             ...method_block
         },
@@ -353,10 +343,10 @@ let blockObjects = [];
             type: "nemohooker_draw_video_stamp",
             message0: "视频印章 ID %1 x %2 y %3 缩放 %4",
             args0: [
-                { "type": "input_value", "name": "id", "check": "String" },
-                { "type": "input_value", "name": "x", "check": "Number" },
-                { "type": "input_value", "name": "y", "check": "Number" },
-                { "type": "input_value", "name": "scale", "check": "Number" }
+                { type: "input_value", name: "id", check: "String", value: "example" },
+                { type: "input_value", name: "x", check: "Number", value: -200 },
+                { type: "input_value", name: "y", check: "Number", value: 200 },
+                { type: "input_value", name: "scale", check: "Number", value: 0.5 }
             ],
             colour: "%{BKY_PEN_HUE}",
             ...method_block
@@ -365,10 +355,10 @@ let blockObjects = [];
             type: "nemohooker_put_pixel",
             message0: "放置像素 x %1 y %2 HEX/RGB数组 %3 不透明度 %4",
             args0: [
-                { "type": "input_value", "name": "x", "check": "Number" },
-                { "type": "input_value", "name": "y", "check": "Number" },
-                { "type": "input_value", "name": "hex", "check": ["String", "Array"] },
-                { "type": "input_value", "name": "a", "check": "Number" },
+                { type: "input_value", name: "x", check: "Number", value: 0 },
+                { type: "input_value", name: "y", check: "Number", value: 0 },
+                { type: "input_value", name: "hex", check: ["String", "Array"], value: "#000000" },
+                { type: "input_value", name: "a", check: "Number", value: 255 },
             ],
             colour: "%{BKY_PEN_HUE}",
             ...method_block
@@ -377,8 +367,8 @@ let blockObjects = [];
             type: "nemohooker_fill_polygon",
             message0: "绘制多边形 坐标数组 %1 颜色 %2",
             args0: [
-                { "type": "input_value", "name": "point", "check": "String" },
-                { "type": "input_value", "name": "color", "check": "String" }
+                { type: "input_value", name: "point", check: "String", value: '[[-100, 100], [100, 100], [-100, -100]' },
+                { type: "input_value", name: "color", check: "String", value: '#000000' }
             ],
             colour: "%{BKY_PEN_HUE}",
             ...method_block
@@ -388,37 +378,37 @@ let blockObjects = [];
             message0: "样式文字印章 文本 %1 颜色 %2 %3 粗细 %4 大小 %5 字体 %6 对齐方式 %7 %8",
             // 文本 颜色 样式 粗细 大小 字体 水平 垂直
             args0: [
-                { "type": "input_value", "name": "text", "check": ["String", "Number"] },
-                { "type": "input_value", "name": "color", "check": "String" },
+                { type: "input_value", name: "text", check: ["String", "Number"], value: "BetterNemo" },
+                { type: "input_value", name: "color", check: "String", value: "#000000" },
                 {
                     "type": "field_dropdown",
-                    "name": "style",
+                    name: "style",
                     "options": [
                         ["正常", "normal"],
                         ["斜体", "italic"],
                         ["强制斜体", "oblique"]
-                    ]
+                    ], value: "normal"
                 },
-                { "type": "input_value", "name": "weight", "check": ["String", "Number"] },
-                { "type": "input_value", "name": "size", "check": "Number" },
-                { "type": "input_value", "name": "font", "check": "String" },
+                { type: "input_value", name: "weight", check: ["String", "Number"], value: "bold" },
+                { type: "input_value", name: "size", check: "Number", value: 24 },
+                { type: "input_value", name: "font", check: "String", value: "Arial" },
                 {
                     "type": "field_dropdown",
-                    "name": "align",
+                    name: "align",
                     "options": [
                         ["居中对齐", "center"],
                         ["左对齐", "left"],
                         ["右对齐", "right"]
-                    ]
+                    ], value: "center"
                 },
                 {
                     "type": "field_dropdown",
-                    "name": "base_line",
+                    name: "base_line",
                     "options": [
                         ["居中对齐", "middle"],
                         ["顶部对齐", "top"],
                         ["底部对齐", "bottom"]
-                    ]
+                    ], value: "middle"
                 }
             ],
             colour: "%{BKY_PEN_HUE}",
@@ -428,10 +418,10 @@ let blockObjects = [];
             type: "nemohooker_rectangle_clear",
             message0: "擦除矩形区域 起始点 x %1 y %2 宽度 %3 高度 %4",
             args0: [
-                { "type": "input_value", "name": "x", "check": "Number" },
-                { "type": "input_value", "name": "y", "check": "Number" },
-                { "type": "input_value", "name": "width", "check": "Number" },
-                { "type": "input_value", "name": "height", "check": "Number" }
+                { type: "input_value", name: "x", check: "Number", value: 0 },
+                { type: "input_value", name: "y", check: "Number", value: 0 },
+                { type: "input_value", name: "width", check: "Number", value: 100 },
+                { type: "input_value", name: "height", check: "Number", value: 100 }
             ],
             colour: "%{BKY_PEN_HUE}",
             ...method_block
@@ -440,7 +430,7 @@ let blockObjects = [];
             type: "nemohooker_draw_svg",
             message0: "绘制矢量图 XML %1",
             args0: [
-                { "type": "input_value", "name": "svg", "check": "String" }
+                { type: "input_value", name: "svg", check: "String", value: '' }
             ],
             colour: "%{BKY_PEN_HUE}",
             ...method_block
@@ -449,7 +439,7 @@ let blockObjects = [];
             type: "nemohooker_color",
             message0: "%1",
             args0: [
-                { "type": "field_colour", "name": "color", "colour": "#cc66cc" }
+                { "type": "field_colour", name: "color", "colour": "#cc66cc" }
             ],
             colour: "%{BKY_PEN_HUE}",
             inputsInline: true,
@@ -459,15 +449,16 @@ let blockObjects = [];
             type: "nemohooker_hex_to_array",
             message0: "HEX %1 转 %2 数组",
             args0: [
-                { "type": "input_value", "name": "hex", "check": "String" },
+                { type: "input_value", name: "hex", check: "String", value: "#FFFFFF" },
                 {
                     "type": "field_dropdown",
-                    "name": "pattern",
+                    name: "pattern",
                     "options": [
                         ["RGB", "rgb"],
                         ["HSV", "hsv"],
                         ["HSL", "hsl"]
-                    ]
+                    ],
+                    value: "rgb"
                 }
             ],
             colour: "%{BKY_PEN_HUE}",
@@ -478,8 +469,8 @@ let blockObjects = [];
             type: "nemohooker_set_pen_color_hex",
             message0: "设置画笔颜色为 HEX/RGB数组 %1 不透明度 %2",
             args0: [
-                { "type": "input_value", "name": "hex", "check": ["String", "Array"] },
-                { "type": "input_value", "name": "a", "check": "Number" }
+                { type: "input_value", name: "hex", check: ["String", "Array"], value: "#FFFFFF" },
+                { type: "input_value", name: "a", check: "Number", value: 255 }
             ],
             colour: "%{BKY_PEN_HUE}",
             ...method_block
@@ -488,7 +479,7 @@ let blockObjects = [];
             type: "nemohooker_set_fill_color_hex",
             message0: "设置填充颜色为 HEX/RGB数组 %1",
             args0: [
-                { "type": "input_value", "name": "hex", "check": ["String", "Array"] }
+                { type: "input_value", name: "hex", check: ["String", "Array"], value: "#000000" }
             ],
             colour: "%{BKY_PEN_HUE}",
             ...method_block
@@ -497,10 +488,10 @@ let blockObjects = [];
             type: "nemohooker_regular_polygon",
             message0: "正多边形 中心 %1 半径 %2 边数 %3 起始角 %4",
             args0: [
-                { "type": "input_value", "name": "center", "check": "String" },
-                { "type": "input_value", "name": "r", "check": "Number" },
-                { "type": "input_value", "name": "n", "check": "Number" },
-                { "type": "input_value", "name": "start", "check": "Number" }
+                { type: "input_value", name: "center", check: "String",value:"[0,0]" },
+                { type: "input_value", name: "r", check: "Number",value:100 },
+                { type: "input_value", name: "n", check: "Number",value:8 },
+                { type: "input_value", name: "start", check: "Number",value:0 }
             ],
             colour: "%{BKY_MATH_HUE}",
             inputsInline: true,
@@ -518,7 +509,7 @@ let blockObjects = [];
             type: "nemohooker_dataURL_stage",
             message0: "从 舞台 获取DataURL 范围 %1",
             args0: [
-                { "type": "input_value", "name": "range", "check": "String" }
+                { type: "input_value", name: "range", check: "String", value: "" }
             ],
             colour: "%{BKY_APPEARANCE_HUE}",
             inputsInline: true,
@@ -529,7 +520,7 @@ let blockObjects = [];
             type: "nemohooker_dataURL_URL",
             message0: "从 HttpURL 获取DataURL URL %1",
             args0: [
-                { "type": "input_value", "name": "url", "check": "String" }
+                { type: "input_value", name: "url", check: "String" }
             ],
             colour: "%{BKY_APPEARANCE_HUE}",
             inputsInline: true,
@@ -540,9 +531,9 @@ let blockObjects = [];
             type: "nemohooker_3D_rotation",
             message0: "三维旋转矩阵 点坐标 %1 相机坐标 %2 欧拉角 %3",
             args0: [
-                { "type": "input_value", "name": "point", "check": ["String", "Array"] },
-                { "type": "input_value", "name": "camera", "check": ["String", "Array"] },
-                { "type": "input_value", "name": "angles", "check": ["String", "Array"] }
+                { type: "input_value", name: "point", check: ["String", "Array"], value: "[0,0,0]" },
+                { type: "input_value", name: "camera", check: ["String", "Array"], value: "[0,0,0]" },
+                { type: "input_value", name: "angles", check: ["String", "Array"], value: "[0,0,0]" }
             ],
             colour: "%{BKY_MATH_HUE}",
             inputsInline: true,
@@ -552,9 +543,9 @@ let blockObjects = [];
             type: "nemohooker_3D_array",
             message0: "3D %1 %2 %3",
             args0: [
-                { "type": "input_value", "name": "x", "check": "Number" },
-                { "type": "input_value", "name": "y", "check": "Number" },
-                { "type": "input_value", "name": "z", "check": "Number" }
+                { type: "input_value", name: "x", check: "Number", value: 0 },
+                { type: "input_value", name: "y", check: "Number", value: 0 },
+                { type: "input_value", name: "z", check: "Number", value: 0 }
             ],
             colour: "%{BKY_MATH_HUE}",
             inputsInline: true,
@@ -566,10 +557,10 @@ let blockObjects = [];
             message0: "连接到 %1 地址 %2 客户端ID %3 用户 %4 密码 %5",
             args0: [
                 { "type": "input_dummy" },
-                { "type": "input_value", "name": "address", "check": "String" },
-                { "type": "input_value", "name": "clientID", "check": "String" },
-                { "type": "input_value", "name": "user", "check": "String" },
-                { "type": "input_value", "name": "password", "check": "String" },
+                { type: "input_value", name: "address", check: "String", "value": "wss://bemfa.com:9504/wss" },
+                { type: "input_value", name: "clientID", check: "String", "value": "" },
+                { type: "input_value", name: "user", check: "String", "value": "" },
+                { type: "input_value", name: "password", check: "String", "value": "" },
             ],
             colour: Color.mqtt,
             ...method_block,
@@ -606,17 +597,18 @@ let blockObjects = [];
         {
             type: "nemohooker_mqtt_on_message",
             message0: "%1 当 收到消息 %2",
-            args0: [mqtt_event_icon_filed, { "type": "input_value", "name": "param", "check": "undefined" }],
+            args0: [mqtt_event_icon_filed, { type: "input_value", name: "param", check: "undefined" }],
             colour: Color.mqtt,
             ...event_block
         },
         {
-            type: "nemohooker_mqtt_on_message_value",
-            message0: "参数",
-            args0: [],
-            colour: BLOCK_COLOR,
-            inputsInline: true,
-            output: "String"
+            type: "nemohooker_mqtt_on_message_message",
+            text: "消息",
+            output: "String",
+            EventParam: {
+                eventBlockId: 'nemohooker_mqtt_on_message',
+                colorId: 'MQTT_HUE'
+            }
         },
         {
             type: "nemohooker_mqtt_on_publish_error",
@@ -636,8 +628,8 @@ let blockObjects = [];
             type: "nemohooker_mqtt_publish",
             message0: "向主题 %1 发布消息 %2",
             args0: [
-                { "type": "input_value", "name": "topic", "check": "String" },
-                { "type": "input_value", "name": "massage", "check": "String" },
+                { type: "input_value", name: "topic", check: "String", value: "light002" },
+                { type: "input_value", name: "message", check: "String", value: "on" },
             ],
             colour: Color.mqtt,
             ...method_block
@@ -645,83 +637,28 @@ let blockObjects = [];
         {
             type: "nemohooker_mqtt_subscribe",
             message0: "订阅主题 %1",
-            args0: [{ "type": "input_value", "name": "topic", "check": "String" }],
+            args0: [{ type: "input_value", name: "topic", check: "String", value: "light002" }],
             colour: Color.mqtt,
             ...method_block
         },
     ];
-
-    // 使用JSON数组定义Blockly代码块
-    Blockly.define_blocks_with_json_array(blockObjects);
-    const Di = await waitHook('Di');
-    Blockly.define_block_with_object('nemohooker_mqtt_on_message_param', {
-        init: function () {
-            const __IS_PC__ = false;
-            var t = this
-                , n = Blockly.di_container.get(Di.BINDING.FieldLabelSerializable)
-                , r = Blockly.di_container.get(Di.BINDING.CreateEvent)
-                , i = n({
-                    text: "参数"
-                });
-            i.on_mouse_down = function (e) {
-                e.preventDefault()
-            }
-                ,
-                this.append_dummy_input().append_field(i, "TEXT"),
-                this.set_output(!0),
-                this.set_inputs_inline(!0),
-                this.set_colour(Blockly.theme.block_color.MQTT_HUE.fill, Blockly.theme.block_color.MQTT_HUE.border);
-            this.on_mouse_down = function (n) {
-                var i = Blockly.events.get_group();
-                if (Blockly.events.set_group(i || !0),
-                    __IS_PC__ && 0 !== n.button)
-                    return n.preventDefault(),
-                        void n.stopPropagation();
-                var a = t.workspace.get_gesture(n);
-                if (a) {
-                    var o = a.handle_move.bind(a)
-                        , s = a.handle_up.bind(a)
-                        , c = 0
-                        , u = !1
-                        , l = !0;
-                    a.handle_move = function (i) {
-                        if (u)
-                            o(i);
-                        else if (c < 10)
-                            c++;
-                        else if (a.is_dragging_block = !0,
-                            l || __IS_PC__) {
-                            var s = function () {
-                                Blockly.events.disable();
-                                var n = t.get_field_value("TEXT") || ""
-                                    , i = t.workspace.new_block('nemohooker_mqtt_on_message_value')
-                                    , a = t.get_relative_to_surface_xy();
-                                return i.move_by(a),
-                                    i.init_svg(),
-                                    i.render(),
-                                    Blockly.events.enable(),
-                                    Blockly.events.is_enabled() && Blockly.events.fire(r({
-                                        block: i,
-                                        source: "other"
-                                    })),
-                                    i
-                            }();
-                            s.select(),
-                                a.handle_block_start(n, s),
-                                a.target_block = s,
-                                u = !0
-                        } else
-                            a.cancel()
-                    }
-                        ,
-                        a.handle_up = function (t) {
-                            s(t),
-                                Blockly.events.set_group(i),
-                                l = !0
-                        }
-                }
+    // 定义积木
+    blockObjects.forEach(block => {
+        // 对于事件参数的特殊处理
+        if (block.EventParam) {
+            rootBlockChecks.push({ blockType: block.type, rootBlockTypes: [block.EventParam.eventBlockId] });
+            defineEventParam(block.type, block.text, block.EventParam.colorId);
+            block = {
+                type: block.type,
+                message0: block.text,
+                args0: [],
+                colour: `%{BKY_${block.EventParam.colorId}}`,
+                output: "String"
             }
         }
-    })
+        // 注册积木
+        Blockly.Blocks[block.type] = { init: function () { this.jsonInit(block); } };
+    });
+
     console.log("[NemoHooker::blocks] 积木注入完成");
 })();

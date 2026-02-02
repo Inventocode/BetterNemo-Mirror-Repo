@@ -67,6 +67,17 @@ div.flyout_config_btn {
   border-radius: 15px !important;
 }
 
+.flyout-toolbox-error {
+  fill: none;
+  font-family: PingFangSC-Medium;
+  font-size: 14px;
+  color: #FFFFFF;
+  line-height: 14px;
+  text-shadow: 0 0 5px rgba(255, 255, 0, 0.5);
+}
+.flyout-toolbox-error > text.blocklyText {
+  fill: yellow;
+}
 /* 悬浮球 */
 .float-ball {
   position: fixed;

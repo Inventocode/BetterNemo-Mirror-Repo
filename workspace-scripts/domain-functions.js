@@ -1,8 +1,8 @@
 (async () => {
-    console.log("[NemoHooker::domain-functions] 等待Runtime,RunMgr获取");
+    console.log("[NemoHooker::domain-functions] 等待Runtime,RunMgr,i18n获取");
     await isRunmgrHooked();
     const Runtime = (await waitHook('Runtime')).get_webview_runtime();
-    console.log("[NemoHooker::domain-functions] Runtime,RunMgr获取成功");
+    console.log("[NemoHooker::domain-functions] Runtime,RunMgr,i18n获取成功");
     if (storage.get('runtimeConfig'))
         get_run_mgr().config.set(storage.get('runtimeConfig'));
     setInterval(() => {
@@ -23,29 +23,8 @@
         eval(String(params.js));
     });
     // -------------按键------------
-    regDomainFunction("nemohooker_on_key_down", () => { });
-    regAction({
-        id: "nemohooker_on_key_down",
-        entity_specific: false,
-        responder_blocks: [
-            {
-                id: "nemohooker_on_key_down",
-                type: "action",
-                async: false,
-            },
-        ],
-    });
-    regAction({
-        id: "nemohooker_on_key_up",
-        entity_specific: false,
-        responder_blocks: [
-            {
-                id: "nemohooker_on_key_up",
-                type: "action",
-                async: false,
-            },
-        ],
-    });
+    regSimpleEvent("nemohooker_on_key_down");
+    regSimpleEvent("nemohooker_on_key_up");
     // 按键状态
     const keyStates = {};
     // 监听按键按下
@@ -585,5 +564,18 @@
         return String(actor.get_brush().dataURL_URL(url));
     });
     // -----------------MQTT-----------------
+    regDomainFunction('nemohooker_mqtt_connect', (params, rbid, entity_id, utils) => {
+        const address = params.address;
+        const clientID = params.clientID;
+        const user = params.user;
+        const password = params.password;
+    });
+    regDomainFunction('nemohooker_mqtt_publish', (params, rbid, entity_id, utils) => {
+        const topic = params.topic;
+        const message = params.message;
+    });
+    regDomainFunction('nemohooker_mqtt_subscribe', (params, rbid, entity_id, utils) => {
+        const topic = params.topic;
+    });
     console.log("[NemoHooker::domain-functions] 解释器注入完成");
 })();
