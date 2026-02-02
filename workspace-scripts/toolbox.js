@@ -40,10 +40,14 @@
                     }
                 });
                 return `<block type="${type}">${values.join('')}</block>`;
-            } else {
+            } else if (Blockly.Blocks[type]) {
+                return `<block type="${type}">${values.join('')}</block>`;
+            }
+             else {
                 return u.error('错误：未能找到' + type + '的定义');
             }
-        }
+        },
+        simpleEventBlock: (type, ...params) => `<block type="${type}">${params.map(([name,type])=>`<value name="${name}"><block type="__${type}"></block></value>`)}</block>`
     }
     // 定义NemoHooker积木盒
     const nemohookerXML = [
@@ -86,12 +90,13 @@
     const mqttXML = [
         u.title('消息队列遥测传输协议 · MQTT'),
         u.block('nemohooker_mqtt_on_connect'),
+        u.block('nemohooker_mqtt_on_reconnect'),
         u.block('nemohooker_mqtt_on_disconnect'),
         u.block('nemohooker_mqtt_on_offline'),
-        u.block('nemohooker_mqtt_on_error'),
-        u.block('nemohooker_mqtt_on_message', '<value name="param"><block type="__nemohooker_mqtt_on_message_message"></block></value>'),
-        u.block('nemohooker_mqtt_on_subscribe_error'),
-        u.block('nemohooker_mqtt_on_publish_error'),
+        u.simpleEventBlock('nemohooker_mqtt_on_error', ['param','nemohooker_mqtt_on_error_message']),
+        u.simpleEventBlock('nemohooker_mqtt_on_message', ['param','nemohooker_mqtt_on_message_message']),
+        u.simpleEventBlock('nemohooker_mqtt_on_subscribe_error', ['param','nemohooker_mqtt_on_subscribe_error_message']),
+        u.simpleEventBlock('nemohooker_mqtt_on_publish_error', ['param','nemohooker_mqtt_on_publish_error_message']),
         u.block('nemohooker_mqtt_connect'),
         u.block('nemohooker_mqtt_publish'),
         u.block('nemohooker_mqtt_subscribe'),

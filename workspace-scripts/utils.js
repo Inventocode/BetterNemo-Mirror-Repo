@@ -149,9 +149,9 @@ function regSimpleEvent(eventBlockId) {
             },
         ],
     });
-    regDomainFunction("nemohooker_on_key_down", () => { });
+    regDomainFunction(eventBlockId, () => { });
 }
-function checkRootBlock({blockType='', rootBlockTypes=[]}) {
+function checkRootBlock({ blockType = '', rootBlockTypes = [] }) {
     Blockly.mainWorkspace.get_all_blocks()
         .filter(block => block.type == blockType)
         .forEach(block => {
@@ -167,6 +167,16 @@ function checkRootBlock({blockType='', rootBlockTypes=[]}) {
             block.set_deletable(true);
             block.set_colour(Blockly.theme.disabled_color.fill)
         });
+}
+function getEventParams(utils) {
+    const action_parameters =
+        utils.runtime_manager.interpreters[
+            Object.keys(utils.runtime_manager.interpreters)[0]
+        ].action_parameters;
+    if (action_parameters && action_parameters.key) {
+        return action_parameters;
+    }
+    return undefined;
 }
 async function defineEventParam(blockId, text, colorId) {
     const Di = await waitHook('Di');

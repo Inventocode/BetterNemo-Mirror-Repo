@@ -1,14 +1,36 @@
 (async () => {
+    let mqttClient = undefined;
+
     console.log("[NemoHooker::domain-functions] 等待Runtime,RunMgr,i18n获取");
     await isRunmgrHooked();
     const Runtime = (await waitHook('Runtime')).get_webview_runtime();
     console.log("[NemoHooker::domain-functions] Runtime,RunMgr,i18n获取成功");
+    /**
+     * 触发一个简单的事件
+     * @param {string} name 事件名称
+     * @param {object} params 参数(可选)
+     */
+    function emitSimpleEvent(name, params = {}) {
+        Runtime.send_action({
+            id: name,
+            namespace: "",
+            parameters: params,
+        });
+    }
     if (storage.get('runtimeConfig'))
         get_run_mgr().config.set(storage.get('runtimeConfig'));
     setInterval(() => {
-        if (!Runtime.heart.heart.get_runtime_data().is_running())
+        if (!Runtime.heart.heart.get_runtime_data().is_running()) {
             document.querySelectorAll('.custom-video').forEach(e => e.remove());
+            if (mqttClient)
+                mqttClient.end(false, {}, () => {
+                    mqttClient = undefined;
+                });
+        }
     }, 100);
+
+    const ERROR_NOT_IN_ACTION = '[ERROR_NOT_IN_ACTION]';
+
     // 重写text_length函数
     rewriteDomainFunction('text_length', function (args, rbid, entity_id, utils) {
         let value = args.VALUE;
@@ -30,38 +52,23 @@
     // 监听按键按下
     document.addEventListener('keydown', (e) => {
         keyStates[e.code] = true;
-        Runtime.send_action({
-            id: "nemohooker_on_key_down",
-            namespace: "",
-            parameters: {
-                key: e.code
-            },
+        emitSimpleEvent("nemohooker_on_key_down", {
+            key: e.code
         });
     });
     // 监听按键释放
     document.addEventListener('keyup', (e) => {
         keyStates[e.code] = false;
-        Runtime.send_action({
-            id: "nemohooker_on_key_up",
-            namespace: "",
-            parameters: {
-                key: e.code
-            },
+        emitSimpleEvent("nemohooker_on_key_up", {
+            key: e.code
         });
     });
-    regDomainFunction(
-        "nemohooker_on_key_event_param",
-        (params, rbid, entity_id, utils) => {
-            const action_parameters =
-                utils.runtime_manager.interpreters[
-                    Object.keys(utils.runtime_manager.interpreters)[0]
-                ].action_parameters;
-            if (action_parameters && action_parameters.key) {
-                return action_parameters["key"];
-            }
-            console.warn("error no action_parameters", action_parameters);
-            return "[ERROR_NOT_IN_ACTION]";
-        }
+    regDomainFunction("nemohooker_on_key_event_param", (_, __, ___, utils) => {
+        const params = getEventParams(utils);
+        if (params) return params.key;
+        console.warn("error no action_parameters", action_parameters);
+        return ERROR_NOT_IN_ACTION;
+    }
     );
     regDomainFunction('nemohooker_check_down_key', (params, rbid, entity_id, utils) => {
         return keyStates[params.key] || false;
@@ -233,65 +240,65 @@
         return Math.atan(xita) * 180 / Math.PI;
     });
     regDomainFunction("nemohooker_3D_rotation", (params, uuid, uuid2, utils) => {
-    
+
         const radians = Math.PI / 180;
         const angles = JSON.parse(params.angles);
         const yaw = angles[2] * radians;
         const pitch = angles[0] * radians;
         const roll = angles[1] * radians;
-        
+
         const sinY = Math.sin(yaw);
         const sinP = Math.sin(pitch);
         const sinR = Math.sin(roll);
         const cosY = Math.cos(yaw);
         const cosP = Math.cos(pitch);
         const cosR = Math.cos(roll);
-        
+
         const point = JSON.parse(params.point);
         const camera = JSON.parse(params.camera);
-        
+
         const dx = point[0] - camera[0];
         const dy = point[1] - camera[1];
         const dz = point[2] - camera[2];
-        
-        const xr = dx * (cosY * cosP) 
-                 + dy * (sinY * cosP)
-                 + dz * (-sinP);
-        
+
+        const xr = dx * (cosY * cosP)
+            + dy * (sinY * cosP)
+            + dz * (-sinP);
+
         const yr = dx * (cosY * sinP * sinR - sinY * cosR)
-                 + dy * (sinY * sinP * sinR + cosY * cosR)
-                 + dz * (cosP * sinR);
-        
+            + dy * (sinY * sinP * sinR + cosY * cosR)
+            + dz * (cosP * sinR);
+
         const zr = dx * (cosY * sinP * cosR + sinY * sinR)
-                 + dy * (sinY * sinP * cosR - cosY * sinR)
-                 + dz * (cosP * cosR);
-        
-    
+            + dy * (sinY * sinP * cosR - cosY * sinR)
+            + dz * (cosP * cosR);
+
+
         return [xr, yr, zr];
     });
     regDomainFunction("nemohooker_3D_array", (params, uuid, uuid2, utils) => {
-        return "[" + String(params.x) + "," + String(params.y) + "," + String(params.z) +"]";
+        return "[" + String(params.x) + "," + String(params.y) + "," + String(params.z) + "]";
     });
     regDomainFunction("nemohooker_regular_polygon", (params, uuid, uuid2, utils) => {
         const center = JSON.parse(params.center);
         const r = parseFloat(params.r);
         const n = parseInt(params.n);
         const start = parseFloat(params.start) * Math.PI / 180;
-        
+
         if (n < 3) return;
-        
+
         var points = [];
         const angleStep = (2 * Math.PI) / n;
-        
+
         for (let i = 0; i < n; i++) {
-            const angle = start +  i * angleStep;
-            
+            const angle = start + i * angleStep;
+
             const x = center[0] + r * Math.cos(angle);
             const y = center[1] + r * Math.sin(angle);
-            
+
             points.push([x, y]);
         }
-        
+
         return JSON.stringify(points);
     });
     // --------------画笔扩展-------------------
@@ -316,13 +323,13 @@
     regDomainFunction("nemohooker_draw_image_stamp", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
         if (!actor) return;
-        
+
         const range = JSON.parse(params.range);
         const x = range[0];
         const y = range[1];
         const w = range[2];
         const h = range[3];
-        
+
         actor.get_brush().draw_custom_image_stamp(params.src, x, y, w, h);
     });
     regDomainFunction("nemohooker_draw_custom_image_stamp", (params, uuid, uuid2, utils) => {
@@ -526,7 +533,7 @@
         if (!actor) {
             return;
         }
-        
+
         return String(actor.get_brush().dataURL_actor());
     });
     regDomainFunction("nemohooker_dataURL_stage", (params, uuid, uuid2, utils) => {
@@ -537,7 +544,7 @@
         var range = [];
         try {
             range = JSON.parse(params.range);
-        } catch(error) {
+        } catch (error) {
             console.error(error + "\n范围数组不合规。格式：\"[x, y, width, height]\"。");
             return;
         }
@@ -545,13 +552,13 @@
         var y = range[1];
         const width = range[2];
         const height = range[3];
-        
+
         const stageSize = actor.get_brush().stage_size();
         x = stageSize[0] + x;
         y = stageSize[1] - y;
         //console.log([3,x,y]);
         const data = HookRuntime.exports.get_webview_runtime().stage.core.extract_pixels(x, y, width, height);
-        
+
         return String(actor.get_brush().dataURL_stage(new ImageData(new Uint8ClampedArray(data), width, height)));
     });
     regDomainFunction("nemohooker_dataURL_URL", (params, uuid, uuid2, utils) => {
@@ -559,23 +566,78 @@
         if (!actor) {
             return;
         }
-        
+
         const url = params.url;
         return String(actor.get_brush().dataURL_URL(url));
     });
     // -----------------MQTT-----------------
+    regSimpleEvent('nemohooker_mqtt_on_connect');
+    regSimpleEvent('nemohooker_mqtt_on_disconnect');
+    regSimpleEvent('nemohooker_mqtt_on_offline');
+    regSimpleEvent('nemohooker_mqtt_on_error');
+    regSimpleEvent('nemohooker_mqtt_on_message');
+    regSimpleEvent('nemohooker_mqtt_on_reconnect');
     regDomainFunction('nemohooker_mqtt_connect', (params, rbid, entity_id, utils) => {
-        const address = params.address;
-        const clientID = params.clientID;
-        const user = params.user;
+        const url = params.address;
+        const clientId = params.clientID;
+        const username = params.user;
         const password = params.password;
+        const reconnectPeriod = params.reconnectPeriod;
+        const connectTimeout = params.connectTimeout;
+        const options = {
+            clean: true,
+            connectTimeout,
+            clientId,
+            username,
+            password,
+            reconnectPeriod,
+        }
+        mqttClient = mqtt.connect(url, options)
+        mqttClient.on('connect', () => { emitSimpleEvent('nemohooker_mqtt_on_connect'); });
+        mqttClient.on('reconnect', () => { emitSimpleEvent('nemohooker_mqtt_on_reconnect'); })
+        mqttClient.on('close', () => { emitSimpleEvent('nemohooker_mqtt_on_disconnect'); })
+        mqttClient.on('offline', () => { emitSimpleEvent('nemohooker_mqtt_on_offline'); })
+        mqttClient.on('error', (error) => { emitSimpleEvent('nemohooker_mqtt_on_error', { msg: error }); })
+        mqttClient.on('message', (_, payload, __) => { emitSimpleEvent('nemohooker_mqtt_on_message', { msg: payload.toString() }); })
+
     });
     regDomainFunction('nemohooker_mqtt_publish', (params, rbid, entity_id, utils) => {
         const topic = params.topic;
         const message = params.message;
+        mqttClient.publish(topic, message, { qos: 0, retain: false }, function (error) {
+            if (error)
+                emitSimpleEvent('nemohooker_mqtt_on_publish_error', { msg: error });
+        })
     });
     regDomainFunction('nemohooker_mqtt_subscribe', (params, rbid, entity_id, utils) => {
         const topic = params.topic;
+        mqttClient.subscribe(topic, { qos: 0 }, function (error, _) {
+            if (error)
+                emitSimpleEvent('nemohooker_mqtt_on_subscribe_error', { msg: error });
+        })
     });
+    regDomainFunction('nemohooker_mqtt_on_error_message', (_, __, ___, utils) => {
+        const params = getEventParams(utils);
+        if (params) return params.msg;
+        return "ERROR_NOT_IN_ACTION"
+    });
+    regDomainFunction('nemohooker_mqtt_on_message_message', (_, __, ___, utils) => {
+        const params = getEventParams(utils);
+        if (params) return params.msg;
+        return "ERROR_NOT_IN_ACTION"
+    });
+    regDomainFunction('nemohooker_mqtt_on_publish_error_message', (_, __, ___, utils) => {
+        const params = getEventParams(utils);
+        if (params) return params.msg;
+        return "ERROR_NOT_IN_ACTION"
+    });
+    regDomainFunction('nemohooker_mqtt_on_subscribe_error_message', (_, __, ___, utils) => {
+        const params = getEventParams(utils);
+        if (params) return params.msg;
+        return "ERROR_NOT_IN_ACTION"
+    });
+    // regDomainFunction('',(_, _, _, utils) => {
+    //     const params = getEventParams(utils);
+    // });
     console.log("[NemoHooker::domain-functions] 解释器注入完成");
 })();

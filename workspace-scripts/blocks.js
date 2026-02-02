@@ -515,8 +515,7 @@ let rootBlockChecks = [];
             inputsInline: true,
             output: "String"
         },
-        /*
-        {
+        /*{
             type: "nemohooker_dataURL_URL",
             message0: "从 HttpURL 获取DataURL URL %1",
             args0: [
@@ -554,13 +553,15 @@ let rootBlockChecks = [];
         // MQTT
         {
             type: "nemohooker_mqtt_connect",
-            message0: "连接到 %1 地址 %2 客户端ID %3 用户 %4 密码 %5",
+            message0: "连接到 %1 地址 %2 客户端ID %3 用户 %4 密码 %5 重连间隔(ms) %6 连接超时(ms) %7",
             args0: [
                 { "type": "input_dummy" },
                 { type: "input_value", name: "address", check: "String", "value": "wss://bemfa.com:9504/wss" },
                 { type: "input_value", name: "clientID", check: "String", "value": "" },
                 { type: "input_value", name: "user", check: "String", "value": "" },
                 { type: "input_value", name: "password", check: "String", "value": "" },
+                { type: "input_value", name: "reconnectPeriod", check: "Number", "value": 2000 },
+                { type: "input_value", name: "connectTimeout", check: "Number", "value": 10000 },
             ],
             colour: Color.mqtt,
             ...method_block,
@@ -581,6 +582,13 @@ let rootBlockChecks = [];
             ...event_block
         },
         {
+            type: "nemohooker_mqtt_on_reconnect",
+            message0: "%1 当 重新连接",
+            args0: [mqtt_event_icon_filed],
+            colour: Color.mqtt,
+            ...event_block
+        },
+        {
             type: "nemohooker_mqtt_on_offline",
             message0: "%1 当 客户端下线",
             args0: [mqtt_event_icon_filed],
@@ -589,10 +597,19 @@ let rootBlockChecks = [];
         },
         {
             type: "nemohooker_mqtt_on_error",
-            message0: "%1 当 连接失败",
-            args0: [mqtt_event_icon_filed],
+            message0: "%1 当 连接失败/出错 %2",
+            args0: [mqtt_event_icon_filed, { type: "input_value", name: "param", check: "undefined" }],
             colour: Color.mqtt,
             ...event_block
+        },
+        {
+            type: "nemohooker_mqtt_on_error_message",
+            text: "错误信息",
+            output: "String",
+            EventParam: {
+                eventBlockId: 'nemohooker_mqtt_on_error',
+                colorId: 'MQTT_HUE'
+            }
         },
         {
             type: "nemohooker_mqtt_on_message",
@@ -612,17 +629,35 @@ let rootBlockChecks = [];
         },
         {
             type: "nemohooker_mqtt_on_publish_error",
-            message0: "%1 当 发布时出错",
-            args0: [mqtt_event_icon_filed],
+            message0: "%1 当 发布时出错 %2",
+            args0: [mqtt_event_icon_filed, { type: "input_value", name: "param", check: "undefined" }],
             colour: Color.mqtt,
             ...event_block
         },
         {
+            type: "nemohooker_mqtt_on_publish_error_message",
+            text: "错误信息",
+            output: "String",
+            EventParam: {
+                eventBlockId: 'nemohooker_mqtt_on_publish_error',
+                colorId: 'MQTT_HUE'
+            }
+        },
+        {
             type: "nemohooker_mqtt_on_subscribe_error",
-            message0: "%1 当 订阅时出错",
-            args0: [mqtt_event_icon_filed],
+            message0: "%1 当 订阅时出错 %2",
+            args0: [mqtt_event_icon_filed, { type: "input_value", name: "param", check: "undefined" }],
             colour: Color.mqtt,
             ...event_block
+        },
+        {
+            type: "nemohooker_mqtt_on_subscribe_error_message",
+            text: "错误信息",
+            output: "String",
+            EventParam: {
+                eventBlockId: 'nemohooker_mqtt_on_subscribe_error',
+                colorId: 'MQTT_HUE'
+            }
         },
         {
             type: "nemohooker_mqtt_publish",
