@@ -69,6 +69,10 @@
       " ❤ for Nemo o(*￣▽￣*)ブ",
       "\n  color: rgb(22, 93, 255);\n  text-shadow: 0 1px 0 #404182;"
     );
+    function get_run_mgr() {
+      if (!window['HookRuntime']) return;
+      return HookRuntime.exports.get_webview_runtime().heart.runtime_manager.run_mgr;
+    }
   </script>
   <script defer src="workspace-scripts/storage.js"></script>
   <script defer src="workspace-scripts/cat-block.js"></script>

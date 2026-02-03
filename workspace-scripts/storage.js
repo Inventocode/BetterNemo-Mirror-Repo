@@ -1,8 +1,4 @@
 
-function get_run_mgr() {
-    if (!HookRuntime) return;
-    return HookRuntime.exports.get_webview_runtime().heart.runtime_manager.run_mgr;
-}
 class Storage {
     constructor() {
         this.namespace = 'nemohooker';

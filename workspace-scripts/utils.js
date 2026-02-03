@@ -5,7 +5,7 @@
  * @returns Blockly
  */
 const isBlocklyLoaded = async () => {
-    while (!Blockly) {
+    while (!window['Blockly']) {
         await new Promise((resolve) => requestAnimationFrame(resolve));
     }
     return Blockly;
@@ -57,12 +57,12 @@ function regToolbox(name, icon, color, blocks) {
             styleElement.textContent = style;
             document.head.appendChild(styleElement);
         } else styleElement.textContent += style;
-    }
+    };
     const toolboxObject = {
         color,
         name: 'toolbox-' + name,
         icon: { font_id: icon },
-        blocks: blocks.map(block => str2xml(block)),
+        blocks: blocks.flat(1).map(block => str2xml(block)),
     };
     const toolbox = Blockly.mainWorkspace.get_toolbox();
     toolbox.add(toolbox.new_node(toolboxObject));
@@ -89,7 +89,7 @@ async function regDomainFunction(name, func, error_msg = '') {
         i18n['domain_function_error/' + name] = error_msg;
 }
 /**
- * 重写解释器（不建议用于原版积木）
+ * 重写解释器
  * @param {string} name 积木ID
  * @param {function} func 解释器
  */
@@ -168,12 +168,17 @@ function checkRootBlock({ blockType = '', rootBlockTypes = [] }) {
             block.set_colour(Blockly.theme.disabled_color.fill)
         });
 }
+/**
+ * 获取事件参数
+ * @param {args.utils} utils 
+ * @returns {object} 事件参数对象
+ */
 function getEventParams(utils) {
     const action_parameters =
         utils.runtime_manager.interpreters[
             Object.keys(utils.runtime_manager.interpreters)[0]
         ].action_parameters;
-    if (action_parameters && action_parameters.key) {
+    if (action_parameters) {
         return action_parameters;
     }
     return undefined;

@@ -1,10 +1,15 @@
 (async () => {
-    let mqttClient = undefined;
 
-    console.log("[NemoHooker::domain-functions] 等待Runtime,RunMgr,i18n获取");
+    // -------------------请在此定义重复使用的变量、对象等------------------------
+    let keyStates = {};
+    let mqttClient = undefined;
+    let socket = undefined;
+
+    // ----------------------------------------------------------------------
+    console.log("[NemoHooker::domain-functions] 等待Runtime,RunMgr获取");
     await isRunmgrHooked();
     const Runtime = (await waitHook('Runtime')).get_webview_runtime();
-    console.log("[NemoHooker::domain-functions] Runtime,RunMgr,i18n获取成功");
+    console.log("[NemoHooker::domain-functions] Runtime,RunMgr获取成功");
     /**
      * 触发一个简单的事件
      * @param {string} name 事件名称
@@ -19,17 +24,27 @@
     }
     if (storage.get('runtimeConfig'))
         get_run_mgr().config.set(storage.get('runtimeConfig'));
+
     setInterval(() => {
         if (!Runtime.heart.heart.get_runtime_data().is_running()) {
+    // -------------------请在此 if 内清理重复使用的变量、对象等---------------------
+            // 删除按键数据
+            keyStates = {};
+            // 删除视频
             document.querySelectorAll('.custom-video').forEach(e => e.remove());
+            // 关闭MQTT连接
             if (mqttClient)
                 mqttClient.end(false, {}, () => {
                     mqttClient = undefined;
                 });
+            // 关闭WebSocket连接
+            if (socket)
+                socket.close();
         }
     }, 100);
-
     const ERROR_NOT_IN_ACTION = '[ERROR_NOT_IN_ACTION]';
+
+    // --------------------------以下为解释器及事件定义----------------------------
 
     // 重写text_length函数
     rewriteDomainFunction('text_length', function (args, rbid, entity_id, utils) {
@@ -48,7 +63,6 @@
     regSimpleEvent("nemohooker_on_key_down");
     regSimpleEvent("nemohooker_on_key_up");
     // 按键状态
-    const keyStates = {};
     // 监听按键按下
     document.addEventListener('keydown', (e) => {
         keyStates[e.code] = true;
@@ -639,5 +653,46 @@
     // regDomainFunction('',(_, _, _, utils) => {
     //     const params = getEventParams(utils);
     // });
+    // ------------WebSocket-------------
+    regSimpleEvent("nemohooker_on_ws_open");
+    regSimpleEvent("nemohooker_on_ws_message");
+    regSimpleEvent("nemohooker_on_ws_error");
+    regSimpleEvent("nemohooker_on_ws_close");
+    regDomainFunction("nemohooker_new_ws", (params, rbid, entity_id, internals) => {
+        const url = params.url;
+        socket = new WebSocket(url);
+        socket.addEventListener('open', () => {
+            emitSimpleEvent("nemohooker_on_ws_open");
+        });
+        socket.addEventListener('message', (event) => {
+            emitSimpleEvent("nemohooker_on_ws_message", {
+                message: event.data
+            });
+        });
+        socket.addEventListener('error', (error) => {
+            emitSimpleEvent("nemohooker_on_ws_error", {
+                error: error
+            });
+        });
+        socket.addEventListener('close', () => {
+            emitSimpleEvent("nemohooker_on_ws_close");
+        });
+    });
+    regDomainFunction("nemohooker_ws_send", (params, rbid, entity_id, internals) => {
+        socket.send(params.message)
+    });
+    regDomainFunction("nemohooker_ws_close", (params, rbid, entity_id, internals) => {
+        socket.close(params.code, params.param)
+    });
+    regDomainFunction("nemohooker_on_ws_message_param", (_, __, ___, utils) => {
+        const params = getEventParams(utils);
+        if (params) return params.message;
+        return "ERROR_NOT_IN_ACTION"
+    });
+    regDomainFunction("nemohooker_on_ws_error_param", (_, __, ___, utils) => {
+        const params = getEventParams(utils);
+        if (params) return params.error;
+        return "ERROR_NOT_IN_ACTION"
+    });
     console.log("[NemoHooker::domain-functions] 解释器注入完成");
 })();

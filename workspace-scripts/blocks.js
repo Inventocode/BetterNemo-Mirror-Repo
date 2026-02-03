@@ -32,6 +32,7 @@ let rootBlockChecks = [];
         document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML('beforeend', '<symbol id="icon-widget-http-client" viewBox="-2000 -2000 5000 5000"><path d="M512 98.133333c143.914667 0 266.837333 99.882667 301.653333 237.781334l2.56 10.965333 9.301334 2.730667c105.6 33.450667 181.12 131.669333 185.472 246.528l0.213333 10.496c0 145.237333-113.066667 263.808-254.848 268.970666l-9.685333 0.213334-164.352-0.042667 40.746666 42.154667a29.866667 29.866667 0 0 1 2.517334 38.570666l-3.242667 3.626667a29.866667 29.866667 0 0 1-38.570667 2.517333l-3.626666-3.242666-89.6-92.714667a29.866667 29.866667 0 0 1-2.901334-37.973333l3.029334-3.712 89.6-91.306667a29.866667 29.866667 0 0 1 45.781333 38.058667l-3.114667 3.754666-39.850666 40.533334H746.666667c112.981333 0 204.8-93.610667 204.8-209.408 0-98.005333-66.261333-181.845333-157.525334-203.818667l-9.216-2.005333-20.778666-3.968-3.114667-20.906667C742.144 251.050667 636.586667 157.866667 512 157.866667c-135.722667 0-246.613333 109.909333-251.605333 246.357333l-0.085334 10.88 1.28 27.946667-27.776 3.114666c-91.306667 10.24-161.28 89.472-161.28 184.405334 0 99.541333 76.586667 180.608 172.544 185.301333l8.789334 0.213333h23.466666a29.866667 29.866667 0 0 1 4.053334 59.434667l-4.053334 0.298667h-23.466666C120.576 875.818667 12.8 765.866667 12.8 630.570667c0-115.072 78.293333-212.949333 185.344-238.677334l3.285333-0.768 0.597334-7.082666c15.018667-156.970667 142.549333-280.533333 299.690666-285.738667L512 98.133333z m55.978667 374.912c13.269333 0 23.253333 0.853333 30.72 2.133334 10.794667 1.706667 19.925333 5.632 28.202666 11.221333 7.893333 5.589333 14.506667 13.781333 19.114667 23.68 4.949333 10.325333 7.04 21.546667 6.613333 32.298667 0 19.84-6.229333 37.077333-18.645333 50.432-12.458667 14.208-33.237333 21.077333-63.914667 21.077333h-35.285333v78.421333l-49.792 0.426667v-219.733333h82.986667z m145.237333 0v219.690667H663.04v-219.733333h50.218667z m-319.957333 0l86.741333 219.690667H423.978667l-21.973334-58.581333H342.186667l-20.352 58.581333H267.946667l81.322666-219.733333h43.989334z m-21.546667 76.672l-12.885333 37.034667h26.154666l-12.885333-35.754667-0.426667-1.28z m198.357333-27.562666h-34.858666v42.666666h35.242666c16.64 0 22.826667-3.925333 25.344-6.058666 3.712-3.413333 5.802667-9.045333 5.802667-15.957334a22.613333 22.613333 0 0 0-3.328-12.928 16.981333 16.981333 0 0 0-8.704-6.4c-1.28-0.469333-5.418667-1.322667-19.498667-1.322666z"></path></symbol>');
         document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML('beforeend', '<symbol id="icon-cubes" viewBox="-1200 -1230 3000 3000"><path d="M290.8 48.6l78.4 29.7L288 109.5 206.8 78.3l78.4-29.7c1.8-.7 3.8-.7 5.7 0zM136 92.5l0 112.2c-1.3 .4-2.6 .8-3.9 1.3l-96 36.4C14.4 250.6 0 271.5 0 294.7L0 413.9c0 22.2 13.1 42.3 33.5 51.3l96 42.2c14.4 6.3 30.7 6.3 45.1 0L288 457.5l113.5 49.9c14.4 6.3 30.7 6.3 45.1 0l96-42.2c20.3-8.9 33.5-29.1 33.5-51.3l0-119.1c0-23.3-14.4-44.1-36.1-52.4l-96-36.4c-1.3-.5-2.6-.9-3.9-1.3l0-112.2c0-23.3-14.4-44.1-36.1-52.4l-96-36.4c-12.8-4.8-26.9-4.8-39.7 0l-96 36.4C150.4 48.4 136 69.3 136 92.5zM392 210.6l-82.4 31.2 0-89.2L392 121l0 89.6zM154.8 250.9l78.4 29.7L152 311.7 70.8 280.6l78.4-29.7c1.8-.7 3.8-.7 5.7 0zm18.8 204.4l0-100.5L256 323.2l0 95.9-82.4 36.2zM421.2 250.9c1.8-.7 3.8-.7 5.7 0l78.4 29.7L424 311.7l-81.2-31.1 78.4-29.7zM523.2 421.2l-77.6 34.1 0-100.5L528 323.2l0 90.7c0 3.2-1.9 6-4.8 7.3z"></path></symbol>');
         document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML('beforeend', '<symbol id="icon-mqtt" viewBox="-365 -365 1000 1000"><path d="M34.9,144c-0.2,0-0.4,0-0.6,0v77.6c0,5.6,4.6,10.2,10.2,10.2h79.9C123.7,183.3,83.8,144,34.9,144z"></path><path d="M34.9,80c-0.2,0-0.4,0-0.6,0v33c65.9,0.3,119.5,53.3,120.2,118.8h34.2C188.1,148,119.3,80,34.9,80z"></path><path d="M237.2,221.7v-70.1C214,94.8,167.3,50,109.1,29H44.5c-5.6,0-10.2,4.6-10.2,10.2V49   c101.4,0.3,183.9,82,184.5,182.8h8.2C232.6,231.8,237.2,227.3,237.2,221.7z"></path><path d="M210.5,57.3c9.4,9.4,19,21.3,26.7,31.8v-50c0-5.6-4.5-10.1-10.1-10.1h-51.5   C187.5,37.3,199.9,46.8,210.5,57.3z"></path></symbol>');
+        document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML('beforeend', '<symbol id="icon-websocket" viewBox="-2000 -2000 5000 5000"><path d="M1020.329474 56.127926l-53.203442-53.203442a10.316693 10.316693 0 0 0-14.324004 0l-95.408095 95.408096A249.817445 249.817445 0 0 0 716.797016 55.445831c-64.202231 0-128.404461 24.470173-177.344807 73.49578l-127.89289 127.722366a10.060907 10.060907 0 0 0 0 14.238742l340.79192 340.706658a9.890383 9.890383 0 0 0 7.07674 2.984168c2.557858 0 5.115716-1.023143 7.162002-2.984168l127.807628-127.722366a251.096373 251.096373 0 0 0 30.438507-318.026985l95.408096-95.493358a10.231431 10.231431 0 0 0 0-14.238742zM595.469294 555.08072a10.060907 10.060907 0 0 0-14.153479 0l-83.556688 83.556688-113.313101-113.142577 83.727212-83.727211a10.060907 10.060907 0 0 0 0-14.15348l-45.700392-45.615131a10.060907 10.060907 0 0 0-14.15348 0l-83.556688 83.64195-53.9708-53.970799a9.805122 9.805122 0 0 0-7.162001-2.898906 10.657741 10.657741 0 0 0-7.162002 2.898906L128.745509 539.477787a251.096373 251.096373 0 0 0-30.438508 318.026986l-95.408096 95.493358a10.060907 10.060907 0 0 0 0 14.068218l53.118181 53.203442c4.007311 3.836787 10.316693 3.836787 14.324003 0l95.408096-95.408096a249.817445 249.817445 0 0 0 140.596917 43.057273c64.202231 0 128.404461-24.555435 177.515331-73.581043L611.583799 766.530298a10.060907 10.060907 0 0 0 0-14.238742l-53.885538-53.800276 83.556688-83.727212a10.060907 10.060907 0 0 0 0-14.153479l-45.785655-45.444607z" p-id="5808"></path></symbol>');
     })();
     const BLOCK_COLOR = "%{BKY_GREEN_5}";
     const Color = {
@@ -70,10 +71,18 @@ let rootBlockChecks = [];
         "width": 38,
         "height": 38,
         "alt": "*"
-    }
+    };
+    const connect_event_icon_filed = {
+        "type": "field_icon",
+        "is_head": true,
+        "src": 'data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiBmaWxsPSJub25lIiB2ZXJzaW9uPSIxLjEiIHdpZHRoPSIzOCIgaGVpZ2h0PSIzOCIgdmlld0JveD0iMCAwIDM4IDM4Ij48ZGVmcz48Y2xpcFBhdGggaWQ9Im1hc3Rlcl9zdmcwXzIzMl8xOTI2Ij48cmVjdCB4PSItMC41NDAwMDAwMjE0NTc2NzIxIiB5PSItMC41NDAwMDAwMjE0NTc2NzIxIiB3aWR0aD0iMzkuMDgwMDAwMDQyOTE1MzQ0IiBoZWlnaHQ9IjM5LjA4MDAwMDA0MjkxNTM0NCIgcng9IjAiLz48L2NsaXBQYXRoPjwvZGVmcz48ZyBjbGlwLXBhdGg9InVybCgjbWFzdGVyX3N2ZzBfMjMyXzE5MjYpIj48ZWxsaXBzZSBjeD0iMTguOTk5OTk5MTA1OTMwMzMiIGN5PSIxOC45OTk5OTkxMDU5MzAzMyIgcng9IjE4LjcyOTk5OTA5NTIwMTQ5MiIgcnk9IjE4LjcyOTk5OTA5NTIwMTQ5MiIgZmlsbD0iI0ZGRkZGRiIgZmlsbC1vcGFjaXR5PSIxIiBzdHlsZT0ibWl4LWJsZW5kLW1vZGU6cGFzc3Rocm91Z2giLz48ZWxsaXBzZSBjeD0iMTguOTk5OTk5MTA1OTMwMzMiIGN5PSIxOC45OTk5OTkxMDU5MzAzMyIgcng9IjE4LjE4OTk5OTA3Mzc0MzgyIiByeT0iMTguMTg5OTk5MDczNzQzODIiIGZpbGwtb3BhY2l0eT0iMCIgc3Ryb2tlLW9wYWNpdHk9IjEiIHN0cm9rZT0iIzY4Q0RGRiIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSIxLjA4MDAwMDA0MjkxNTM0NDIiIHN0eWxlPSJtaXgtYmxlbmQtbW9kZTpwYXNzdGhyb3VnaCIvPjxwYXRoIGQ9Ik0xNC4wNjMyOTE1LDI5QzEyLjc5NzQ2ODcsMjksMTEuNTMxNjQ1OCwyOC40OTM2NzEsMTAuNTE4OTg3NSwyNy40ODEwMTRDOC40OTM2NzA4OCwyNS40NTU2OTYsOC40OTM2NzA4OCwyMi4yOTExNDEsMTAuNTE4OTg3NSwyMC4yNjU4MjI5OTk5OTk5OTdMMTMuMTc3MjE1NiwxNy42MDc1OTU0TDE0Ljk0OTM2NzUwMDAwMDAwMSwxOS4zNzk3NDcwMDAwMDAwMDJMMTIuMjkxMTM5NCwyMi4wMzc5NzRDMTEuMjc4NDgxMiwyMy4wNTA2MzI5OTk5OTk5OTgsMTEuMjc4NDgxMiwyNC41Njk2MiwxMi4yOTExMzk0LDI1LjU4MjI3OUMxMy4zMDM3OTc3LDI2LjU5NDkzOCwxNC44MjI3ODU0LDI2LjU5NDkzOCwxNS44MzU0NDM1LDI1LjU4MjI3OUwxOS4zNzk3NDgsMjIuMDM3OTc0QzE5Ljg4NjA3NywyMS41MzE2NDYwMDAwMDAwMDIsMjAuMTM5MjQzLDIwLjg5ODczNTAwMDAwMDAwMiwyMC4xMzkyNDMsMjAuMjY1ODIyOTk5OTk5OTk3QzIwLjEzOTI0MywxOS42MzI5MTE5OTk5OTk5OTcsMTkuODg2MDc3LDE5LDE5LjUwNjMyOSwxOC40OTM2NzE0TDE4LjExMzkyNTAwMDAwMDAwMiwxNy4yMjc4NDgxTDE5Ljg4NjA3NywxNS40NTU2OTYxTDIxLjI3ODQ4MywxNi44NDgxMDExQzIyLjE2NDU1NzAwMDAwMDAwMiwxNy43MzQxNzc2MDAwMDAwMDIsMjIuNjcwODg2LDE5LDIyLjY3MDg4NiwyMC4zOTI0MDZDMjIuNjcwODg2LDIxLjc4NDgxMjAwMDAwMDAwMiwyMi4xNjQ1NTcwMDAwMDAwMDIsMjMuMDUwNjM0MDAwMDAwMDAyLDIxLjE1MTg5OTk5OTk5OTk5OCwyMy45MzY3MDk5OTk5OTk5OThMMTcuNjA3NTk1NCwyNy40ODEwMTRDMTYuNzIxNTE5NSwyOC40OTM2NzEsMTUuMzI5MTE0NCwyOSwxNC4wNjMyOTE1LDI5Wk0xOC4xMTM5MjUwMDAwMDAwMDIsMjIuNTQ0MzA1TDE2LjcyMTUxOTUsMjEuMjc4NDgxQzE0LjY5NjIwMzIsMTkuMjUzMTYzOTk5OTk5OTk4LDE0LjY5NjIwMzIsMTYuMDg4NjA4MywxNi43MjE1MTk1LDE0LjA2MzI5MTVMMjAuMjY1ODIyOTk5OTk5OTk3LDEwLjUxODk4NzVDMjIuMjkxMTQxLDguNDkzNjcwODgsMjUuNDU1Njk4LDguNDkzNjcwODgsMjcuNDgxMDE0LDEwLjUxODk4NzVDMjkuNTA2MzI5LDEyLjU0NDMwNDQsMjkuNTA2MzI5LDE1LjcwODg2MTQsMjcuNDgxMDE0LDE3LjczNDE3NzYwMDAwMDAwMkwyNC44MjI3ODYsMjAuMzkyNDA2TDIzLjA1MDYzNDAwMDAwMDAwMiwxOC42MjAyNTM1OTk5OTk5OThMMjUuNzA4ODYyLDE1Ljk2MjAyNTZDMjYuNzIxNTIzLDE0Ljk0OTM2NzUwMDAwMDAwMSwyNi43MjE1MjMsMTMuNDMwMzc5OSwyNS43MDg4NjIsMTIuNDE3NzIxN0MyNC42OTYyMDYsMTEuNDA1MDYzNiwyMy4wNTA2MzQwMDAwMDAwMDIsMTEuNDA1MDYzNiwyMi4xNjQ1NiwxMi40MTc3MjE3TDE4LjQ5MzY3MTQsMTUuODM1NDQzQzE3LjQ4MTAxMzMsMTYuODQ4MTAxNiwxNy40ODEwMTMzLDE4LjM2NzA4OTMsMTguNDkzNjcxNCwxOS4zNzk3NDcwMDAwMDAwMDJMMTkuODg2MDc3LDIwLjc3MjE1M0wxOC4xMTM5MjUwMDAwMDAwMDIsMjIuNTQ0MzA1WiIgZmlsbD0iIzY4Q0RGRiIgZmlsbC1vcGFjaXR5PSIxIiBzdHlsZT0ibWl4LWJsZW5kLW1vZGU6cGFzc3Rocm91Z2giLz48L2c+PC9zdmc+',
+        "width": 38,
+        "height": 38,
+        "alt": "*"
+    };
     const ANY_TYPE = ["Number", "String", "Boolean", "Array"]
     // 定义自定义代码块对象数组
-    blockObjects = [
+    const featureBlocks = [
         {
             type: "nemohooker_eval",
             message0: "执行JavaScript %1",
@@ -147,7 +156,9 @@ let rootBlockChecks = [];
             colour: BLOCK_COLOR,
             inputsInline: true,
             output: "Boolean"
-        },
+        }
+    ]
+    const httpAndJsonBlocks = [
         // 网络
         {
             type: "nemohooker_http_get",
@@ -196,7 +207,7 @@ let rootBlockChecks = [];
             type: "nemohooker_object_set",
             message0: "%1 键 %2 设为 %3",
             args0: [
-                { type: "input_value", name: "obj", check: "String", value:'{"abc":114514}' },
+                { type: "input_value", name: "obj", check: "String", value: '{"abc":114514}' },
                 { type: "input_value", name: "key", check: ["String", "Number"], value: "abc" },
                 { type: "input_value", name: "value", check: ["String", "Number"], value: "1919810" }
             ],
@@ -248,7 +259,9 @@ let rootBlockChecks = [];
             colour: "%{BKY_SOUND_HUE}",
             inputsInline: true,
             output: "Number"
-        },
+        }
+    ]
+    const mathBlocks = [
         // 运算扩展
         {
             type: "nemohooker_factorial",
@@ -285,7 +298,9 @@ let rootBlockChecks = [];
             colour: "%{BKY_MATH_HUE}",
             inputsInline: true,
             output: "Number"
-        },
+        }
+    ];
+    const videoBlock = [
         // 视频
         {
             type: "nemohooker_create_video",
@@ -320,8 +335,9 @@ let rootBlockChecks = [];
             ],
             colour: Color.video,
             ...method_block
-        },
-
+        }
+    ]
+    const penBlocks = [
         // 画笔扩展
         {
             type: "nemohooker_draw_image_stamp",
@@ -488,10 +504,10 @@ let rootBlockChecks = [];
             type: "nemohooker_regular_polygon",
             message0: "正多边形 中心 %1 半径 %2 边数 %3 起始角 %4",
             args0: [
-                { type: "input_value", name: "center", check: "String",value:"[0,0]" },
-                { type: "input_value", name: "r", check: "Number",value:100 },
-                { type: "input_value", name: "n", check: "Number",value:8 },
-                { type: "input_value", name: "start", check: "Number",value:0 }
+                { type: "input_value", name: "center", check: "String", value: "[0,0]" },
+                { type: "input_value", name: "r", check: "Number", value: 100 },
+                { type: "input_value", name: "n", check: "Number", value: 8 },
+                { type: "input_value", name: "start", check: "Number", value: 0 }
             ],
             colour: "%{BKY_MATH_HUE}",
             inputsInline: true,
@@ -525,7 +541,8 @@ let rootBlockChecks = [];
             inputsInline: true,
             output: "String"
         },*/
-        // 3D
+    ]
+    const _3dBlocks = [
         {
             type: "nemohooker_3D_rotation",
             message0: "三维旋转矩阵 点坐标 %1 相机坐标 %2 欧拉角 %3",
@@ -550,7 +567,8 @@ let rootBlockChecks = [];
             inputsInline: true,
             output: "String"
         },
-        // MQTT
+    ]
+    const mqttBlocks = [
         {
             type: "nemohooker_mqtt_connect",
             message0: "连接到 %1 地址 %2 客户端ID %3 用户 %4 密码 %5 重连间隔(ms) %6 连接超时(ms) %7",
@@ -677,7 +695,73 @@ let rootBlockChecks = [];
             ...method_block
         },
     ];
+    const websocketBlocks = [
+        {
+            type: "nemohooker_new_ws",
+            message0: "创建 WebSocket 连接 URL %1",
+            args0: [{ type: "input_value", name: "url", check: "String", value: "" }],
+            ...method_block
+        },
+        {
+            type: "nemohooker_ws_send",
+            message0: "WebSocket 发送消息 %1",
+            args0: [{ type: "input_value", name: "message", check: "String", value: "" }],
+            ...method_block
+        },
+        {
+            type: "nemohooker_ws_close",
+            message0: "关闭 WebSocket 连接 Code %1 Param %2",
+            args0: [{ type: "input_value", name: "code", check: "Number", value: "" }, { type: "input_value", name: "param", check: "String", value: "" }],
+            ...method_block
+        },
+        {
+            type: "nemohooker_on_ws_open",
+            message0: "%1 当 打开 WebSocket 连接",
+            args0: [connect_event_icon_filed],
+            ...event_block
+        },
+        {
+            type: "nemohooker_on_ws_message",
+            message0: "%1 当 WebSocket 收到消息 %2",
+            args0: [connect_event_icon_filed, { type: "input_value", name: "param", check: "undefined" }],
+            ...event_block
+        },
+        {
+            type: "nemohooker_on_ws_message_param",
+            text: "消息",
+            output: "String",
+            EventParam: {
+                eventBlockId: 'nemohooker_on_ws_message',
+                colorId: 'BLUE_1'
+            }
+        },
+        {
+            type: "nemohooker_on_ws_error",
+            message0: "%1 当 WebSocket 发生错误 %2",
+            args0: [connect_event_icon_filed, { type: "input_value", name: "param", check: "undefined" }],
+            ...event_block
+        },
+        {
+            type: "nemohooker_on_ws_error_param",
+            text: "错误详情",
+            EventParam: {
+                eventBlockId: 'nemohooker_on_ws_error',
+                colorId: 'BLUE_1'
+            },
+            output: "String"
+        },
+        {
+            type: "nemohooker_on_ws_close",
+            message0: "%1 当 关闭 WebSocket 连接",
+            args0: [connect_event_icon_filed],
+            ...event_block
+        }
+    ].map(block => { return { ...block, colour: '%{BKY_BLUE_1}' } })
     // 定义积木
+    blockObjects = [
+        ...featureBlocks, ...httpAndJsonBlocks, ...mathBlocks, ...videoBlock,
+        ...penBlocks, ..._3dBlocks, ...mqttBlocks, ...websocketBlocks
+    ];
     blockObjects.forEach(block => {
         // 对于事件参数的特殊处理
         if (block.EventParam) {

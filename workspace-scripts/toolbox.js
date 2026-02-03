@@ -47,7 +47,7 @@
                 return u.error('错误：未能找到' + type + '的定义');
             }
         },
-        simpleEventBlock: (type, ...params) => `<block type="${type}">${params.map(([name,type])=>`<value name="${name}"><block type="__${type}"></block></value>`)}</block>`
+        simpleEventBlock: (type, ...params) => [u.sep(18), `<block type="${type}">${params.map(([name,type])=>`<value name="${name}"><block type="__${type}"></block></value>`)}</block>`]
     }
     // 定义NemoHooker积木盒
     const nemohookerXML = [
@@ -102,20 +102,28 @@
         u.block('nemohooker_mqtt_subscribe'),
         u.flyout_bottom()
     ];
-    const threeDboxXML = [
-        u.title('〈TEST〉3D库'),
-        u.block('nemohooker_test', u.textValue('test', '123')),
+    const websocketXML = [
+        u.title('WebSocket'),
+        u.block('nemohooker_new_ws'),
+        u.block('nemohooker_ws_send'),
+        u.block('nemohooker_ws_close'),
+        u.block('nemohooker_on_ws_open'),
+        u.simpleEventBlock('nemohooker_on_ws_message', ['param', 'nemohooker_on_ws_message_param']),
+        u.simpleEventBlock('nemohooker_on_ws_error', ['param', 'nemohooker_on_ws_error_param']),
+        u.block('nemohooker_on_ws_close'),
         u.flyout_bottom()
     ];
     setTimeout(() => {
         // 注册3D积木盒
         // regToolbox('threeDbox', 'icon-cubes', '#77D657', threeDboxXML);
-        // 注册MQTT积木盒
-        regToolbox('mqtt_toolbox', 'icon-mqtt', '#660066', mqttXML);
         // 注册网络积木盒
-        regToolbox('network', 'icon-widget-http-client', '#54c0ff', networkXML);
+        regToolbox('toolbox-network', 'icon-widget-http-client', '#54c0ff', networkXML);
+        // 注册MQTT积木盒
+        regToolbox('toolbox-mqtt', 'icon-mqtt', '#660066', mqttXML);
+        // 注册WebSocket积木盒
+        regToolbox('toolbox-websocket', 'icon-websocket', '#54c0ff', websocketXML);
         // 注册扩展积木盒
-        regToolbox('nemohooker', 'icon-feature', '#54c0ff', nemohookerXML);
+        regToolbox('toolbox-nemohooker', 'icon-feature', '#14B390', nemohookerXML);
         // 画笔扩展
         Blockly.mainWorkspace.toolbox_.children_[5].blocks.pop();
         Blockly.mainWorkspace.toolbox_.children_[5].blocks = Blockly.mainWorkspace.toolbox_.children_[5].blocks.concat([
