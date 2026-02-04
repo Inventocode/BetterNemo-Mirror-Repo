@@ -4,12 +4,16 @@
     let keyStates = {};
     let mqttClient = undefined;
     let socket = undefined;
+    let tempVar = {};
 
     // ----------------------------------------------------------------------
-    console.log("[NemoHooker::domain-functions] 等待Runtime,RunMgr获取");
+    BetterNemo.log('解释器', "等待Runtime,RunMgr获取");
     await isRunmgrHooked();
     const Runtime = (await waitHook('Runtime')).get_webview_runtime();
-    console.log("[NemoHooker::domain-functions] Runtime,RunMgr获取成功");
+    BetterNemo.log('解释器', "Runtime,RunMgr获取成功");
+    BetterNemo.log('解释器', "等待storage加载");
+    await waitGetGlobal('storage');
+    BetterNemo.log('解释器', "storage加载完成");
     /**
      * 触发一个简单的事件
      * @param {string} name 事件名称
@@ -40,6 +44,8 @@
             // 关闭WebSocket连接
             if (socket)
                 socket.close();
+            // 删除临时变量
+            tempVar = {};
         }
     }, 100);
     const ERROR_NOT_IN_ACTION = '[ERROR_NOT_IN_ACTION]';
@@ -49,46 +55,52 @@
     // 重写text_length函数
     rewriteDomainFunction('text_length', function (args, rbid, entity_id, utils) {
         let value = args.VALUE;
-        if (value == 'getBetterNemoVersion') return NemoHookerVersion;
+        if (value == 'getBetterNemoVersion') return BetterNemoVersion;
         if (Array.isArray(value)) {
             value = stage_list_to_string(value);
         }
         return (isNaN(value)) ? value.length : value.toString().length;
     });
+    regDomainFunction('bn_var_get', (params, rbid, entity_id, utils) => {
+        return tempVar[params.key] ? tempVar[params.key] : 'undefined';
+    });
+    regDomainFunction('bn_var_set', (params, rbid, entity_id, utils) => {
+        tempVar[params.key] = params.value;
+    });
     // -------------EVAL-----------
-    regDomainFunction("nemohooker_eval", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_eval", (params, uuid, uuid2, utils) => {
         eval(String(params.js));
     });
     // -------------按键------------
-    regSimpleEvent("nemohooker_on_key_down");
-    regSimpleEvent("nemohooker_on_key_up");
+    regSimpleEvent("bn_on_key_down");
+    regSimpleEvent("bn_on_key_up");
     // 按键状态
     // 监听按键按下
     document.addEventListener('keydown', (e) => {
         keyStates[e.code] = true;
-        emitSimpleEvent("nemohooker_on_key_down", {
+        emitSimpleEvent("bn_on_key_down", {
             key: e.code
         });
     });
     // 监听按键释放
     document.addEventListener('keyup', (e) => {
         keyStates[e.code] = false;
-        emitSimpleEvent("nemohooker_on_key_up", {
+        emitSimpleEvent("bn_on_key_up", {
             key: e.code
         });
     });
-    regDomainFunction("nemohooker_on_key_event_param", (_, __, ___, utils) => {
+    regDomainFunction("bn_on_key_event_param", (_, __, ___, utils) => {
         const params = getEventParams(utils);
         if (params) return params.key;
         console.warn("error no action_parameters", action_parameters);
         return ERROR_NOT_IN_ACTION;
     }
     );
-    regDomainFunction('nemohooker_check_down_key', (params, rbid, entity_id, utils) => {
+    regDomainFunction('bn_check_down_key', (params, rbid, entity_id, utils) => {
         return keyStates[params.key] || false;
     })
     // ------------剪切板----------
-    regDomainFunction("nemohooker_clipboard_write", (params, rbid, entity_id, internals) => {
+    regDomainFunction("bn_clipboard_write", (params, rbid, entity_id, internals) => {
         (async function writeClipboardText(text) {
             try {
                 await navigator.clipboard.writeText(text);
@@ -97,21 +109,21 @@
             }
         })('' + params.value);
     });
-    regDomainFunction("nemohooker_clipboard_read", async (params, rbid, entity_id, internals) => {
+    regDomainFunction("bn_clipboard_read", async (params, rbid, entity_id, internals) => {
         return await navigator.clipboard.readText();
     });
     // ------------Alert与Prompt-------------
-    regDomainFunction("nemohooker_alert", (params, rbid, entity_id, internals) => {
+    regDomainFunction("bn_alert", (params, rbid, entity_id, internals) => {
         alert(params.param);
     });
-    regDomainFunction("nemohooker_prompt", (params, rbid, entity_id, internals) => {
+    regDomainFunction("bn_prompt", (params, rbid, entity_id, internals) => {
         return prompt(params.param);
     });
     // ------------网络-------------
-    regDomainFunction("nemohooker_http_get", async (params, rbid, entity_id, internals) => {
+    regDomainFunction("bn_http_get", async (params, rbid, entity_id, internals) => {
         return await (await fetch(params.param)).text();
     });
-    regDomainFunction("nemohooker_http_post", async (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_http_post", async (params, uuid, uuid2, utils) => {
         return await (await fetch(params.param, {
             method: 'POST',
             headers: JSON.parse(params.headers),
@@ -119,7 +131,7 @@
         })).text();
     });
     // --------------视频----------------
-    regDomainFunction("nemohooker_create_video", (params, rbid, entity_id, utils) => {
+    regDomainFunction("bn_create_video", (params, rbid, entity_id, utils) => {
         if (document.getElementById('custom-video-' + params.id)) {
             const video = document.getElementById('custom-video-' + params.id);
             video.src = params.src;
@@ -133,17 +145,17 @@
             document.body.appendChild(video);
         }
     });
-    regDomainFunction("nemohooker_play_video", (params, rbid, entity_id, utils) => {
+    regDomainFunction("bn_play_video", (params, rbid, entity_id, utils) => {
         const video = document.getElementById('custom-video-' + params.id);
         if (!video) return;
         video.play();
     });
-    regDomainFunction("nemohooker_pause_video", (params, rbid, entity_id, utils) => {
+    regDomainFunction("bn_pause_video", (params, rbid, entity_id, utils) => {
         const video = document.getElementById('custom-video-' + params.id);
         if (!video) return;
         video.pause();
     });
-    regDomainFunction("nemohooker_set_video_current_time", (params, rbid, entity_id, utils) => {
+    regDomainFunction("bn_set_video_current_time", (params, rbid, entity_id, utils) => {
         const video = document.getElementById('custom-video-' + params.id);
         if (!video) return;
         video.currentTime = params.time;
@@ -153,7 +165,7 @@
     function typeOf(value) {
         return Object.prototype.toString.call(value).substring(8, Object.prototype.toString.call(value).length - 1);
     }
-    regDomainFunction("nemohooker_object_get", (params, rbid, entity_id, internals) => {
+    regDomainFunction("bn_object_get", (params, rbid, entity_id, internals) => {
         const value = JSON.parse(params.obj)[params.key];
         function func(value) {
             return value.map(item => {
@@ -166,19 +178,19 @@
         if (typeOf(value) === "Object") return JSON.stringify(value);
         return value;
     });
-    regDomainFunction("nemohooker_object_set", (params, rbid, entity_id, internals) => {
+    regDomainFunction("bn_object_set", (params, rbid, entity_id, internals) => {
         const obj = JSON.parse(params.obj);
         obj[params.key] = params.value;
         return JSON.stringify(obj);
     });
-    regDomainFunction("nemohooker_object_include_key", (params, rbid, entity_id, internals) => {
+    regDomainFunction("bn_object_include_key", (params, rbid, entity_id, internals) => {
         const value = JSON.parse(params.obj)[params.key];
         return value !== undefined;
     });
 
     // -----------数组操作 -------------------
 
-    regDomainFunction("nemohooker_array_get", (params, rbid, entity_id, internals) => {
+    regDomainFunction("bn_array_get", (params, rbid, entity_id, internals) => {
         const array = JSON.parse(params.arr);
         const index = Number(params.index) - 1;
 
@@ -199,7 +211,7 @@
         if (typeOf(value) === "Object") return JSON.stringify(value);
         return value;
     });
-    regDomainFunction("nemohooker_array_set", (params, rbid, entity_id, internals) => {
+    regDomainFunction("bn_array_set", (params, rbid, entity_id, internals) => {
         const arr = JSON.parse(params.arr);
         const index = Number(params.index) - 1;
         const value = params.value;
@@ -218,13 +230,13 @@
 
         return JSON.stringify(arr);
     });
-    regDomainFunction("nemohooker_array_include_value", (params, rbid, entity_id, internals) => {
+    regDomainFunction("bn_array_include_value", (params, rbid, entity_id, internals) => {
         const arr = JSON.parse(params.arr);
         const targetValue = params.value;
 
         return arr.includes(targetValue);
     });
-    regDomainFunction("nemohooker_array_length", (params, rbid, entity_id, internals) => {
+    regDomainFunction("bn_array_length", (params, rbid, entity_id, internals) => {
         const arr = JSON.parse(params.arr);
 
         return arr.length;
@@ -232,7 +244,7 @@
 
     // -------------运算扩展-----------------
 
-    regDomainFunction("nemohooker_factorial", (params, rbid, entity_id, internals) => {
+    regDomainFunction("bn_factorial", (params, rbid, entity_id, internals) => {
         const n = parseInt(params.num);
         if (n < 0) return 0;
         function factorial(x) {
@@ -241,7 +253,7 @@
         }
         return factorial(n);
     });
-    regDomainFunction("nemohooker_trig_common", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_trig_common", (params, uuid, uuid2, utils) => {
         const xita = parseFloat(params.xita);
         const radian = xita * Math.PI / 180;
         const option = String(params.ttype);
@@ -253,7 +265,7 @@
         if (option == "ACOS") return Math.acos(xita) * 180 / Math.PI;
         return Math.atan(xita) * 180 / Math.PI;
     });
-    regDomainFunction("nemohooker_3D_rotation", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_3D_rotation", (params, uuid, uuid2, utils) => {
 
         const radians = Math.PI / 180;
         const angles = JSON.parse(params.angles);
@@ -290,10 +302,10 @@
 
         return [xr, yr, zr];
     });
-    regDomainFunction("nemohooker_3D_array", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_3D_array", (params, uuid, uuid2, utils) => {
         return "[" + String(params.x) + "," + String(params.y) + "," + String(params.z) + "]";
     });
-    regDomainFunction("nemohooker_regular_polygon", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_regular_polygon", (params, uuid, uuid2, utils) => {
         const center = JSON.parse(params.center);
         const r = parseFloat(params.r);
         const n = parseInt(params.n);
@@ -327,14 +339,14 @@
             return actor.value;
         }
     }
-    regDomainFunction("nemohooker_draw_video_stamp", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_draw_video_stamp", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
         if (!actor) return;
         const video = document.getElementById('custom-video-' + params.id);
         if (!video) return;
         actor.get_brush().draw_image(video, params.x, params.y, video.videoWidth * params.scale, video.videoHeight * params.scale);
     });
-    regDomainFunction("nemohooker_draw_image_stamp", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_draw_image_stamp", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
         if (!actor) return;
 
@@ -346,12 +358,12 @@
 
         actor.get_brush().draw_custom_image_stamp(params.src, x, y, w, h);
     });
-    regDomainFunction("nemohooker_draw_custom_image_stamp", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_draw_custom_image_stamp", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
         if (!actor) return;
         actor.get_brush().draw_custom_image_stamp(params.src);
     });
-    regDomainFunction("nemohooker_put_pixel", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_put_pixel", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
         if (!actor) return;
         const x = parseFloat(params.x);
@@ -376,7 +388,7 @@
         const a = parseFloat(params.a);
         actor.get_brush().put_pixel(x, y, r, g, b, a);
     });
-    regDomainFunction("nemohooker_fill_triangle", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_fill_triangle", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
         if (!actor) return;
         const point = String(params.point);
@@ -384,7 +396,7 @@
 
         actor.get_brush().fill_polygon(point, color);
     });
-    regDomainFunction("nemohooker_better_draw_text_stamp", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_better_draw_text_stamp", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
         if (!actor) return;
 
@@ -399,7 +411,7 @@
 
         actor.get_brush().better_draw_text_stamp(text, color, style, weight, size, font, align, base_line);
     });
-    regDomainFunction("nemohooker_rectangle_clear", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_rectangle_clear", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
         if (!actor) return;
 
@@ -410,7 +422,7 @@
 
         actor.get_brush().rectangle_clear(x, y, width, height);
     });
-    regDomainFunction("nemohooker_draw_svg", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_draw_svg", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
         if (!actor) return;
 
@@ -418,10 +430,10 @@
 
         actor.get_brush().draw_svg(svg);
     });
-    regDomainFunction("nemohooker_color", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_color", (params, uuid, uuid2, utils) => {
         return params.color;
     });
-    regDomainFunction("nemohooker_hex_to_array", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_hex_to_array", (params, uuid, uuid2, utils) => {
         const hex = String(params.hex).substr(1);
         var r = parseInt(hex.substring(0, 2), 16);
         var g = parseInt(hex.substring(2, 4), 16);
@@ -489,7 +501,7 @@
         };
         return undefined;
     });
-    regDomainFunction("nemohooker_set_pen_color_hex", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_set_pen_color_hex", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
         if (!actor) {
             return;
@@ -512,7 +524,7 @@
         };
         actor.get_brush().set_alpha(parseInt(params.a / 255 * 100));
     });
-    regDomainFunction("nemohooker_set_fill_color_hex", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_set_fill_color_hex", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
         if (!actor) {
             return;
@@ -542,7 +554,7 @@
         };
     });
     // -----------图像处理---------
-    regDomainFunction("nemohooker_dataURL_actor", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_dataURL_actor", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
         if (!actor) {
             return;
@@ -550,7 +562,7 @@
 
         return String(actor.get_brush().dataURL_actor());
     });
-    regDomainFunction("nemohooker_dataURL_stage", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_dataURL_stage", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
         if (!actor) {
             return;
@@ -575,7 +587,7 @@
 
         return String(actor.get_brush().dataURL_stage(new ImageData(new Uint8ClampedArray(data), width, height)));
     });
-    regDomainFunction("nemohooker_dataURL_URL", (params, uuid, uuid2, utils) => {
+    regDomainFunction("bn_dataURL_URL", (params, uuid, uuid2, utils) => {
         var actor = get_stage_target(uuid2);
         if (!actor) {
             return;
@@ -584,115 +596,46 @@
         const url = params.url;
         return String(actor.get_brush().dataURL_URL(url));
     });
-    // -----------------MQTT-----------------
-    regSimpleEvent('nemohooker_mqtt_on_connect');
-    regSimpleEvent('nemohooker_mqtt_on_disconnect');
-    regSimpleEvent('nemohooker_mqtt_on_offline');
-    regSimpleEvent('nemohooker_mqtt_on_error');
-    regSimpleEvent('nemohooker_mqtt_on_message');
-    regSimpleEvent('nemohooker_mqtt_on_reconnect');
-    regDomainFunction('nemohooker_mqtt_connect', (params, rbid, entity_id, utils) => {
-        const url = params.address;
-        const clientId = params.clientID;
-        const username = params.user;
-        const password = params.password;
-        const reconnectPeriod = params.reconnectPeriod;
-        const connectTimeout = params.connectTimeout;
-        const options = {
-            clean: true,
-            connectTimeout,
-            clientId,
-            username,
-            password,
-            reconnectPeriod,
-        }
-        mqttClient = mqtt.connect(url, options)
-        mqttClient.on('connect', () => { emitSimpleEvent('nemohooker_mqtt_on_connect'); });
-        mqttClient.on('reconnect', () => { emitSimpleEvent('nemohooker_mqtt_on_reconnect'); })
-        mqttClient.on('close', () => { emitSimpleEvent('nemohooker_mqtt_on_disconnect'); })
-        mqttClient.on('offline', () => { emitSimpleEvent('nemohooker_mqtt_on_offline'); })
-        mqttClient.on('error', (error) => { emitSimpleEvent('nemohooker_mqtt_on_error', { msg: error }); })
-        mqttClient.on('message', (_, payload, __) => { emitSimpleEvent('nemohooker_mqtt_on_message', { msg: payload.toString() }); })
-
-    });
-    regDomainFunction('nemohooker_mqtt_publish', (params, rbid, entity_id, utils) => {
-        const topic = params.topic;
-        const message = params.message;
-        mqttClient.publish(topic, message, { qos: 0, retain: false }, function (error) {
-            if (error)
-                emitSimpleEvent('nemohooker_mqtt_on_publish_error', { msg: error });
-        })
-    });
-    regDomainFunction('nemohooker_mqtt_subscribe', (params, rbid, entity_id, utils) => {
-        const topic = params.topic;
-        mqttClient.subscribe(topic, { qos: 0 }, function (error, _) {
-            if (error)
-                emitSimpleEvent('nemohooker_mqtt_on_subscribe_error', { msg: error });
-        })
-    });
-    regDomainFunction('nemohooker_mqtt_on_error_message', (_, __, ___, utils) => {
-        const params = getEventParams(utils);
-        if (params) return params.msg;
-        return "ERROR_NOT_IN_ACTION"
-    });
-    regDomainFunction('nemohooker_mqtt_on_message_message', (_, __, ___, utils) => {
-        const params = getEventParams(utils);
-        if (params) return params.msg;
-        return "ERROR_NOT_IN_ACTION"
-    });
-    regDomainFunction('nemohooker_mqtt_on_publish_error_message', (_, __, ___, utils) => {
-        const params = getEventParams(utils);
-        if (params) return params.msg;
-        return "ERROR_NOT_IN_ACTION"
-    });
-    regDomainFunction('nemohooker_mqtt_on_subscribe_error_message', (_, __, ___, utils) => {
-        const params = getEventParams(utils);
-        if (params) return params.msg;
-        return "ERROR_NOT_IN_ACTION"
-    });
-    // regDomainFunction('',(_, _, _, utils) => {
-    //     const params = getEventParams(utils);
-    // });
     // ------------WebSocket-------------
-    regSimpleEvent("nemohooker_on_ws_open");
-    regSimpleEvent("nemohooker_on_ws_message");
-    regSimpleEvent("nemohooker_on_ws_error");
-    regSimpleEvent("nemohooker_on_ws_close");
-    regDomainFunction("nemohooker_new_ws", (params, rbid, entity_id, internals) => {
+    regSimpleEvent("bn_on_ws_open");
+    regSimpleEvent("bn_on_ws_message");
+    regSimpleEvent("bn_on_ws_error");
+    regSimpleEvent("bn_on_ws_close");
+    regDomainFunction("bn_new_ws", (params, rbid, entity_id, internals) => {
         const url = params.url;
         socket = new WebSocket(url);
         socket.addEventListener('open', () => {
-            emitSimpleEvent("nemohooker_on_ws_open");
+            emitSimpleEvent("bn_on_ws_open");
         });
         socket.addEventListener('message', (event) => {
-            emitSimpleEvent("nemohooker_on_ws_message", {
+            emitSimpleEvent("bn_on_ws_message", {
                 message: event.data
             });
         });
         socket.addEventListener('error', (error) => {
-            emitSimpleEvent("nemohooker_on_ws_error", {
+            emitSimpleEvent("bn_on_ws_error", {
                 error: error
             });
         });
         socket.addEventListener('close', () => {
-            emitSimpleEvent("nemohooker_on_ws_close");
+            emitSimpleEvent("bn_on_ws_close");
         });
     });
-    regDomainFunction("nemohooker_ws_send", (params, rbid, entity_id, internals) => {
+    regDomainFunction("bn_ws_send", (params, rbid, entity_id, internals) => {
         socket.send(params.message)
     });
-    regDomainFunction("nemohooker_ws_close", (params, rbid, entity_id, internals) => {
+    regDomainFunction("bn_ws_close", (params, rbid, entity_id, internals) => {
         socket.close(params.code, params.param)
     });
-    regDomainFunction("nemohooker_on_ws_message_param", (_, __, ___, utils) => {
+    regDomainFunction("bn_on_ws_message_param", (_, __, ___, utils) => {
         const params = getEventParams(utils);
         if (params) return params.message;
         return "ERROR_NOT_IN_ACTION"
     });
-    regDomainFunction("nemohooker_on_ws_error_param", (_, __, ___, utils) => {
+    regDomainFunction("bn_on_ws_error_param", (_, __, ___, utils) => {
         const params = getEventParams(utils);
         if (params) return params.error;
         return "ERROR_NOT_IN_ACTION"
     });
-    console.log("[NemoHooker::domain-functions] 解释器注入完成");
+    BetterNemo.log('解释器', "解释器注入完成");
 })();

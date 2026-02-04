@@ -42,6 +42,17 @@ const waitHook = async (name) => {
     return window['Hook' + name].exports;
 };
 /**
+ * 异步获取某个全局对象
+ * @param {string} name 全局对象名
+ * @returns any
+ */
+const waitGetGlobal = async (name) => {
+    while (!window[name]) {
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+    }
+    return window[name];
+};
+/**
  * 追加新的积木盒
  * @param {string} name 
  * @param {string} icon 图标symbol的id
@@ -151,6 +162,32 @@ function regSimpleEvent(eventBlockId) {
     });
     regDomainFunction(eventBlockId, () => { });
 }
+function regBlocks(blocks) {
+    blockObjects = (blockObjects.concat(blocks));
+    blocks.forEach((block) => {
+        // 对于事件参数的特殊处理
+        if (block.EventParam) {
+            rootBlockChecks.push({
+                blockType: block.type,
+                rootBlockTypes: [block.EventParam.eventBlockId],
+            });
+            defineEventParam(block.type, block.text, block.EventParam.colorId);
+            block = {
+                type: block.type,
+                message0: block.text,
+                args0: [],
+                colour: `%{BKY_${block.EventParam.colorId}}`,
+                output: "String",
+            };
+        }
+        // 注册积木
+        Blockly.Blocks[block.type] = {
+            init: function () {
+                this.jsonInit(block);
+            },
+        };
+    });
+}
 function checkRootBlock({ blockType = '', rootBlockTypes = [] }) {
     Blockly.mainWorkspace.get_all_blocks()
         .filter(block => block.type == blockType)
@@ -160,12 +197,10 @@ function checkRootBlock({ blockType = '', rootBlockTypes = [] }) {
             if (block.get_root_block())
                 if (rootBlockTypes.includes(block.get_root_block().type))
                     if (block._color) {
-                        block.set_deletable(false);
                         block.set_colour(block._color);
                         return;
                     }
-            block.set_deletable(true);
-            block.set_colour(Blockly.theme.disabled_color.fill)
+            block.set_colour(Blockly.theme.disabled_color.fill);
         });
 }
 /**
@@ -251,3 +286,114 @@ async function defineEventParam(blockId, text, colorId) {
         }
     })
 }
+
+/**
+ * 触发一个简单的事件
+ * @param {string} name 事件名称
+ * @param {object} params 参数(可选)
+ */
+function emitSimpleEvent(name, params = {}) {
+    waitHook('Runtime').send_action({
+        id: name,
+        namespace: "",
+        parameters: params,
+    });
+}
+const BetterNemo = {
+    log: (moduleName, ...msgs) => {
+        if (false)
+            if (moduleName) {
+                console.log(`%c BetterNemo %c %c ${moduleName} %c ${msgs.join(' ')}`, 'border-radius:5px;padding:2px;font-weight:bold;background:linear-gradient(to bottom, #50FFEB, #7B40FF);color:white;', '', 'border-radius:5px;padding:2px;font-weight:bold;background:linear-gradient(to bottom,#643CFF,#E793FF);color:white;', '')
+            } else {
+                console.log(`%c BetterNemo %c ${msgs.join(' ')}`, 'border-radius:5px;padding:2px;font-weight:bold;background:linear-gradient(to bottom, #643CFF, #E793FF);color:white;', '')
+            }
+        else
+            if (moduleName) {
+                console.log(`%c BetterNemo %c %c ${moduleName} %c ${msgs.join(' ')}`, 'border-radius:5px;padding:2px;font-weight:bold;background:#679BF6;color:white;', '', 'border-radius:5px;padding:2px;font-weight:bold;background:#A96AFF;color:white;', '')
+            } else {
+                console.log(`%c BetterNemo %c ${msgs.join(' ')}`, 'border-radius:5px;padding:2px;font-weight:bold;background:#679BF6;color:white;', '')
+            }
+    },
+    hook: hook,
+    getHook: waitHook,
+    Block: {
+        methodBlock: {
+            previousStatement: true,
+            nextStatement: true,
+            inputsInline: true,
+        },
+        eventBlock: {
+            nextStatement: true,
+            inputsInline: true,
+        }
+    },
+    Toolbox: {
+        title: (text) =>
+            `<label text="${text}" type="normal" gap="24" web-class="flyout-toolbox-title" vertical_padding="0"></label>`,
+        error: (text) =>
+            `<label text="${text}" type="normal" gap="24" web-class="flyout-toolbox-error" vertical_padding="0"></label>`,
+        line: (text, height = 25) =>
+            `<label type="flyout_line" height="${height}" text="${text}"/>`,
+        flyout_bottom: (width = 130, height = 16) =>
+            `<label type="flyout_bottom" align="center" width="${width}" height="${height}"></label>`,
+        sep: (gap = 50) => `<sep gap="${gap}"></sep>`,
+        numValue: (name, value) =>
+            `<value name="${name}"><shadow type="math_number"><field name="NUM">${value}</field></shadow></value>`,
+        textValue: (name, value) =>
+            `<value name="${name}"><shadow type="text"><field name="TEXT">${value}</field></shadow></value>`,
+        optionValue: (name, value) => `<field name="${name}">${value}</field>`,
+        block: (type, ...values) => {
+            const blockJSON = window['blockObjects'].find((block) => block.type === type);
+            if (blockJSON) {
+                blockJSON.args0.forEach((arg) => {
+                    if (arg.value !== undefined) {
+                        switch (arg.type) {
+                            case "input_value":
+                                if (!Array.isArray(arg.check))
+                                    arg.check = [arg.check];
+                                if (arg.check[0] === "Number" && arg.check.length === 1)
+                                    values.push(BetterNemo.Toolbox.numValue(arg.name, arg.value));
+                                else if (arg.check.includes("String"))
+                                    values.push(BetterNemo.Toolbox.textValue(arg.name, arg.value));
+                                else console.error("未知参数", arg.check);
+                                break;
+                            case "field_dropdown":
+                                values.push(BetterNemo.Toolbox.optionValue(arg.name, arg.value));
+                                break;
+                            default: console.warn("未知类型参数", arg.type, blockJSON, arg);
+                        }
+                    } else console.warn("无默认值", blockJSON, arg);
+                });
+                return `<block type="${type}">${values.join("")}</block>`;
+            } else if (Blockly.Blocks[type]) {
+                return `<block type="${type}">${values.join("")}</block>`;
+            } else {
+                return BetterNemo.Toolbox.error("错误：未能找到" + type + "的定义");
+            }
+        },
+        simpleEventBlock: (type, ...params) => [
+            BetterNemo.Toolbox.sep(15),
+            `<block type="${type}">${params.map(([name, type]) => `<value name="${name}"><block type="__${type}"></block></value>`)}</block>`,
+        ],
+    },
+    regColor: (colorID, fill, border) => {
+        Blockly.theme.block_color[colorID] = { fill, border };
+    },
+    regBlocks,
+    regSimpleEvent,
+    regMethod: regSimpleEvent,
+    addToolbox: regToolbox,
+};
+
+
+(async () => {
+    fetch('extensions/mqtt.js').then(async data => {
+        const script = await data.text();
+        const func = new Function('require', script);
+        func((name) => {
+            if (name === 'BetterNemo')
+                return BetterNemo;
+            return undefined;
+        });
+    })
+})();

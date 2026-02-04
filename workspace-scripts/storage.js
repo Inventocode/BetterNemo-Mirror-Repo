@@ -1,7 +1,7 @@
 
 class Storage {
     constructor() {
-        this.namespace = 'nemohooker';
+        this.namespace = 'bn';
         this.storage = this.getAll() || {};
     }
     getAll() {
@@ -37,6 +37,7 @@ class Storage {
     }
 }
 const storage = new Storage();
+window['storage'] = storage;
 
 const experimentalConfig = {
     "disable_repeat_forever_in_warp": false,

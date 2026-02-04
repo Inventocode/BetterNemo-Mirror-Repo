@@ -1,9 +1,9 @@
 // ------------------画笔原型注入------------------
 (async () => {
-    console.log("[NemoHooker::prototype-inject] 等待画笔原型,Utils获取");
+    BetterNemo.log('Brush注入', "等待画笔原型,Utils获取");
     const Utils = (await waitHook("Utils"));
     const Brush = (await waitHook("Brush")).Brush;
-    console.log("[NemoHooker::prototype-inject] 画笔原型注入开始");
+    BetterNemo.log('Brush注入', "画笔原型注入开始");
     Brush.prototype.put_pixel = function (x, y, r, g, b, a) {
         var ctx = this.ctx;
         if (!ctx) {
@@ -259,18 +259,18 @@
 
         img.src = url;
     };
-    console.log("[NemoHooker::prototype-inject] 画笔原型注入完成");
+    BetterNemo.log('Brush注入', "画笔原型注入完成");
 })();
 // ------------------Scene原型注入------------------
 (async () => {
-    console.log("[NemoHooker::prototype-inject] 等待Scene原型获取");
+    BetterNemo.log('Scene注入', "等待Scene原型获取");
     const Scene = (await waitHook("Scene")).Scene;
-    console.log("[NemoHooker::prototype-inject] Scene原型注入开始");
+    BetterNemo.log('Scene注入', "Scene原型注入开始");
     Scene.prototype.get_brush_gl = function () {
         if (!this.brush_gl) {
             this.brush_gl = this.brush_canvas.getContext('webgl2');
         }
         return this.brush_gl;
     }
-    console.log("[NemoHooker::prototype-inject] Scene原型注入完成");
+    BetterNemo.log('Scene注入', "Scene原型注入完成");
 })();

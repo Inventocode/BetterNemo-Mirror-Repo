@@ -23,7 +23,7 @@
   <!-- 悬浮窗口 -->
   <div class="float-window" id="floatWindow">
     <div class="window-header">
-      <h3><i class="fa-solid fa-cube"></i> NemoHooker</h3>
+      <h3><i class="fa-solid fa-cube"></i> BetterNemo</h3>
       <button class="close-btn" id="closeBtn">
         <i class="fas fa-times"></i>
       </button>
@@ -35,9 +35,10 @@
   <div class='panel_mask'></div>
   <div id='test'></div>
   <div id='highlight_test'></div>
-  <script src="https://cdn.jsdelivr.net/npm/eruda" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+  <script>eruda.init();</script>
   <script>
-    const NemoHookerVersion = "Indev";
+    const BetterNemoVersion = "Indev";
     function hook(id, name, getThis = false) {
       var ready = false;
       var map = new Map();
@@ -63,12 +64,14 @@
     hook("./node_modules/@crc/blink/dist/core/di/index.js", "HookDi");
     hook("./node_modules/@crc/stage/build/core/scenes/scene.js", "HookScene");
     hook("./src/i18n/zh_CN.ts", "HookMsgZhCN");
-    console.log(
-      "%cWelcome to ❤ NemoHooker - " +
-      NemoHookerVersion +
-      " ❤ for Nemo o(*￣▽￣*)ブ",
-      "\n  color: rgb(22, 93, 255);\n  text-shadow: 0 1px 0 #404182;"
-    );
+console.log(
+    "\n%c  Welcome to ❤ BetterNemo - " +
+    BetterNemoVersion +
+    " ❤ for Nemo o(*￣▽￣*)ブ  %c \n\n",
+    "border-radius: 5px; padding: 2px; font-weight: bold;" +
+    "background-color: #679BF6; font-size: 16px; color: white;",
+    ""
+);
     function get_run_mgr() {
       if (!window['HookRuntime']) return;
       return HookRuntime.exports.get_webview_runtime().heart.runtime_manager.run_mgr;
@@ -77,11 +80,11 @@
   <script defer src="workspace-scripts/storage.js"></script>
   <script defer src="workspace-scripts/cat-block.js"></script>
   <script defer src="workspace-scripts/float-ball.js"></script>
-  <script defer src="workspace-scripts/utils.js"></script>
-  <script defer src="workspace-scripts/prototype-inject.js"></script>
-  <script defer src="workspace-scripts/blocks.js"></script>
-  <script defer src="workspace-scripts/toolbox.js"></script>
-  <script defer src="workspace-scripts/domain-functions.js"></script>
+  <script src="workspace-scripts/utils.js"></script>
+  <script src="workspace-scripts/prototype-inject.js"></script>
+  <script src="workspace-scripts/blocks.js"></script>
+  <script src="workspace-scripts/toolbox.js"></script>
+  <script src="workspace-scripts/domain-functions.js"></script>
 </body>
 
 </html>

@@ -63,7 +63,7 @@
             if (lastPage == page) lastPage = UI.pageHistory.pop();
             UI.load(lastPage);
         },
-        load: (page = UI.home) => {
+        load: (page = UI.home, ...args) => {
             UI.clear();
             if (UI.pageHistory && page != UI.home) {
                 windowContent.innerHTML = '<li class="bn-menu-item menu-title"><i class="fas fa-circle-chevron-left"></i><span></span></li>';
@@ -78,7 +78,7 @@
             }
             windowContent.innerHTML += '<div class="status-info" style="display:none"><span></span></div>';
             UI.pageHistory.push(page);
-            page();
+            page(args);
         },
         setTitle: (text) => { windowContent.querySelector(".menu-title > span").innerHTML = text; },
         setStatus: (text) => {
@@ -156,27 +156,19 @@
             windowContent.appendChild(menuItem);
         },
     };
-    let erudaEnabled = false;
+    let erudaEnabled = true;
     const Page = {
         home: () => {
-            UI.setStatus('Version: ' + NemoHookerVersion);
-            UI.button(() => {
-                UI.load(() => {
-                    UI.setStatus('请进行二次确认');
-                    UI.button(() => {
-                        location.reload();
-                    }, '刷新Webview', 'sync-alt');
-                });
-            }, '刷新Webview', 'sync-alt');
-            UI.button(() => {
-                if (erudaEnabled) eruda.destroy();
-                else eruda.init();
-                erudaEnabled = !erudaEnabled;
-                UI.load();
-            }, (erudaEnabled ? '关闭' : '开启') + 'Eruda', 'screwdriver-wrench');
+            UI.setStatus('Version: ' + BetterNemoVersion);
+            UI.button(() => { UI.load(Page.clipboard) }, '剪切板', 'clipboard');
+            UI.button(() => { UI.load(Page.extensions) }, '扩展', 'puzzle-piece');
             UI.button(() => { UI.load(Page.editorConfig) }, '编辑器', 'laptop-code');
-            UI.button(() => { UI.load(Page.runtimeConfig) }, 'Runtime', 'cog');
-            UI.button(() => { UI.load(Page.experimentalConfig) }, '实验性', 'flask');
+            UI.button(() => { UI.load(Page.runtimeConfig) }, '运行时', 'cog');
+            UI.button(() => { UI.load(Page.more) }, '更多', 'ellipsis');
+        },
+        error: (error = "未知错误") => {
+            UI.setTitle('错误');
+            UI.setStatus(error);
         },
         editorConfig: () => {
             UI.setTitle('编辑器设置')
@@ -197,7 +189,7 @@
 
         },
         runtimeConfig: () => {
-            UI.setTitle('Runtime 设置')
+            UI.setTitle('运行时设置')
             UI.setStatus('此配置跟随Webview存储');
             // 默认高级配置
             const defualtConfig = {
@@ -256,7 +248,7 @@
                 UI.load(UI.projectConfig);
             }, '重置', 'sync-alt');
         },
-        experimentalConfig() {
+        experimentalConfig: () => {
             UI.setTitle('实验性功能');
             UI.setStatus('这些功能<del>可能</del>会导致问题。')
             UI.selectInput(
@@ -264,6 +256,75 @@
                 '禁用一步执行中的死循环', [['开', true], ['关', false]],
                 experimentalConfig.disable_repeat_forever_in_warp, false, '60px'
             );
+        },
+        clipboard: () => {
+            UI.setTitle('剪切板');
+            UI.button(async () => {
+                const text = Blockly.xml.dom_to_text(Blockly.xml.block_to_dom(Blockly.runtime_data.selected));
+                try {
+                    await navigator.clipboard.writeText(text);
+                } catch (error) {
+                    console.error(error.message);
+                    UI.load(Page.error, error.message);
+                }
+            }, '复制选中积木', 'copy');
+            UI.button(async () => {
+                try {
+                    const dom = Blockly.xml.text_to_dom(await navigator.clipboard.readText());
+                    if (dom.querySelector('parsererror')) {
+                        UI.load(Page.error, '解析失败<br>' + dom.innerText);
+                        return;
+                    }
+                    Blockly.xml.dom_to_block(dom, Blockly.mainWorkspace);
+                } catch (error) {
+                    console.error(error.message);
+                    UI.load(Page.error, error.message);
+                }
+            }, '粘贴积木', 'paste');
+            UI.button(async () => {
+                const text = Blockly.xml.dom_to_text(Blockly.xml.workspace_to_dom(Blockly.mainWorkspace));
+                try {
+                    await navigator.clipboard.writeText(text);
+                } catch (error) {
+                    console.error(error.message);
+                    UI.load(Page.error, error.message);
+                }
+            }, '复制工作区', 'copy');
+            UI.button(async () => {
+                try {
+                    const dom = Blockly.xml.text_to_dom(await navigator.clipboard.readText());
+                    if (dom.querySelector('parsererror')) {
+                        UI.load(Page.error, '解析失败<br>' + dom.innerText);
+                        return;
+                    }
+                    Blockly.xml.dom_to_workspace(dom, Blockly.mainWorkspace);
+                    UI.load(Page.clipboard);
+                } catch (error) {
+                    console.error(error.message);
+                    UI.load(Page.error, error.message);
+                }
+            }, '粘贴工作区', 'paste');
+        },
+        extensions: () => {
+            UI.setTitle('扩展');
+        },
+        more: () => {
+            UI.setTitle('更多')
+            UI.button(() => {
+                if (erudaEnabled) eruda.destroy();
+                else eruda.init();
+                erudaEnabled = !erudaEnabled;
+                UI.load();
+            }, (erudaEnabled ? '关闭' : '开启') + 'Eruda', 'screwdriver-wrench');
+            UI.button(() => {
+                UI.load(() => {
+                    UI.setStatus('请进行二次确认');
+                    UI.button(() => {
+                        location.reload();
+                    }, '刷新Webview', 'sync-alt');
+                });
+            }, '刷新Webview', 'sync-alt');
+            UI.button(() => { UI.load(Page.experimentalConfig) }, '实验性', 'flask');
         }
     };
     UI.home = Page.home;

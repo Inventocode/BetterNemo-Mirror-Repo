@@ -1,163 +1,131 @@
-
 (async () => {
-    console.log("[NemoHooker::toolbox] 等待Blockly加载");
+    BetterNemo.log("积木盒", "等待Blockly加载");
     await isBlocklyLoaded();
-    console.log("[NemoHooker::toolbox] 等待Workspace加载");
+    BetterNemo.log("积木盒", "等待Workspace加载");
     await isBlocklyMainworkspaceLoaded();
-    console.log("[NemoHooker::toolbox] 等待积木加载");
-    await (async () => {
-        while (blockObjects == []) {
-            await new Promise((resolve) => requestAnimationFrame(resolve));
-        }
-        return;
-    })();
-    console.log("[NemoHooker::toolbox] 积木盒注入开始");
-    const u = {
-        title: (text) => `<label text="${text}" type="normal" gap="24" web-class="flyout-toolbox-title" vertical_padding="0"></label>`,
-        error: (text) => `<label text="${text}" type="normal" gap="24" web-class="flyout-toolbox-error" vertical_padding="0"></label>`,
-        line: (text, height = 25) => `<label type="flyout_line" height="${height}" text="${text}"/>`,
-        flyout_bottom: (width = 130, height = 16) => `<label type="flyout_bottom" align="center" width="${width}" height="${height}"></label>`,
-        sep: (gap = 50) => `<sep gap="${gap}"></sep>`,
-        numValue: (name, value) => `<value name="${name}"><shadow type="math_number"><field name="NUM">${value}</field></shadow></value>`,
-        textValue: (name, value) => `<value name="${name}"><shadow type="text"><field name="TEXT">${value}</field></shadow></value>`,
-        optionValue: (name, value) => `<field name="${name}">${value}</field>`,
-        block: (type, ...values) => {
-            const blockJSON = blockObjects.find(block => block.type === type);
-            if (blockJSON) {
-                blockJSON.args0.forEach(arg => {
-                    if (arg.value !== undefined) {
-                        switch (arg.type) {
-                            case 'input_value':
-                                if (!Array.isArray(arg.check)) arg.check = [arg.check];
-                                if (arg.check[0] === "Number" && arg.check.length === 1) values.push(u.numValue(arg.name, arg.value));
-                                else if (arg.check.includes("String")) values.push(u.textValue(arg.name, arg.value));
-                                else console.error('错误：未知参数', arg.check);
-                                break;
-                            case 'field_dropdown':
-                                values.push(u.optionValue(arg.name, arg.value));
-                                break;
-                        }
-                    }
-                });
-                return `<block type="${type}">${values.join('')}</block>`;
-            } else if (Blockly.Blocks[type]) {
-                return `<block type="${type}">${values.join('')}</block>`;
-            }
-             else {
-                return u.error('错误：未能找到' + type + '的定义');
-            }
-        },
-        simpleEventBlock: (type, ...params) => [u.sep(18), `<block type="${type}">${params.map(([name,type])=>`<value name="${name}"><block type="__${type}"></block></value>`)}</block>`]
-    }
-    // 定义NemoHooker积木盒
-    const nemohookerXML = [
-        u.title('BetterNemo 扩展积木'),
-        u.block('nemohooker_create_video'),
-        u.block('nemohooker_play_video'),
-        u.block('nemohooker_pause_video'),
-        u.block('nemohooker_set_video_current_time'),
-        u.block('nemohooker_on_key_down'),
-        u.block('nemohooker_on_key_up'),
-        u.block('nemohooker_on_key_event_param'),
-        u.block('nemohooker_check_down_key'),
-        u.block('nemohooker_clipboard_write'),
-        u.block('nemohooker_clipboard_read'),
-        u.block('nemohooker_eval'),
-        u.block('nemohooker_alert'),
-        u.block('nemohooker_prompt'),
-        u.line('隐藏积木 原版可用'),
-        u.block('warp'),
-        u.block('calculate', u.textValue('input', 'sin(114)')),
-        u.block('multiline_text'),
-        u.block('color_picker'),
-        u.flyout_bottom()
+    BetterNemo.log("积木盒", "Blockly加载完成");
+    const u = BetterNemo.Toolbox;
+    // 定义BetterNemo积木盒
+    const bnXML = [
+        u.title("BetterNemo 扩展积木"),
+        u.block("bn_comment"),
+        u.block("bn_var_get"),
+        u.block("bn_var_set"),
+        u.block("bn_create_video"),
+        u.block("bn_play_video"),
+        u.block("bn_pause_video"),
+        u.block("bn_set_video_current_time"),
+        u.block("bn_on_key_down"),
+        u.block("bn_on_key_up"),
+        u.block("bn_on_key_event_param"),
+        u.block("bn_check_down_key"),
+        u.block("bn_clipboard_write"),
+        u.block("bn_clipboard_read"),
+        u.block("bn_eval"),
+        u.block("bn_alert"),
+        u.block("bn_prompt"),
+        u.line("隐藏积木 原版可用"),
+        u.block("warp"),
+        u.block("calculate", u.textValue("input", "sin(114)")),
+        u.block("multiline_text"),
+        u.block("color_picker"),
+        u.flyout_bottom(),
     ];
     // 定义网络积木盒
     const networkXML = [
-        u.title('网络 · Network'),
-        u.block('nemohooker_http_get'),
-        u.block('nemohooker_http_post'),
-        u.block('nemohooker_object_get'),
-        u.block('nemohooker_object_set'),
-        u.block('nemohooker_object_include_key'),
-        u.block('nemohooker_array_get'),
-        u.block('nemohooker_array_set'),
-        u.block('nemohooker_array_include_value'),
-        u.block('nemohooker_array_length'),
-        u.flyout_bottom()
-    ];
-    // 定义MQTT积木盒
-    const mqttXML = [
-        u.title('消息队列遥测传输协议 · MQTT'),
-        u.block('nemohooker_mqtt_on_connect'),
-        u.block('nemohooker_mqtt_on_reconnect'),
-        u.block('nemohooker_mqtt_on_disconnect'),
-        u.block('nemohooker_mqtt_on_offline'),
-        u.simpleEventBlock('nemohooker_mqtt_on_error', ['param','nemohooker_mqtt_on_error_message']),
-        u.simpleEventBlock('nemohooker_mqtt_on_message', ['param','nemohooker_mqtt_on_message_message']),
-        u.simpleEventBlock('nemohooker_mqtt_on_subscribe_error', ['param','nemohooker_mqtt_on_subscribe_error_message']),
-        u.simpleEventBlock('nemohooker_mqtt_on_publish_error', ['param','nemohooker_mqtt_on_publish_error_message']),
-        u.block('nemohooker_mqtt_connect'),
-        u.block('nemohooker_mqtt_publish'),
-        u.block('nemohooker_mqtt_subscribe'),
-        u.flyout_bottom()
+        u.title("网络 · Network"),
+        u.block("bn_http_get"),
+        u.block("bn_http_post"),
+        u.block("bn_object_get"),
+        u.block("bn_object_set"),
+        u.block("bn_object_include_key"),
+        u.block("bn_array_get"),
+        u.block("bn_array_set"),
+        u.block("bn_array_include_value"),
+        u.block("bn_array_length"),
+        u.flyout_bottom(),
     ];
     const websocketXML = [
-        u.title('WebSocket'),
-        u.block('nemohooker_new_ws'),
-        u.block('nemohooker_ws_send'),
-        u.block('nemohooker_ws_close'),
-        u.block('nemohooker_on_ws_open'),
-        u.simpleEventBlock('nemohooker_on_ws_message', ['param', 'nemohooker_on_ws_message_param']),
-        u.simpleEventBlock('nemohooker_on_ws_error', ['param', 'nemohooker_on_ws_error_param']),
-        u.block('nemohooker_on_ws_close'),
-        u.flyout_bottom()
+        u.title("WebSocket"),
+        u.block("bn_new_ws"),
+        u.block("bn_ws_send"),
+        u.block("bn_ws_close"),
+        u.simpleEventBlock("bn_on_ws_open"),
+        u.simpleEventBlock("bn_on_ws_message", [
+            "param",
+            "bn_on_ws_message_param",
+        ]),
+        u.simpleEventBlock("bn_on_ws_error", [
+            "param",
+            "bn_on_ws_error_param",
+        ]),
+        u.simpleEventBlock("bn_on_ws_close"),
+        u.flyout_bottom(),
     ];
     setTimeout(() => {
         // 注册3D积木盒
         // regToolbox('threeDbox', 'icon-cubes', '#77D657', threeDboxXML);
         // 注册网络积木盒
-        regToolbox('toolbox-network', 'icon-widget-http-client', '#54c0ff', networkXML);
-        // 注册MQTT积木盒
-        regToolbox('toolbox-mqtt', 'icon-mqtt', '#660066', mqttXML);
+        regToolbox(
+            "toolbox-network",
+            "icon-widget-http-client",
+            "#54c0ff",
+            networkXML,
+        );
         // 注册WebSocket积木盒
-        regToolbox('toolbox-websocket', 'icon-websocket', '#54c0ff', websocketXML);
+        regToolbox(
+            "toolbox-websocket",
+            "icon-websocket",
+            "#54c0ff",
+            websocketXML,
+        );
         // 注册扩展积木盒
-        regToolbox('toolbox-nemohooker', 'icon-feature', '#14B390', nemohookerXML);
+        regToolbox(
+            "toolbox-bn",
+            "icon-feature",
+            "#14B390",
+            bnXML,
+        );
         // 画笔扩展
         Blockly.mainWorkspace.toolbox_.children_[5].blocks.pop();
-        Blockly.mainWorkspace.toolbox_.children_[5].blocks = Blockly.mainWorkspace.toolbox_.children_[5].blocks.concat([
-            u.line('Better Nemo 扩展积木'),
-            u.block('nemohooker_color'),
-            u.block('nemohooker_hex_to_array'),
-            u.block('nemohooker_set_pen_color_hex'),
-            u.block('nemohooker_set_fill_color_hex'),
-            u.block('nemohooker_draw_image_stamp'),
-            u.block('nemohooker_draw_custom_image_stamp'),
-            u.block('nemohooker_draw_video_stamp'),
-            u.block('nemohooker_draw_svg'),
-            u.block('nemohooker_rectangle_clear'),
-            u.block('nemohooker_better_draw_text_stamp'),
-            u.block('nemohooker_put_pixel'),
-            u.block('nemohooker_fill_polygon'),
-            u.sep(),
-            u.block('nemohooker_dataURL_actor'),
-            u.block('nemohooker_dataURL_stage'),
-            //u.block('nemohooker_dataURL_URL', u.textValue('url', '')),
-            u.flyout_bottom()
-        ].map(block => str2xml(block)));
-        console.log(Blockly.mainWorkspace.toolbox_.children_[5].blocks)
+        Blockly.mainWorkspace.toolbox_.children_[5].blocks =
+            Blockly.mainWorkspace.toolbox_.children_[5].blocks.concat(
+                [
+                    u.line("Better Nemo 扩展积木"),
+                    u.block("bn_color"),
+                    u.block("bn_hex_to_array"),
+                    u.block("bn_set_pen_color_hex"),
+                    u.block("bn_set_fill_color_hex"),
+                    u.block("bn_draw_image_stamp"),
+                    u.block("bn_draw_custom_image_stamp"),
+                    u.block("bn_draw_video_stamp"),
+                    u.block("bn_draw_svg"),
+                    u.block("bn_rectangle_clear"),
+                    u.block("bn_better_draw_text_stamp"),
+                    u.block("bn_put_pixel"),
+                    u.block("bn_fill_polygon"),
+                    u.sep(),
+                    u.block("bn_dataURL_actor"),
+                    u.block("bn_dataURL_stage"),
+                    //u.block('bn_dataURL_URL', u.textValue('url', '')),
+                    u.flyout_bottom(),
+                ].map((block) => str2xml(block)),
+            );
+        console.log(Blockly.mainWorkspace.toolbox_.children_[5].blocks);
         // 运算扩展
         Blockly.mainWorkspace.toolbox_.children_[7].blocks.pop();
-        Blockly.mainWorkspace.toolbox_.children_[7].blocks = Blockly.mainWorkspace.toolbox_.children_[7].blocks.concat([
-            u.line('Better Nemo 扩展积木'),
-            u.block('nemohooker_3D_array'),
-            u.block('nemohooker_factorial'),
-            u.block('nemohooker_trig_common'),
-            u.block('nemohooker_3D_rotation'),
-            u.block('nemohooker_regular_polygon'),
-            u.flyout_bottom()
-        ].map(block => str2xml(block)));
-    }, 1000)
-    console.log("[NemoHooker::toolbox] 积木盒注入完成");
+        Blockly.mainWorkspace.toolbox_.children_[7].blocks =
+            Blockly.mainWorkspace.toolbox_.children_[7].blocks.concat(
+                [
+                    u.line("Better Nemo 扩展积木"),
+                    u.block("bn_3D_array"),
+                    u.block("bn_factorial"),
+                    u.block("bn_trig_common"),
+                    u.block("bn_3D_rotation"),
+                    u.block("bn_regular_polygon"),
+                    u.flyout_bottom(),
+                ].map((block) => str2xml(block)),
+            );
+    }, 1000);
+    BetterNemo.log("积木盒", "积木盒注入完成");
 })();
