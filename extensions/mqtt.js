@@ -1,13 +1,19 @@
-/// <reference path="bn.d.ts"/>
-
+/** 
+ * @name MQTT
+ * @version 0.0.1
+ * @description 基于MQTT.js，可以连接对WebSocket支持的MQTT服务器
+ * @author Inventocode
+ * @docs https://better-nemo.feishu.cn/wiki/HH4kwHOoJihAVLkEIDacNawKnMf
+ */
+/// <reference path="../bn.d.ts"/>
 /** @type {BetterNemo} */
 const BN = require('BetterNemo');
 const Block = BN.Block;
 const Toolbox = BN.Toolbox;
-// -----------------------------MQTT扩展------------------------------
 
 
-(async () => {// --------------------------------积木-------------------------------
+(async () => {
+    // --------------------------------积木-------------------------------
     await isBlocklyLoaded();
     const mqttEventIconField = {
         type: "field_icon",

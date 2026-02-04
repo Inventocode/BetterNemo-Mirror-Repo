@@ -9,6 +9,7 @@
     const bnXML = [
         u.title("BetterNemo 扩展积木"),
         u.block("bn_comment"),
+        u.block("bn_get_time_stamp"),
         u.block("bn_var_get"),
         u.block("bn_var_set"),
         u.block("bn_create_video"),

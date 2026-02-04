@@ -12,6 +12,48 @@
   <script defer src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
   <link rel="stylesheet" href="hooker.css">
+  <script>
+    function getExtensionPath(name) {
+        return `./extensions/${name}`;
+    }
+    function parseJSDocHeader(fileContent) {
+        // 匹配文件开头的 /** ... */ 注释块
+        const headerCommentRegex = /^\/\*\*[\s\S]*?\*\//;
+        const match = fileContent.trim().match(headerCommentRegex);
+
+        if (!match) return null;
+
+        const comment = match[0];
+        const metadata = {};
+
+        // 提取 @tag value 格式的内容
+        const tagRegex = /@(\w+)\s+(.+)/g;
+        let tagMatch;
+
+        while ((tagMatch = tagRegex.exec(comment)) !== null) {
+            const tag = tagMatch[1];
+            const value = tagMatch[2].trim();
+            metadata[tag] = value;
+        }
+
+        return metadata;
+    }
+    let extensions = {};
+    fetch(getExtensionPath('extensions.json')).then(async data => {
+        let extension_files = [];
+        try { extension_files = await data.json(); } catch (e) { }
+        extension_files.forEach((fileName) => {
+            fetch(getExtensionPath(fileName)).then(async data => {
+                const script = await data.text();
+                const metaData = parseJSDocHeader(script);
+                extensions[fileName] = {
+                    script,
+                    metaData
+                };
+            });
+        });
+    });
+  </script>
 </head>
 
 <body>
@@ -69,7 +111,7 @@ console.log(
     BetterNemoVersion +
     " ❤ for Nemo o(*￣▽￣*)ブ  %c \n\n",
     "border-radius: 5px; padding: 2px; font-weight: bold;" +
-    "background-color: #679BF6; font-size: 16px; color: white;",
+    "background-color: #20A5C4; font-size: 16px; color: white;",
     ""
 );
     function get_run_mgr() {
@@ -77,7 +119,7 @@ console.log(
       return HookRuntime.exports.get_webview_runtime().heart.runtime_manager.run_mgr;
     }
   </script>
-  <script defer src="workspace-scripts/storage.js"></script>
+  <script src="workspace-scripts/storage.js"></script>
   <script defer src="workspace-scripts/cat-block.js"></script>
   <script defer src="workspace-scripts/float-ball.js"></script>
   <script src="workspace-scripts/utils.js"></script>

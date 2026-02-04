@@ -67,6 +67,10 @@
     regDomainFunction('bn_var_set', (params, rbid, entity_id, utils) => {
         tempVar[params.key] = params.value;
     });
+    regDomainFunction('bn_get_time_stamp', ()=>{
+        return new Date().getTime();
+    })
+    regDomainFunction('bn_comment', ()=>{ return new Date().getTime();})
     // -------------EVAL-----------
     regDomainFunction("bn_eval", (params, uuid, uuid2, utils) => {
         eval(String(params.js));

@@ -234,14 +234,15 @@
                 get_run_mgr().config.set(newConfig);
                 storage.set('runtimeConfig', newConfig);
             }
-            UI.numberInput((value) => {
-                newConfig.per_entity_clone_limit = value;
-                save();
-            }, '角色克隆限制', newConfig.per_entity_clone_limit, defualtConfig.per_entity_clone_limit, '50px');
-            UI.numberInput((value) => {
-                newConfig.entity_max_clones_per_frame = value;
-                save();
-            }, '每帧克隆限制', newConfig.entity_max_clones_per_frame, defualtConfig.per_entity_clone_limit, '50px');
+            function newNumConfig(name, id) {
+                UI.numberInput((value) => {
+                    newConfig[id] = value;
+                    save();
+                }, name, newConfig[id], defualtConfig[id], '50px');
+            }
+            newNumConfig('角色克隆限制', 'per_entity_clone_limit');
+            newNumConfig('每帧克隆限制', 'entity_max_clones_per_frame');
+            newNumConfig('一步执行超时', 'warp_interpreter_millisecond_time_limit');
             UI.button(() => {
                 newConfig = defualtConfig;
                 save();
@@ -307,6 +308,30 @@
         },
         extensions: () => {
             UI.setTitle('扩展');
+            UI.setStatus('重进后生效');
+            let config = storage.get('extension_config');
+            Object.keys(extensions).forEach(fileName => {
+                const metaData = extensions[fileName].metaData;
+                UI.button(() => {
+                    UI.load(() => {
+                        UI.setTitle(metaData.name + ' ' + metaData.version);
+                        UI.setStatus(metaData.description + '<br>作者：' + metaData.author);
+                        UI.selectInput(
+                            (value) => { config[fileName] = value; storage.set('extension_config', config); },
+                            '状态', [['开', true], ['关', false]],
+                            config[fileName], false, '60px'
+                        );
+                        UI.button(async () => {
+                            try {
+                                await navigator.clipboard.writeText(metaData.docs);
+                            } catch (error) {
+                                console.error(error.message);
+                                UI.load(Page.error, error.message);
+                            }
+                        }, '复制文档链接', 'copy');
+                    });
+                }, metaData.name);
+            })
         },
         more: () => {
             UI.setTitle('更多')

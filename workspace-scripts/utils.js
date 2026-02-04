@@ -301,18 +301,22 @@ function emitSimpleEvent(name, params = {}) {
 }
 const BetterNemo = {
     log: (moduleName, ...msgs) => {
-        if (false)
-            if (moduleName) {
-                console.log(`%c BetterNemo %c %c ${moduleName} %c ${msgs.join(' ')}`, 'border-radius:5px;padding:2px;font-weight:bold;background:linear-gradient(to bottom, #50FFEB, #7B40FF);color:white;', '', 'border-radius:5px;padding:2px;font-weight:bold;background:linear-gradient(to bottom,#643CFF,#E793FF);color:white;', '')
-            } else {
-                console.log(`%c BetterNemo %c ${msgs.join(' ')}`, 'border-radius:5px;padding:2px;font-weight:bold;background:linear-gradient(to bottom, #643CFF, #E793FF);color:white;', '')
-            }
-        else
-            if (moduleName) {
-                console.log(`%c BetterNemo %c %c ${moduleName} %c ${msgs.join(' ')}`, 'border-radius:5px;padding:2px;font-weight:bold;background:#679BF6;color:white;', '', 'border-radius:5px;padding:2px;font-weight:bold;background:#A96AFF;color:white;', '')
-            } else {
-                console.log(`%c BetterNemo %c ${msgs.join(' ')}`, 'border-radius:5px;padding:2px;font-weight:bold;background:#679BF6;color:white;', '')
-            }
+        if (moduleName) {
+            console.log(
+                `%c BetterNemo %c %c ${moduleName} %c ${msgs.join(' ')}`,
+                'border-radius:5px;padding:2px;font-weight:bold;background: #20A5C4;color:white;', '',
+                'border-radius:5px;padding:2px;font-weight:bold;background: #20A5C4;color:white;', ''
+            )
+        } else {
+            console.log(`%c BetterNemo %c ${msgs.join(' ')}`, 'border-radius:5px;padding:2px;font-weight:bold;background: #20A5C4;color:white;', '')
+        }
+    },
+    error: (moduleName, ...msgs) => {
+        if (moduleName) {
+            console.log(`%c BetterNemo %c %c ${moduleName} %c ${msgs.join(' ')}`, 'border-radius:5px;padding:2px;font-weight:bold;background: #ff0000;color:white;', '', 'border-radius:5px;padding:2px;font-weight:bold;background: #ff0000;color:white;', '')
+        } else {
+            console.log(`%c BetterNemo %c ${msgs.join(' ')}`, 'border-radius:5px;padding:2px;font-weight:bold;background: #ff0000;color:white;', '')
+        }
     },
     hook: hook,
     getHook: waitHook,
@@ -385,15 +389,22 @@ const BetterNemo = {
     addToolbox: regToolbox,
 };
 
-
 (async () => {
-    fetch('extensions/mqtt.js').then(async data => {
-        const script = await data.text();
+    // await waitGetGlobal('extensions');
+    Object.keys(extensions).forEach(fileName => {
+        if (!storage.get('extension_config')) storage.set('extension_config', {});
+        const config = storage.get('extension_config');
+        if (!config[fileName])
+            return;
+        const script = extensions[fileName].script;
+        const metaData = extensions[fileName].metaData;
+        BetterNemo.log('扩展管理', '正在加载扩展', metaData.name);
         const func = new Function('require', script);
         func((name) => {
             if (name === 'BetterNemo')
                 return BetterNemo;
             return undefined;
         });
+        BetterNemo.log('扩展管理', '扩展', metaData.name, '加载完成');
     })
 })();

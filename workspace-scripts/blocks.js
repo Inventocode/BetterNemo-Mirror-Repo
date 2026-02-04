@@ -16,7 +16,7 @@ let rootBlockChecks = [];
             const self = parent.get_next_block()
             if (self) {
                 if (block.id === self.id)
-                    return undefined;
+                    return getRealParent(parent);
                 return parent;
             } else return parent;
         }
@@ -132,19 +132,22 @@ let rootBlockChecks = [];
     const ANY_TYPE = ["Number", "String", "Boolean", "Array"];
     // 定义自定义代码块对象数组
     const featureBlocks = [
+        {
+            type: "bn_get_time_stamp",
+            message0: "获取 时间戳",
+            args0: [],
+            colour: Color.feature,
+            inputsInline: true,
+            output: "Number",
+        },
         // 注释
         {
             type: "bn_comment",
-            message0: "注释 %1 %2",
+            message0: "%3 %1 %2",
             args0: [
-                {
-                    type: "input_dummy",
-                    align: "CENTRE",
-                },
-                {
-                    type: "input_statement",
-                    name: "DO",
-                },
+                { type: "input_dummy", align: "CENTRE", },
+                { type: "input_statement", name: "DO", },
+                { type: "field_input", name: "comment", text: "注释" }
             ],
             colour: "",
             ...method_block,
