@@ -1,5 +1,4 @@
-window['blockObjects'] = [];
-let rootBlockChecks = [];
+
 (async () => {
     BetterNemo.log("积木", "等待Blockly加载");
     await isBlocklyLoaded();
@@ -166,6 +165,21 @@ let rootBlockChecks = [];
             ],
             colour: Color.feature,
             ...method_block,
+        },
+        {
+            type: "bn_eval",
+            message0: "执行JavaScript %1",
+            args0: [
+                {
+                    type: "input_value",
+                    name: "js",
+                    check: "String",
+                    value: '1+1',
+                },
+            ],
+            colour: Color.feature,
+            inputsInline: true,
+            output: ANY_TYPE,
         },
         // 剪切板
         {

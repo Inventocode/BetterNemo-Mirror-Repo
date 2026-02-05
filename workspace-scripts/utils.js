@@ -1,5 +1,5 @@
-// ------------------异步等待函数------------
-
+window['blockObjects'] = [];
+window['rootBlockChecks'] = [];
 /**
  * 异步获取Blockly
  * @returns Blockly

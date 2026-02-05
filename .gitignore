@@ -12,7 +12,6 @@ version.json
 template.html
 hmr-workspace.html
 hook.js
-extension-loader.js
 fa.min.css
 desktop.ini
 
