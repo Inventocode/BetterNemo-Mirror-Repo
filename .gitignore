@@ -10,8 +10,9 @@ hideStage.js
 helps.html
 version.json
 template.html
-hot_update.html
-init.js
+hmr-workspace.html
+hook.js
+extension-loader.js
 fa.min.css
 desktop.ini
 

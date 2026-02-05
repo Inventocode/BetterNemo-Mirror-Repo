@@ -10,6 +10,10 @@ div.blocklyWidgetDiv>div.dropdown-triangle.lower {
   display: none !important;
 }
 
+div.blocklyWidgetDiv>div.dropdown-triangle.upper {
+  display: none !important;
+}
+
 div.blocklyDropdownMenu {
   background: rgba(255, 255, 255, 0.2) !important;
   border: 1.5px solid rgba(255, 255, 255, 0.2);

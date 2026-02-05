@@ -4,7 +4,7 @@ const catBlockOptions = {
     ear: true
 }
 function catBlock(event = { nodata: true }) {
-    const eventBlocks = [
+    let eventBlocks = [
         "start_on_click",
         "start_as_a_mirror",
         "self_on_tap",
@@ -22,6 +22,14 @@ function catBlock(event = { nodata: true }) {
         "microbit_pin_when",
         "procedures_2_defnoreturn"
     ];
+    if (window['customEvents']) eventBlocks = eventBlocks.concat(window['customEvents']);
+    if (event.nodata) {
+        eventBlocks.forEach(type => {
+            document.querySelectorAll(`#workspace > div.injectionDiv.dark > svg.blocklySvg > g > g.blocklyBlockCanvas > g.${type}.blocklyDraggable`).forEach(block => {
+                block.remove();
+            });
+        })
+    }
     let blocks = [];
     eventBlocks.forEach(type => {
         document.querySelectorAll(`#workspace > div.injectionDiv.dark > svg.blocklySvg > g > g.blocklyBlockCanvas > g.${type}.blocklyDraggable`).forEach(block => {

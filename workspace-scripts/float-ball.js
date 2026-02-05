@@ -242,7 +242,8 @@
             }
             newNumConfig('角色克隆限制', 'per_entity_clone_limit');
             newNumConfig('每帧克隆限制', 'entity_max_clones_per_frame');
-            newNumConfig('一步执行超时', 'warp_interpreter_millisecond_time_limit');
+            newNumConfig('一步执行超时(ms)', 'warp_interpreter_millisecond_time_limit');
+            newNumConfig('函数调用堆栈限制', 'max_call_stack_size')
             UI.button(() => {
                 newConfig = defualtConfig;
                 save();

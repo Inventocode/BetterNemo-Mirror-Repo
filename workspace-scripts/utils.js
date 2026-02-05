@@ -144,6 +144,7 @@ function regAction(action_type) {
     });
     return;
 }
+window['customEvents'] = [];
 /**
  * 注册一个简单事件
  * @param {string} eventBlockId 事件积木ID
@@ -161,6 +162,7 @@ function regSimpleEvent(eventBlockId) {
         ],
     });
     regDomainFunction(eventBlockId, () => { });
+    // window['customEvents'].push(eventBlockId);
 }
 function regBlocks(blocks) {
     blockObjects = (blockObjects.concat(blocks));
@@ -390,7 +392,7 @@ const BetterNemo = {
 };
 
 (async () => {
-    // await waitGetGlobal('extensions');
+    await waitGetGlobal('extensions');
     Object.keys(extensions).forEach(fileName => {
         if (!storage.get('extension_config')) storage.set('extension_config', {});
         const config = storage.get('extension_config');

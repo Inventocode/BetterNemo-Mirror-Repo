@@ -8,7 +8,8 @@
   <meta content="email=no" name="format-detection" />
   <meta name="format-detection" content="telephone=no" />
   <title>Codemao Blockly</title>
-  <script defer src="workspace.bundle.79d6432e01ccdecb492a.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+  <script>eruda.init();</script>
   <script defer src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
   <link rel="stylesheet" href="hooker.css">
@@ -54,6 +55,7 @@
         });
     });
   </script>
+  <script defer src="workspace.bundle.79d6432e01ccdecb492a.js"></script>
 </head>
 
 <body>
@@ -77,8 +79,6 @@
   <div class='panel_mask'></div>
   <div id='test'></div>
   <div id='highlight_test'></div>
-  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
-  <script>eruda.init();</script>
   <script>
     const BetterNemoVersion = "Indev";
     function hook(id, name, getThis = false) {
