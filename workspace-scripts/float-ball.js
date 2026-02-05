@@ -161,7 +161,7 @@
         home: () => {
             UI.setStatus('Version: ' + BetterNemoVersion);
             UI.button(() => { UI.load(Page.clipboard) }, '剪切板', 'clipboard');
-            // UI.button(() => { UI.load(Page.extensions) }, '扩展', 'puzzle-piece');
+            UI.button(() => { UI.load(Page.extensions) }, '扩展', 'puzzle-piece');
             UI.button(() => { UI.load(Page.editorConfig) }, '编辑器', 'laptop-code');
             UI.button(() => { UI.load(Page.runtimeConfig) }, '运行时', 'cog');
             UI.button(() => { UI.load(Page.more) }, '更多', 'ellipsis');
@@ -311,28 +311,50 @@
             UI.setTitle('扩展');
             UI.setStatus('重进后生效');
             let config = storage.get('extension_config');
-            Object.keys(extensions).forEach(fileName => {
-                const metaData = extensions[fileName].metaData;
-                UI.button(() => {
-                    UI.load(() => {
-                        UI.setTitle(metaData.name + ' ' + metaData.version);
-                        UI.setStatus(metaData.description + '<br>作者：' + metaData.author);
-                        UI.selectInput(
-                            (value) => { config[fileName] = value; storage.set('extension_config', config); },
-                            '状态', [['开', true], ['关', false]],
-                            config[fileName], false, '60px'
-                        );
-                        UI.button(async () => {
-                            try {
-                                await navigator.clipboard.writeText(metaData.docs);
-                            } catch (error) {
-                                console.error(error.message);
-                                UI.load(Page.error, error.message);
-                            }
-                        }, '复制文档链接', 'copy');
-                    });
-                }, metaData.name);
-            })
+            EXTENSION_FILES.forEach(fileName => {
+                if (extensionMetaData[fileName]) {
+                    const metaData = extensionMetaData[fileName];
+                    UI.button(() => {
+                        UI.load(() => {
+                            UI.setTitle(metaData.name + ' ' + metaData.version);
+                            UI.setStatus(metaData.description + '<br>作者：' + metaData.author);
+                            UI.selectInput(
+                                (value) => {
+                                    config[fileName] = (value == 'true');
+                                    storage.set('extension_config', config);
+                                    UI.load(Page.home);
+                                },
+                                '状态', [['开', true], ['关', false]],
+                                config[fileName], true, '60px'
+                            );
+                            if (metaData.docs)
+                                UI.button(async () => {
+                                    try {
+                                        await navigator.clipboard.writeText(metaData.docs);
+                                    } catch (error) {
+                                        console.error(error.message);
+                                        UI.load(Page.error, error.message);
+                                    }
+                                }, '复制文档链接', 'copy');
+                        });
+                    }, '[开] ' + fileName);
+                } else
+                    UI.button(() => {
+                        UI.load(() => {
+                            UI.setTitle(fileName);
+                            UI.setStatus('启用后可查看更多信息');
+                            UI.selectInput(
+                                (value) => {
+                                    config[fileName] = (value == 'true');
+                                    storage.set('extension_config', config);
+                                    UI.load(Page.home);
+                                },
+                                '状态', [['开', true], ['关', false]],
+                                config[fileName], true, '60px'
+                            );
+                        });
+                    }, '[关] ' + fileName);
+            });
         },
         more: () => {
             UI.setTitle('更多')

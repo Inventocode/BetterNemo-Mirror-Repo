@@ -389,24 +389,33 @@ const BetterNemo = {
     regSimpleEvent,
     regMethod: regSimpleEvent,
     addToolbox: regToolbox,
+    regIcon: (svg) => {
+        document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML("beforeend", svg);
+    }
 };
 
 (async () => {
-    await waitGetGlobal('extensions');
-    Object.keys(extensions).forEach(fileName => {
+    window['Extension'] = {
+        metaData: {},
+        API: BetterNemo
+    }
+    EXTENSION_FILES.forEach(async fileName => {
         if (!storage.get('extension_config')) storage.set('extension_config', {});
         const config = storage.get('extension_config');
-        if (!config[fileName])
-            return;
-        const script = extensions[fileName].script;
-        const metaData = extensions[fileName].metaData;
-        BetterNemo.log('扩展管理', '正在加载扩展', metaData.name);
-        const func = new Function('require', script);
-        func((name) => {
-            if (name === 'BetterNemo')
-                return BetterNemo;
-            return undefined;
-        });
-        BetterNemo.log('扩展管理', '扩展', metaData.name, '加载完成');
+        if (config[fileName] == undefined) {
+            config[fileName] = true;
+            storage.set('extension_config', config);
+        }
+        if (!config[fileName]) return;
+        Extension.metaData = {
+            name: "未命名",
+            version: "",
+            description: "",
+            author: "未知",
+            docs: ""
+        };
+        await loadScript('extensions/' + fileName);
+        extensionMetaData[fileName] = Extension.metaData;
+        BetterNemo.log('扩展管理', '扩展', Extension.metaData.name, '加载完成');
     })
 })();

@@ -1,13 +1,13 @@
-/** 
- * @name MQTT
- * @version 0.0.1
- * @description 基于MQTT.js，可以连接对WebSocket支持的MQTT服务器
- * @author Inventocode
- * @docs https://better-nemo.feishu.cn/wiki/HH4kwHOoJihAVLkEIDacNawKnMf
- */
 /// <reference path="../bn.d.ts"/>
+Extension.metaData = {
+    name: "MQTT",
+    version: "0.0.1",
+    description: "基于MQTT.js，可以连接对WebSocket支持的MQTT服务器",
+    author: "Inventocode",
+    docs: "https://better-nemo.feishu.cn/wiki/HH4kwHOoJihAVLkEIDacNawKnMf"
+}
 /** @type {BetterNemo} */
-const BN = require('BetterNemo');
+const BN = Extension.API;
 const Block = BN.Block;
 const Toolbox = BN.Toolbox;
 
