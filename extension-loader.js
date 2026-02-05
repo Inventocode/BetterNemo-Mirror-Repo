@@ -104,6 +104,7 @@ fetch(getExtensionPath('extensions.json')).then(async data => {
     });
 });
 (async () => {
+    setTimeout(() => { ok = 9999999999999 }, 10000);
     while (ok < extension_files.length) {
         await new Promise((resolve) => requestAnimationFrame(resolve));
     }
