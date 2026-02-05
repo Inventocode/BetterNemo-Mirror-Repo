@@ -5,14 +5,14 @@ Extension.metaData = {
     description: "基于MQTT.js，可以连接对WebSocket支持的MQTT服务器",
     author: "Inventocode",
     docs: "https://better-nemo.feishu.cn/wiki/HH4kwHOoJihAVLkEIDacNawKnMf"
-}
-/** @type {BetterNemo} */
-const BN = Extension.API;
-const Block = BN.Block;
-const Toolbox = BN.Toolbox;
+};
 
 
 (async () => {
+    /** @type {BetterNemo} */
+    const BN = Extension.API;
+    const Block = BN.Block;
+    const Toolbox = BN.Toolbox;
     // --------------------------------积木-------------------------------
     await isBlocklyLoaded();
     const mqttEventIconField = {
@@ -233,7 +233,8 @@ const Toolbox = BN.Toolbox;
         Toolbox.block("bn_mqtt_subscribe"),
         Toolbox.flyout_bottom(),
     ];
-    BN.addToolbox("toolbox-mqtt", "icon-mqtt", "#660066", mqttXML);
+    BN.regIcon('<symbol id="icon-mqtt" viewBox="-365 -365 1000 1000"><path d="M34.9,144c-0.2,0-0.4,0-0.6,0v77.6c0,5.6,4.6,10.2,10.2,10.2h79.9C123.7,183.3,83.8,144,34.9,144z"></path><path d="M34.9,80c-0.2,0-0.4,0-0.6,0v33c65.9,0.3,119.5,53.3,120.2,118.8h34.2C188.1,148,119.3,80,34.9,80z"></path><path d="M237.2,221.7v-70.1C214,94.8,167.3,50,109.1,29H44.5c-5.6,0-10.2,4.6-10.2,10.2V49   c101.4,0.3,183.9,82,184.5,182.8h8.2C232.6,231.8,237.2,227.3,237.2,221.7z"></path><path d="M210.5,57.3c9.4,9.4,19,21.3,26.7,31.8v-50c0-5.6-4.5-10.1-10.1-10.1h-51.5   C187.5,37.3,199.9,46.8,210.5,57.3z"></path></symbol>');
+    BN.addToolbox("mqtt", "icon-mqtt", "#660066", mqttXML);
     // --------------------------重复使用的对象-----------------------------
     let mqttClient = undefined;
     // ---------------------------解释器-------------------------------------

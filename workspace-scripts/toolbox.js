@@ -68,21 +68,21 @@
         // regToolbox('threeDbox', 'icon-cubes', '#77D657', threeDboxXML);
         // 注册网络积木盒
         regToolbox(
-            "toolbox-network",
+            "network",
             "icon-widget-http-client",
             "#54c0ff",
             networkXML,
         );
         // 注册WebSocket积木盒
         regToolbox(
-            "toolbox-websocket",
+            "websocket",
             "icon-websocket",
             "#54c0ff",
             websocketXML,
         );
         // 注册扩展积木盒
         regToolbox(
-            "toolbox-bn",
+            "bn",
             "icon-feature",
             "#14B390",
             bnXML,
