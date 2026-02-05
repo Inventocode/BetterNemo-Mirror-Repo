@@ -82,36 +82,36 @@ let extensions = {};
 extensionMgrLog('尝试获取扩展列表');
 let extension_files = [];
 let ok = -1;
-fetch(getExtensionPath('extensions.json')).then(async data => {
-    try { extension_files = await data.json(); } catch (e) { extensionMgrError(e.message) }
-    extensionMgrLog('扩展列表：', extension_files.join(','));
-    extension_files.forEach(async (fileName) => {
-        extensionMgrLog('尝试获取', fileName);
-        try {
-            await fetch(getExtensionPath(fileName)).then(async data => {
-                const script = await data.text();
-                if (script === '404 Not Found\n') throw new Error(fileName + '不存在！');
-                const metaData = parseJSDocHeader(script);
-                extensions[fileName] = {
-                    script,
-                    metaData
-                };
-                extensionMgrLog(fileName, '获取成功');
-                if (ok === -1) ok = 0;
-                ok++;
-            });
-        } catch (e) { extensionMgrError(e.message); if (ok === -1) ok = 0; ok++; }
-    });
-});
+// fetch(getExtensionPath('extensions.json')).then(async data => {
+//     try { extension_files = await data.json(); } catch (e) { extensionMgrError(e.message) }
+//     extensionMgrLog('扩展列表：', extension_files.join(','));
+//     extension_files.forEach(async (fileName) => {
+//         extensionMgrLog('尝试获取', fileName);
+//         try {
+//             await fetch(getExtensionPath(fileName)).then(async data => {
+//                 const script = await data.text();
+//                 if (script === '404 Not Found\n') throw new Error(fileName + '不存在！');
+//                 const metaData = parseJSDocHeader(script);
+//                 extensions[fileName] = {
+//                     script,
+//                     metaData
+//                 };
+//                 extensionMgrLog(fileName, '获取成功');
+//                 if (ok === -1) ok = 0;
+//                 ok++;
+//             });
+//         } catch (e) { extensionMgrError(e.message); if (ok === -1) ok = 0; ok++; }
+//     });
+// });
 (async () => {
-    setTimeout(() => { ok = 9999999999999 }, 10000);
-    while (ok < extension_files.length) {
-        await new Promise((resolve) => requestAnimationFrame(resolve));
-    }
+    // setTimeout(() => { ok = 9999999999999 }, 10000);
+    // while (ok < extension_files.length) {
+    //     await new Promise((resolve) => requestAnimationFrame(resolve));
+    // }
     console.log(extensions, ok, extension_files.length);
     function loadScript(src) {
         if (navigator.userAgent !== '__TEST_ENV__' && BetterNemoVersion === "999999.99")
-            src =  `http://192.168.1.11:8080/${src}`;
+            src = `http://192.168.1.11:8080/${src}`;
         return new Promise((resolve, reject) => {
             const script = document.createElement('script');
             script.src = src;
@@ -120,6 +120,7 @@ fetch(getExtensionPath('extensions.json')).then(async data => {
             document.head.appendChild(script);
         });
     }
+    // loadScript('extensions/extensions.json')
     await loadScript('workspace.bundle.79d6432e01ccdecb492a.js');
     await loadScript('workspace-scripts/storage.js');
     await loadScript('workspace-scripts/utils.js');

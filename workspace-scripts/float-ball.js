@@ -161,7 +161,7 @@
         home: () => {
             UI.setStatus('Version: ' + BetterNemoVersion);
             UI.button(() => { UI.load(Page.clipboard) }, '剪切板', 'clipboard');
-            UI.button(() => { UI.load(Page.extensions) }, '扩展', 'puzzle-piece');
+            // UI.button(() => { UI.load(Page.extensions) }, '扩展', 'puzzle-piece');
             UI.button(() => { UI.load(Page.editorConfig) }, '编辑器', 'laptop-code');
             UI.button(() => { UI.load(Page.runtimeConfig) }, '运行时', 'cog');
             UI.button(() => { UI.load(Page.more) }, '更多', 'ellipsis');
