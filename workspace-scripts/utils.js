@@ -164,32 +164,6 @@ function regSimpleEvent(eventBlockId) {
     regDomainFunction(eventBlockId, () => { });
     // window['customEvents'].push(eventBlockId);
 }
-function regBlocks(blocks) {
-    blockObjects = (blockObjects.concat(blocks));
-    blocks.forEach((block) => {
-        // 对于事件参数的特殊处理
-        if (block.EventParam) {
-            rootBlockChecks.push({
-                blockType: block.type,
-                rootBlockTypes: [block.EventParam.eventBlockId],
-            });
-            defineEventParam(block.type, block.text, block.EventParam.colorId);
-            block = {
-                type: block.type,
-                message0: block.text,
-                args0: [],
-                colour: `%{BKY_${block.EventParam.colorId}}`,
-                output: "String",
-            };
-        }
-        // 注册积木
-        Blockly.Blocks[block.type] = {
-            init: function () {
-                this.jsonInit(block);
-            },
-        };
-    });
-}
 function checkRootBlock({ blockType = '', rootBlockTypes = [] }) {
     Blockly.mainWorkspace.get_all_blocks()
         .filter(block => block.type == blockType)
@@ -230,7 +204,7 @@ async function defineEventParam(blockId, text, colorId) {
                 CreateEvent = Blockly.di_container.get(Di.BINDING.CreateEvent),
                 label = LabelSerializable({ text: text });
             label.on_mouse_down = function (e) {
-                e.preventDefault()
+                e.preventDefault();
             };
             this.append_dummy_input().append_field(label, "TEXT");
             this.set_output(true);
@@ -268,27 +242,53 @@ async function defineEventParam(blockId, text, colorId) {
                                         block: newBlock,
                                         source: "other"
                                     })),
-                                    newBlock
+                                    newBlock;
                             }();
                             s.select(),
                                 a.handle_block_start(n, s),
                                 a.target_block = s,
-                                u = !0
+                                u = !0;
                         } else
-                            a.cancel()
+                            a.cancel();
                     }
                         ,
                         a.handle_up = function (t) {
                             s(t),
                                 Blockly.events.set_group(i),
-                                l = !0
-                        }
+                                l = !0;
+                        };
                 }
-            }
+            };
         }
-    })
+    });
 }
 
+function regBlocks(blocks) {
+    blockObjects = (blockObjects.concat(blocks));
+    blocks.forEach((block) => {
+        // 对于事件参数的特殊处理
+        if (block.EventParam) {
+            rootBlockChecks.push({
+                blockType: block.type,
+                rootBlockTypes: [block.EventParam.eventBlockId],
+            });
+            defineEventParam(block.type, block.text, block.EventParam.colorId);
+            block = {
+                type: block.type,
+                message0: block.text,
+                args0: [],
+                colour: `%{BKY_${block.EventParam.colorId}}`,
+                output: "String",
+            };
+        }
+        // 注册积木
+        Blockly.Blocks[block.type] = {
+            init: function () {
+                this.jsonInit(block);
+            },
+        };
+    });
+}
 /**
  * 触发一个简单的事件
  * @param {string} name 事件名称
@@ -308,16 +308,16 @@ const BetterNemo = {
                 `%c BetterNemo %c %c ${moduleName} %c ${msgs.join(' ')}`,
                 'border-radius:5px;padding:2px;font-weight:bold;background: #20A5C4;color:white;', '',
                 'border-radius:5px;padding:2px;font-weight:bold;background: #20A5C4;color:white;', ''
-            )
+            );
         } else {
-            console.log(`%c BetterNemo %c ${msgs.join(' ')}`, 'border-radius:5px;padding:2px;font-weight:bold;background: #20A5C4;color:white;', '')
+            console.log(`%c BetterNemo %c ${msgs.join(' ')}`, 'border-radius:5px;padding:2px;font-weight:bold;background: #20A5C4;color:white;', '');
         }
     },
     error: (moduleName, ...msgs) => {
         if (moduleName) {
-            console.log(`%c BetterNemo %c %c ${moduleName} %c ${msgs.join(' ')}`, 'border-radius:5px;padding:2px;font-weight:bold;background: #ff0000;color:white;', '', 'border-radius:5px;padding:2px;font-weight:bold;background: #ff0000;color:white;', '')
+            console.log(`%c BetterNemo %c %c ${moduleName} %c ${msgs.join(' ')}`, 'border-radius:5px;padding:2px;font-weight:bold;background: #ff0000;color:white;', '', 'border-radius:5px;padding:2px;font-weight:bold;background: #ff0000;color:white;', '');
         } else {
-            console.log(`%c BetterNemo %c ${msgs.join(' ')}`, 'border-radius:5px;padding:2px;font-weight:bold;background: #ff0000;color:white;', '')
+            console.log(`%c BetterNemo %c ${msgs.join(' ')}`, 'border-radius:5px;padding:2px;font-weight:bold;background: #ff0000;color:white;', '');
         }
     },
     hook: hook,
@@ -387,18 +387,25 @@ const BetterNemo = {
     },
     regBlocks,
     regSimpleEvent,
-    regMethod: regSimpleEvent,
+    regMethod: regDomainFunction,
     addToolbox: regToolbox,
     regIcon: (svg) => {
         document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML("beforeend", svg);
-    }
+    },
+    waitBlocklyLoaded: isBlocklyLoaded,
+    waitBlockLoaded: async () => {
+        while (window['blockObjects'] == [])
+            await new Promise((resolve) => requestAnimationFrame(resolve));
+        return;
+    },
+    waitRunmgrLoaded: isRunmgrHooked,
+    emitSimpleEvent
 };
-
 (async () => {
     window['Extension'] = {
         metaData: {},
         API: BetterNemo
-    }
+    };
     EXTENSION_FILES.forEach(async fileName => {
         if (!storage.get('extension_config')) storage.set('extension_config', {});
         const config = storage.get('extension_config');
@@ -417,5 +424,5 @@ const BetterNemo = {
         await loadScript('extensions/' + fileName);
         extensionMetaData[fileName] = Extension.metaData;
         BetterNemo.log('扩展管理', '扩展', Extension.metaData.name, '加载完成');
-    })
+    });
 })();

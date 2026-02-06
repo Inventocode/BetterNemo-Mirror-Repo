@@ -1,5 +1,5 @@
 const EXTENSION_FILES = [
-    // "template.js",
+    "template.js",
     "mqtt.js",
     "encrypt.js"
 ]

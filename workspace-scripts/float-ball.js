@@ -337,7 +337,7 @@
                                     }
                                 }, '复制文档链接', 'copy');
                         });
-                    }, '[开] ' + fileName);
+                    }, fileName, 'toggle-on');
                 } else
                     UI.button(() => {
                         UI.load(() => {
@@ -353,7 +353,7 @@
                                 config[fileName], true, '60px'
                             );
                         });
-                    }, '[关] ' + fileName);
+                    }, fileName, 'toggle-off');
             });
         },
         more: () => {

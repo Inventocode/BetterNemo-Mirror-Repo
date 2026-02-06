@@ -116,7 +116,7 @@ function loadScript(src) {
     });
 }
 (async () => {
-    await loadScript('extensions/CONFIG.js');
+    await loadScript('extensions/_CONFIG.js');
     extensionMgrLog('扩展列表:', EXTENSION_FILES.join(', '))
     await loadScript('workspace.bundle.79d6432e01ccdecb492a.js');
     await loadScript('workspace-scripts/storage.js');

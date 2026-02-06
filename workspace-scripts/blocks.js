@@ -12,7 +12,7 @@
         function getRealParent(block) {
             const parent = block.get_parent();
             if (!parent) return undefined;
-            const self = parent.get_next_block()
+            const self = parent.get_next_block();
             if (self) {
                 if (block.id === self.id)
                     return getRealParent(parent);
@@ -1111,29 +1111,7 @@
         ..._3dBlocks,
         ...websocketBlocks,
     ];
-    blockObjects.forEach((block) => {
-        // 对于事件参数的特殊处理
-        if (block.EventParam) {
-            rootBlockChecks.push({
-                blockType: block.type,
-                rootBlockTypes: [block.EventParam.eventBlockId],
-            });
-            defineEventParam(block.type, block.text, block.EventParam.colorId);
-            block = {
-                type: block.type,
-                message0: block.text,
-                args0: [],
-                colour: `%{BKY_${block.EventParam.colorId}}`,
-                output: "String",
-            };
-        }
-        // 注册积木
-        Blockly.Blocks[block.type] = {
-            init: function () {
-                this.jsonInit(block);
-            },
-        };
-    });
+    regBlocks(blockObjects);
 
     BetterNemo.log("积木", "积木注入完成");
 })();

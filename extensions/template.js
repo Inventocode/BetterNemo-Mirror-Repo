@@ -1,4 +1,4 @@
-/// <reference path="../bn.d.ts"/>
+/// <reference path="./_TYPE.d.ts"/>
 
 Extension.metaData = {
     name: "模板",
@@ -17,7 +17,7 @@ Extension.metaData = {
     const Toolbox = BN.Toolbox;
     // --------------------------------积木-------------------------------
     // 这条语句会等待Blockly加载完毕，别动
-    await isBlocklyLoaded();
+    await BN.waitBlocklyLoaded();
     // 这条语句会注册一个颜色
     BN.regColor("TEMPLATE_HUE", "#ff9900", "#ff9900");
     // 开始定义你的自定义积木吧
@@ -33,11 +33,7 @@ Extension.metaData = {
     BN.regBlocks(templateBlocks);
     // --------------------------------积木盒-------------------------------
     // 等待积木对象加载完毕，别动
-    await (async () => {
-        while (window['blockObjects'] == [])
-            await new Promise((resolve) => requestAnimationFrame(resolve));
-        return;
-    })();
+    await BN.waitBlockLoaded();
     // 定义你的积木盒
     const templateXML = [
         Toolbox.title("模板 · Template"),
@@ -50,7 +46,7 @@ Extension.metaData = {
     BN.addToolbox("template", "icon-template", "#ff9900", templateXML);
     // ---------------------------解释器-------------------------------------
     // 等待Runmgr加载完毕，别动
-    await isRunmgrHooked();
+    await BN.waitRunmgrLoaded();
     // 给你的积木定义一个解释器
     BN.regMethod('template_block', (params, _, __, ___) => {
         alert("Hello, BetterNemo!");

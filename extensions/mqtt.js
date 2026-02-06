@@ -1,4 +1,4 @@
-/// <reference path="../bn.d.ts"/>
+/// <reference path="./_TYPE.d.ts"/>
 Extension.metaData = {
     name: "MQTT",
     version: "0.0.1",
@@ -14,7 +14,7 @@ Extension.metaData = {
     const Block = BN.Block;
     const Toolbox = BN.Toolbox;
     // --------------------------------积木-------------------------------
-    await isBlocklyLoaded();
+    await BN.waitBlocklyLoaded();
     const mqttEventIconField = {
         type: "field_icon",
         is_head: true,
@@ -201,11 +201,7 @@ Extension.metaData = {
     ].map((block) => { return { ...block, colour: "%{BKY_MQTT_HUE}" }; });
     BN.regBlocks(mqttBlocks);
     // --------------------------------积木盒-------------------------------
-    await (async () => {
-        while (window['blockObjects'] == [])
-            await new Promise((resolve) => requestAnimationFrame(resolve));
-        return;
-    })();
+    await BN.waitBlockLoaded();
     const mqttXML = [
         Toolbox.title("消息队列遥测传输协议 · MQTT"),
         Toolbox.block("bn_mqtt_on_connect"),
@@ -238,7 +234,7 @@ Extension.metaData = {
     // --------------------------重复使用的对象-----------------------------
     let mqttClient = undefined;
     // ---------------------------解释器-------------------------------------
-    await isRunmgrHooked();
+    await BN.waitRunmgrLoaded();
     BN.regSimpleEvent('bn_mqtt_on_connect');
     BN.regSimpleEvent('bn_mqtt_on_disconnect');
     BN.regSimpleEvent('bn_mqtt_on_offline');
