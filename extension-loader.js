@@ -1,4 +1,3 @@
-
 console.log(
     "\n%c  Welcome to ❤ BetterNemo - " +
     BetterNemoVersion +
