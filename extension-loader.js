@@ -117,11 +117,11 @@ function loadScript(src) {
 (async () => {
     await loadScript('extensions/_CONFIG.js');
     extensionMgrLog('扩展列表:', EXTENSION_FILES.join(', '))
-    await loadScript('workspace.bundle.79d6432e01ccdecb492a.js');
     await loadScript('workspace-scripts/storage.js');
     await loadScript('workspace-scripts/utils.js');
-    await loadScript('workspace-scripts/prototype-inject.js');
+    loadScript('workspace.bundle.79d6432e01ccdecb492a.js');
     await loadScript('workspace-scripts/blocks.js');
+    await loadScript('workspace-scripts/prototype-inject.js');
     await loadScript('workspace-scripts/toolbox.js');
     await loadScript('workspace-scripts/domain-functions.js');
     await loadScript('workspace-scripts/cat-block.js');

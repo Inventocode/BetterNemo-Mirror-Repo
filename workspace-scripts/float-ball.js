@@ -17,9 +17,11 @@
         }
         windowContent = document.querySelector("#floatWindow > div.window-content");
         const injectionDiv = document.querySelector('.injectionDiv');
-        injectionDiv.style.backgroundImage = `url("${backgroundImage}")`;
-        injectionDiv.style.backgroundSize = 'contain';
-        injectionDiv.style.backgroundRepeat = 'no-repeat';
+        if (injectionDiv) {
+            injectionDiv.style.backgroundImage = `url("${backgroundImage}")`;
+            injectionDiv.style.backgroundSize = 'contain';
+            injectionDiv.style.backgroundRepeat = 'no-repeat';
+        }
         if (backgroundImage == presetBackgroundImage[0]) {
             injectionDiv.style.setProperty("background-color", "#201F52", "important");
         } else injectionDiv.style.setProperty("background-color", "#221D4E", "important");
@@ -74,7 +76,7 @@
                         e.stopPropagation();
                         UI.back(page);
                     };
-                }, 10)
+                }, 10);
             }
             windowContent.innerHTML += '<div class="status-info" style="display:none"><span></span></div>';
             UI.pageHistory.push(page);
@@ -160,25 +162,25 @@
     const Page = {
         home: () => {
             UI.setStatus('Version: ' + BetterNemoVersion);
-            UI.button(() => { UI.load(Page.clipboard) }, '剪切板', 'clipboard');
-            UI.button(() => { UI.load(Page.extensions) }, '扩展', 'puzzle-piece');
-            UI.button(() => { UI.load(Page.editorConfig) }, '编辑器', 'laptop-code');
-            UI.button(() => { UI.load(Page.runtimeConfig) }, '运行时', 'cog');
-            UI.button(() => { UI.load(Page.more) }, '更多', 'ellipsis');
+            UI.button(() => { UI.load(Page.clipboard); }, '剪切板', 'clipboard');
+            UI.button(() => { UI.load(Page.extensions); }, '扩展', 'puzzle-piece');
+            UI.button(() => { UI.load(Page.editorConfig); }, '编辑器', 'laptop-code');
+            UI.button(() => { UI.load(Page.runtimeConfig); }, '运行时', 'cog');
+            UI.button(() => { UI.load(Page.more); }, '更多', 'ellipsis');
         },
         error: (error = "未知错误") => {
             UI.setTitle('错误');
             UI.setStatus(error);
         },
         editorConfig: () => {
-            UI.setTitle('编辑器设置')
+            UI.setTitle('编辑器设置');
             UI.setStatus('此配置跟随Webview存储');
             UI.textInput((value) => {
                 storage.set('backgroundImage', value);
                 backgroundImage = value;
             }, '背景', backgroundImage, presetBackgroundImage, '130px');
             UI.button(() => {
-                storage.set('cat', !storage.get('cat'))
+                storage.set('cat', !storage.get('cat'));
                 if (storage.get('cat')) enableCatBlock();
                 else disableCatBlock();
                 UI.load(Page.editorConfig);
@@ -189,7 +191,7 @@
 
         },
         runtimeConfig: () => {
-            UI.setTitle('运行时设置')
+            UI.setTitle('运行时设置');
             UI.setStatus('此配置跟随Webview存储');
             // 默认高级配置
             const defualtConfig = {
@@ -243,7 +245,7 @@
             newNumConfig('角色克隆限制', 'per_entity_clone_limit');
             newNumConfig('每帧克隆限制', 'entity_max_clones_per_frame');
             newNumConfig('一步执行超时(ms)', 'warp_interpreter_millisecond_time_limit');
-            newNumConfig('函数调用堆栈限制', 'max_call_stack_size')
+            newNumConfig('函数调用堆栈限制', 'max_call_stack_size');
             UI.button(() => {
                 newConfig = defualtConfig;
                 save();
@@ -252,7 +254,7 @@
         },
         experimentalConfig: () => {
             UI.setTitle('实验性功能');
-            UI.setStatus('这些功能<del>可能</del>会导致问题。')
+            UI.setStatus('这些功能<del>可能</del>会导致问题。');
             UI.selectInput(
                 (value) => { experimentalConfig.disable_repeat_forever_in_warp = value; },
                 '禁用一步执行中的死循环', [['开', true], ['关', false]],
@@ -357,7 +359,7 @@
             });
         },
         more: () => {
-            UI.setTitle('更多')
+            UI.setTitle('更多');
             UI.button(() => {
                 if (erudaEnabled) eruda.destroy();
                 else eruda.init();
@@ -372,7 +374,7 @@
                     }, '刷新Webview', 'sync-alt');
                 });
             }, '刷新Webview', 'sync-alt');
-            UI.button(() => { UI.load(Page.experimentalConfig) }, '实验性', 'flask');
+            UI.button(() => { UI.load(Page.experimentalConfig); }, '实验性', 'flask');
         }
     };
     UI.home = Page.home;

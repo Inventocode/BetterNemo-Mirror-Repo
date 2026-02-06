@@ -423,6 +423,6 @@ const BetterNemo = {
         };
         await loadScript('extensions/' + fileName);
         extensionMetaData[fileName] = Extension.metaData;
-        BetterNemo.log('扩展管理', '扩展', Extension.metaData.name, '加载完成');
+        BetterNemo.log('扩展管理', '扩展', fileName, '加载完成');
     });
 })();
