@@ -199,9 +199,9 @@ Extension.metaData = {
             ...Block.methodBlock,
         }
     ].map((block) => { return { ...block, colour: "%{BKY_MQTT_HUE}" }; });
+    await BN.waitBlockLoaded();
     BN.regBlocks(mqttBlocks);
     // --------------------------------积木盒-------------------------------
-    await BN.waitBlockLoaded();
     const mqttXML = [
         Toolbox.title("消息队列遥测传输协议 · MQTT"),
         Toolbox.block("bn_mqtt_on_connect"),

@@ -21,6 +21,22 @@ const isBlocklyMainworkspaceLoaded = async () => {
     return Blockly.mainWorkspace;
 };
 /**
+ * 异步获取Toolbox
+ * @returns Toolbox
+ */
+const isToolboxLoaded = async () => {
+    while (!Blockly.mainWorkspace.get_toolbox()) {
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+    }
+    return Blockly.mainWorkspace.get_toolbox();
+};
+const isElementLoaded = async (element) => {
+    while (!document.querySelector(element)) {
+        await new Promise((resolve) => requestAnimationFrame(resolve));
+    }
+    return document.querySelector(element);
+};
+/**
  * 异步获取RunMgr
  * @returns RunMgr
  */
@@ -75,9 +91,11 @@ function regToolbox(name, icon, color, blocks) {
         icon: { font_id: icon },
         blocks: blocks.flat(1).map(block => str2xml(block)),
     };
-    const toolbox = Blockly.mainWorkspace.get_toolbox();
-    toolbox.add(toolbox.new_node(toolboxObject));
-    addStyle(`#toolbox-${name}.blocklyTreeSelected>div>svg { fill: white;}`);
+    setTimeout(() => {
+        const toolbox = Blockly.mainWorkspace.get_toolbox();
+        toolbox.add(toolbox.new_node(toolboxObject));
+        addStyle(`#toolbox-${name}.blocklyTreeSelected>div>svg { fill: white;}`);
+    }, 1000);
 }
 const str2xml = function (str) {
     const parser = new DOMParser();

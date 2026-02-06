@@ -21,10 +21,10 @@
             injectionDiv.style.backgroundImage = `url("${backgroundImage}")`;
             injectionDiv.style.backgroundSize = 'contain';
             injectionDiv.style.backgroundRepeat = 'no-repeat';
+            if (backgroundImage == presetBackgroundImage[0]) {
+                injectionDiv.style.setProperty("background-color", "#201F52", "important");
+            } else injectionDiv.style.setProperty("background-color", "#221D4E", "important");
         }
-        if (backgroundImage == presetBackgroundImage[0]) {
-            injectionDiv.style.setProperty("background-color", "#201F52", "important");
-        } else injectionDiv.style.setProperty("background-color", "#221D4E", "important");
         const flyout = document.querySelector("#workspace > div > svg.blocklyFlyout");
         if (flyout) {
             const vw = window.innerWidth;

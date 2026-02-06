@@ -384,13 +384,13 @@ Extension.metaData = {
         }
     ].map(block => {return { ...block, colour: "%{BKY_VARIABLES_HUE}" };});
     
+    // 等待积木对象加载完毕，别动
+    await BN.waitBlockLoaded();
     // 注册你的积木
     BN.regBlocks(encryptBlocks);
     
     // --------------------------------积木盒-------------------------------
-    // 等待积木对象加载完毕，别动
-    await BN.waitBlockLoaded();
-    
+    console.log("[Extension] 加密扩展已加载");
     // 定义你的积木盒
     const encryptXML = [
         Toolbox.title("加密 · Encrypt"),

@@ -3,7 +3,7 @@
     await isBlocklyLoaded();
     BetterNemo.log("积木盒", "等待Workspace加载");
     await isBlocklyMainworkspaceLoaded();
-    BetterNemo.log("积木盒", "Blockly加载完成");
+    BetterNemo.log("积木盒", "Blockly, Workspace 加载完成");
     const u = BetterNemo.Toolbox;
     // 定义BetterNemo积木盒
     const bnXML = [
@@ -63,70 +63,66 @@
         u.simpleEventBlock("bn_on_ws_close"),
         u.flyout_bottom(),
     ];
-    setTimeout(() => {
-        // 注册3D积木盒
-        // regToolbox('threeDbox', 'icon-cubes', '#77D657', threeDboxXML);
-        // 注册网络积木盒
-        regToolbox(
-            "network",
-            "icon-widget-http-client",
-            "#54c0ff",
-            networkXML,
+    // 注册网络积木盒
+    regToolbox(
+        "network",
+        "icon-widget-http-client",
+        "#54c0ff",
+        networkXML,
+    );
+    // 注册WebSocket积木盒
+    regToolbox(
+        "websocket",
+        "icon-websocket",
+        "#54c0ff",
+        websocketXML,
+    );
+    // 注册扩展积木盒
+    regToolbox(
+        "bn",
+        "icon-feature",
+        "#14B390",
+        bnXML,
+    );
+    // 画笔扩展
+    Blockly.mainWorkspace.toolbox_.children_[5].blocks.pop();
+    Blockly.mainWorkspace.toolbox_.children_[5].blocks =
+        Blockly.mainWorkspace.toolbox_.children_[5].blocks.concat(
+            [
+                u.line("Better Nemo 扩展积木"),
+                u.block("bn_color"),
+                u.block("bn_hex_to_array"),
+                u.block("bn_set_pen_color_hex"),
+                u.block("bn_set_fill_color_hex"),
+                u.block("bn_draw_image_stamp"),
+                u.block("bn_draw_custom_image_stamp"),
+                u.block("bn_draw_video_stamp"),
+                u.block("bn_draw_svg"),
+                u.block("bn_rectangle_clear"),
+                u.block("bn_better_draw_text_stamp"),
+                u.block("bn_put_pixel"),
+                u.block("bn_fill_polygon"),
+                u.sep(),
+                u.block("bn_dataURL_actor"),
+                u.block("bn_dataURL_stage"),
+                //u.block('bn_dataURL_URL', u.textValue('url', '')),
+                u.flyout_bottom(),
+            ].map((block) => str2xml(block)),
         );
-        // 注册WebSocket积木盒
-        regToolbox(
-            "websocket",
-            "icon-websocket",
-            "#54c0ff",
-            websocketXML,
+    console.log(Blockly.mainWorkspace.toolbox_.children_[5].blocks);
+    // 运算扩展
+    Blockly.mainWorkspace.toolbox_.children_[7].blocks.pop();
+    Blockly.mainWorkspace.toolbox_.children_[7].blocks =
+        Blockly.mainWorkspace.toolbox_.children_[7].blocks.concat(
+            [
+                u.line("Better Nemo 扩展积木"),
+                u.block("bn_3D_array"),
+                u.block("bn_factorial"),
+                u.block("bn_trig_common"),
+                u.block("bn_3D_rotation"),
+                u.block("bn_regular_polygon"),
+                u.flyout_bottom(),
+            ].map((block) => str2xml(block)),
         );
-        // 注册扩展积木盒
-        regToolbox(
-            "bn",
-            "icon-feature",
-            "#14B390",
-            bnXML,
-        );
-        // 画笔扩展
-        Blockly.mainWorkspace.toolbox_.children_[5].blocks.pop();
-        Blockly.mainWorkspace.toolbox_.children_[5].blocks =
-            Blockly.mainWorkspace.toolbox_.children_[5].blocks.concat(
-                [
-                    u.line("Better Nemo 扩展积木"),
-                    u.block("bn_color"),
-                    u.block("bn_hex_to_array"),
-                    u.block("bn_set_pen_color_hex"),
-                    u.block("bn_set_fill_color_hex"),
-                    u.block("bn_draw_image_stamp"),
-                    u.block("bn_draw_custom_image_stamp"),
-                    u.block("bn_draw_video_stamp"),
-                    u.block("bn_draw_svg"),
-                    u.block("bn_rectangle_clear"),
-                    u.block("bn_better_draw_text_stamp"),
-                    u.block("bn_put_pixel"),
-                    u.block("bn_fill_polygon"),
-                    u.sep(),
-                    u.block("bn_dataURL_actor"),
-                    u.block("bn_dataURL_stage"),
-                    //u.block('bn_dataURL_URL', u.textValue('url', '')),
-                    u.flyout_bottom(),
-                ].map((block) => str2xml(block)),
-            );
-        console.log(Blockly.mainWorkspace.toolbox_.children_[5].blocks);
-        // 运算扩展
-        Blockly.mainWorkspace.toolbox_.children_[7].blocks.pop();
-        Blockly.mainWorkspace.toolbox_.children_[7].blocks =
-            Blockly.mainWorkspace.toolbox_.children_[7].blocks.concat(
-                [
-                    u.line("Better Nemo 扩展积木"),
-                    u.block("bn_3D_array"),
-                    u.block("bn_factorial"),
-                    u.block("bn_trig_common"),
-                    u.block("bn_3D_rotation"),
-                    u.block("bn_regular_polygon"),
-                    u.flyout_bottom(),
-                ].map((block) => str2xml(block)),
-            );
-    }, 1000);
     BetterNemo.log("积木盒", "积木盒注入完成");
 })();
