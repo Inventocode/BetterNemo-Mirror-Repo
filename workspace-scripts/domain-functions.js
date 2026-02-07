@@ -191,6 +191,15 @@
         const value = JSON.parse(params.obj)[params.key];
         return value !== undefined;
     });
+    regDomainFunction('bn_json_get_length', (params, _, __, ___) => {
+        try {
+            const obj = JSON.parse(params.json);
+            return Object.keys(obj).length;
+        } catch (e) {
+            console.error('JSON获取长度错误:', e);
+            return 0;
+        }
+    });
 
     // -----------数组操作 -------------------
 

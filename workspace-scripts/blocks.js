@@ -448,6 +448,20 @@
             inputsInline: true,
             output: "String",
         },
+        {
+            type: "bn_json_get_length",
+            message0: "获取 对象 %1 键值数量",
+            args0: [
+                {
+                    type: "input_value",
+                    name: "json",
+                    check: "String",
+                    value: '{\"name\": \"test\", \"value\": 123}'
+                }
+            ],
+            colour: "%{BKY_SOUND_HUE}",
+            output: "Number"
+        },
         // 数组操作
         {
             type: "bn_array_include_value",

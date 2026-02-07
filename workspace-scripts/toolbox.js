@@ -40,6 +40,7 @@
         u.block("bn_object_get"),
         u.block("bn_object_set"),
         u.block("bn_object_include_key"),
+        u.block("bn_json_get_length"),
         u.block("bn_array_get"),
         u.block("bn_array_set"),
         u.block("bn_array_include_value"),
