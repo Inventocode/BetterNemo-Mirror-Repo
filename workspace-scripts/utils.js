@@ -416,6 +416,7 @@ const BetterNemo = {
             await new Promise((resolve) => requestAnimationFrame(resolve));
         return;
     },
+    waitHook,
     waitRunmgrLoaded: isRunmgrHooked,
     emitSimpleEvent
 };

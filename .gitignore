@@ -1,6 +1,5 @@
 res
 other
-version
 icon
 build
 
@@ -10,10 +9,15 @@ hideStage.js
 helps.html
 version.json
 template.html
-hmr-workspace.html
 hook.js
 fa.min.css
 desktop.ini
+
+version/archive
+version/*.*
+version/assets/webview/extensions
+version/assets/webview/workspace-scripts
+version/assets/webview/workspace.html
 
 0013325635f1a2c1ef26a60f9725ee48.mp3
 0062cd306b54b2f8fc5f464bbef9428a.mp3
