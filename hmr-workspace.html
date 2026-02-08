@@ -8,14 +8,15 @@
   <meta content="email=no" name="format-detection" />
   <meta name="format-detection" content="telephone=no" />
   <title>Codemao Blockly</title>
-  <script src="https://cdn.jsdelivr.net/npm/eruda"></script>
+  <script src="version/assets/webview/eruda.js"></script>
   <script>eruda.init();</script>
-  <script defer src="http://localhost:8080/version/assets/webview/mqtt.min.js"></script>
-  <script defer src="http://localhost:8080/version/assets/webview/crypto-js.min.js"></script>
-  <link rel="stylesheet" href="http://localhost:8080/version/assets/webview/fa.min.css">
-  <link rel="stylesheet" href="http://localhost:8080/hooker.css">
+  <script defer src="version/assets/webview/mqtt.min.js"></script>
+  <script defer src="version/assets/webview/crypto-js.min.js"></script>
+  <script defer src="version/assets/webview/numjs.min.js"></script>
+  <link rel="stylesheet" href="version/assets/webview/fa.min.css">
+  <link rel="stylesheet" href="hooker.css">
   <script>const BetterNemoVersion = "999999.99";</script>
-  <script src="http://localhost:8080/extension-loader.js"></script>
+  <script src="extension-loader.js"></script>
   <script>
     if (navigator.userAgent === '__TEST_ENV__')
       setInterval(() => {

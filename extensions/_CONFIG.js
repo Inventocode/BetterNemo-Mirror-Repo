@@ -1,6 +1,10 @@
 const EXTENSION_FILES = [
-    "template.js",
-    "mqtt.js",
-    "encrypt.js",
-    "music.js"
+    "[扩展模板]template.js",
+    "[MQTT]mqtt.js",
+    "[加密]encrypt.js",
+    "[在线音乐]music.js",
+    "[简单文件系统]SFS.js",
+    "[数组运算]array_operators.js",
+    "[天气]weather.js",
+    "ottama.js"
 ]

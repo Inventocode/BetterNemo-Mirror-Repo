@@ -274,3 +274,15 @@
     }
     BetterNemo.log('Scene注入', "Scene原型注入完成");
 })();
+// ------------------OptiCompilerImpl原型注入------------------
+(async () => {
+    BetterNemo.log('OptiCompilerImpl注入', "等待获取");
+    const OptiCompilerImpl = (await waitHook("OptiCompiler")).OptiCompilerImpl;
+    BetterNemo.log('OptiCompilerImpl注入', "开始");
+    const compile_repeat_forever = OptiCompilerImpl.prototype.compile_repeat_forever;
+    OptiCompilerImpl.prototype.compile_repeat_forever = function () {
+        console.log('compile_repeat_forever', arguments);
+        return compile_repeat_forever.apply(this, arguments);
+    }
+    BetterNemo.log('OptiCompilerImpl注入', "完成");
+})();

@@ -313,49 +313,56 @@
             UI.setTitle('扩展');
             UI.setStatus('重进后生效');
             let config = storage.get('extension_config');
+            function getName(filename) {
+                const match = filename.match(/\[([^\]]+)\]/);
+                return match ? match[1] : '';
+            }
             EXTENSION_FILES.forEach(fileName => {
-                if (extensionMetaData[fileName]) {
-                    const metaData = extensionMetaData[fileName];
-                    UI.button(() => {
-                        UI.load(() => {
-                            UI.setTitle(metaData.name + ' ' + metaData.version);
-                            UI.setStatus(metaData.description + '<br>作者：' + metaData.author);
-                            UI.selectInput(
-                                (value) => {
-                                    config[fileName] = (value == 'true');
-                                    storage.set('extension_config', config);
-                                    UI.load(Page.home);
-                                },
-                                '状态', [['开', true], ['关', false]],
-                                config[fileName], true, '60px'
-                            );
-                            if (metaData.docs)
-                                UI.button(async () => {
-                                    try {
-                                        await navigator.clipboard.writeText(metaData.docs);
-                                    } catch (error) {
-                                        console.error(error.message);
-                                        UI.load(Page.error, error.message);
-                                    }
-                                }, '复制文档链接', 'copy');
-                        });
-                    }, fileName, 'toggle-on');
-                } else
-                    UI.button(() => {
-                        UI.load(() => {
-                            UI.setTitle(fileName);
-                            UI.setStatus('启用后可查看更多信息');
-                            UI.selectInput(
-                                (value) => {
-                                    config[fileName] = (value == 'true');
-                                    storage.set('extension_config', config);
-                                    UI.load(Page.home);
-                                },
-                                '状态', [['开', true], ['关', false]],
-                                config[fileName], true, '60px'
-                            );
-                        });
-                    }, fileName, 'toggle-off');
+                let menuName = fileName;
+                if (getName(fileName)) menuName = getName(fileName);
+                if (fileName.includes(''))
+                    if (extensionMetaData[fileName]) {
+                        const metaData = extensionMetaData[fileName];
+                        UI.button(() => {
+                            UI.load(() => {
+                                UI.setTitle(metaData.name + ' ' + metaData.version);
+                                UI.setStatus(metaData.description + '<br>作者：' + metaData.author);
+                                UI.selectInput(
+                                    (value) => {
+                                        config[fileName] = (value == 'true');
+                                        storage.set('extension_config', config);
+                                        UI.load(Page.home);
+                                    },
+                                    '状态', [['开', true], ['关', false]],
+                                    config[fileName], true, '60px'
+                                );
+                                if (metaData.docs)
+                                    UI.button(async () => {
+                                        try {
+                                            await navigator.clipboard.writeText(metaData.docs);
+                                        } catch (error) {
+                                            console.error(error.message);
+                                            UI.load(Page.error, error.message);
+                                        }
+                                    }, '复制文档链接', 'copy');
+                            });
+                        }, menuName, 'toggle-on');
+                    } else
+                        UI.button(() => {
+                            UI.load(() => {
+                                UI.setTitle(fileName);
+                                UI.setStatus('启用后可查看更多信息');
+                                UI.selectInput(
+                                    (value) => {
+                                        config[fileName] = (value == 'true');
+                                        storage.set('extension_config', config);
+                                        UI.load(Page.home);
+                                    },
+                                    '状态', [['开', true], ['关', false]],
+                                    config[fileName], true, '60px'
+                                );
+                            });
+                        }, menuName, 'toggle-off');
             });
         },
         more: () => {

@@ -31,7 +31,7 @@
 
     setInterval(() => {
         if (!Runtime.heart.heart.get_runtime_data().is_running()) {
-    // -------------------请在此 if 内清理重复使用的变量、对象等---------------------
+            // -------------------请在此 if 内清理重复使用的变量、对象等---------------------
             // 删除按键数据
             keyStates = {};
             // 删除视频
@@ -67,10 +67,12 @@
     regDomainFunction('bn_var_set', (params, rbid, entity_id, utils) => {
         tempVar[params.key] = params.value;
     });
-    regDomainFunction('bn_get_time_stamp', ()=>{
+    regDomainFunction('bn_get_time_stamp', () => {
         return new Date().getTime();
-    })
-    regDomainFunction('bn_comment', ()=>{ return new Date().getTime();})
+    });
+    regDomainFunction('bn_comment', (...args) => {
+        console.log('C口积木测试：', ...args);
+    });
     // -------------EVAL-----------
     regDomainFunction("bn_eval", (params, uuid, uuid2, utils) => {
         eval(String(params.js));
@@ -102,7 +104,7 @@
     );
     regDomainFunction('bn_check_down_key', (params, rbid, entity_id, utils) => {
         return keyStates[params.key] || false;
-    })
+    });
     // ------------剪切板----------
     regDomainFunction("bn_clipboard_write", (params, rbid, entity_id, internals) => {
         (async function writeClipboardText(text) {
@@ -635,20 +637,20 @@
         });
     });
     regDomainFunction("bn_ws_send", (params, rbid, entity_id, internals) => {
-        socket.send(params.message)
+        socket.send(params.message);
     });
     regDomainFunction("bn_ws_close", (params, rbid, entity_id, internals) => {
-        socket.close(params.code, params.param)
+        socket.close(params.code, params.param);
     });
     regDomainFunction("bn_on_ws_message_param", (_, __, ___, utils) => {
         const params = getEventParams(utils);
         if (params) return params.message;
-        return "ERROR_NOT_IN_ACTION"
+        return "ERROR_NOT_IN_ACTION";
     });
     regDomainFunction("bn_on_ws_error_param", (_, __, ___, utils) => {
         const params = getEventParams(utils);
         if (params) return params.error;
-        return "ERROR_NOT_IN_ACTION"
+        return "ERROR_NOT_IN_ACTION";
     });
     BetterNemo.log('解释器', "解释器注入完成");
 })();
