@@ -5,13 +5,13 @@ interface BetterNemo {
     getHook: (name: string) => Promise<any>;
     Block: {
         methodBlock: {
-            previousStatement: boolean;
-            nextStatement: boolean;
-            inputsInline: boolean;
+            previousStatement: true;
+            nextStatement: true;
+            inputsInline: true;
         };
         eventBlock: {
-            nextStatement: boolean;
-            inputsInline: boolean;
+            nextStatement: true;
+            inputsInline: true;
         };
     };
     Toolbox: {
@@ -26,13 +26,15 @@ interface BetterNemo {
         block: (type: any, ...values: any[]) => string;
         simpleEventBlock: (type: any, ...params: any[]) => string[];
     };
-    regColor: (colorID: any, fill: any, border: any) => void;
+    regColor: (colorID: string, fill: string, border: string, layer: string = '') => void;
     regBlocks: (blocks: any) => void;
     regSimpleEvent: (eventBlockId: string) => void;
     regMethod: (name: string, func: Function, error_msg?: string) => Promise<void>;
     addToolbox: (name: string, icon: string, color: string, blocks: string[]) => void;
-    regIcon: (svg: any) => void;
+    regIcon: (svg: string) => void;
     waitBlocklyLoaded: () => Promise<void>;
     waitBlockLoaded: () => Promise<void>;
     waitRunmgrLoaded: () => Promise<void>;
+    emitSimpleEvent: () => void;
+    getEventParams: (utils: any) => object;
 }

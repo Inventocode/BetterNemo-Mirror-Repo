@@ -403,8 +403,9 @@ const BetterNemo = {
             `<block type="${type}">${params.map(([name, type]) => `<value name="${name}"><block type="__${type}"></block></value>`)}</block>`,
         ],
     },
-    regColor: (colorID, fill, border) => {
-        Blockly.theme.block_color[colorID] = { fill, border };
+    regColor: (colorID, fill, border, layer = '') => {
+        if (layer) Blockly.theme.block_color[colorID] = { fill, border, layer };
+        else Blockly.theme.block_color[colorID] = { fill, border };
     },
     regBlocks,
     regSimpleEvent,
@@ -421,7 +422,8 @@ const BetterNemo = {
     },
     waitHook,
     waitRunmgrLoaded: isRunmgrHooked,
-    emitSimpleEvent
+    emitSimpleEvent,
+    getEventParams
 };
 (async () => {
     window['Extension'] = {

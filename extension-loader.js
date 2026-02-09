@@ -34,6 +34,7 @@ hook("./src/i18n/zh_CN.ts", "HookMsgZhCN");
 hook("./src/webview/bridge/index.ts", "HookBridge");
 hook("./src/webview/bridge/messages.ts", "HookBridgeMsg");
 hook("./node_modules/@crc/heart/build/opti/compiler.js", "HookOptiCompiler");
+hook("./node_modules/@crc/stage/build/core/physics/actor_body.js", "HookActorBody");
 
 function getExtensionPath(name) {
     if (navigator.userAgent !== '__TEST_ENV__' && BetterNemoVersion === "999999.99")

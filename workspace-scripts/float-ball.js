@@ -264,8 +264,8 @@
         clipboard: () => {
             UI.setTitle('剪切板');
             UI.button(async () => {
-                const text = Blockly.xml.dom_to_text(Blockly.xml.block_to_dom(Blockly.runtime_data.selected));
                 try {
+                    const text = Blockly.xml.dom_to_text(Blockly.xml.block_to_dom(Blockly.runtime_data.selected));
                     await navigator.clipboard.writeText(text);
                 } catch (error) {
                     console.error(error.message);
@@ -286,8 +286,8 @@
                 }
             }, '粘贴积木', 'paste');
             UI.button(async () => {
-                const text = Blockly.xml.dom_to_text(Blockly.xml.workspace_to_dom(Blockly.mainWorkspace));
                 try {
+                    const text = Blockly.xml.dom_to_text(Blockly.xml.workspace_to_dom(Blockly.mainWorkspace));
                     await navigator.clipboard.writeText(text);
                 } catch (error) {
                     console.error(error.message);
@@ -308,6 +308,16 @@
                     UI.load(Page.error, error.message);
                 }
             }, '粘贴工作区', 'paste');
+            UI.button(async () => {
+                try {
+                    const text = await svgAsPngUri(Blockly.runtime_data.selected.svg_group, {});
+                    await navigator.clipboard.writeText(text);
+                    UI.load(Page.clipboard);
+                } catch (error) {
+                    console.error(error.message);
+                    UI.load(Page.error, error.message);
+                }
+            }, '导出积木PNG', 'image');
         },
         extensions: () => {
             UI.setTitle('扩展');
@@ -381,6 +391,7 @@
                     }, '刷新Webview', 'sync-alt');
                 });
             }, '刷新Webview', 'sync-alt');
+            UI.button(() => { window.location = 'https://codemao.rth1.xyz/'; }, '测试', 'flask');
             UI.button(() => { UI.load(Page.experimentalConfig); }, '实验性', 'flask');
         }
     };
