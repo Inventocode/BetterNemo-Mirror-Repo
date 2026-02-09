@@ -313,11 +313,14 @@ function regBlocks(blocks) {
  * @param {object} params 参数(可选)
  */
 function emitSimpleEvent(name, params = {}) {
-    waitHook('Runtime').send_action({
-        id: name,
-        namespace: "",
-        parameters: params,
-    });
+    (async function () {
+        const Runtime = await waitHook('Runtime');
+        Runtime.get_webview_runtime().send_action({
+            id: name,
+            namespace: "",
+            parameters: params,
+        });
+    })();
 }
 const BetterNemo = {
     log: (moduleName, ...msgs) => {
@@ -449,175 +452,175 @@ const BetterNemo = {
 (async () => {
     await waitHook('Bridge');
     // hook.js - 可以直接注入到HTML中
-(function() {
-  'use strict';
-  
-  console.log('dsBridge Hook脚本启动...');
-  
-  // 环境检测
-  function isWindows() {
-    return true
-  }
-  
-  // 创建Windows bridge实现
-  function createWindowsBridge() {
-    const callbacks = {};
-    
-    return {
-      call: function(method, args, callback) {
-        const message = JSON.stringify({ type: method, payload: args });
-        console.log(`Windows Bridge Call: ${method}`, args);
-        
-        if (typeof callback === 'function') {
-          // 异步调用
-          const callbackId = 'cb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-          callbacks[callbackId] = callback;
-          
-          if (window.external && window.external.callNativeAsync) {
-            window.external.callNativeAsync(method, message, callbackId);
-          } else {
-            // 模拟异步返回
-            setTimeout(() => {
-              callback({ status: true, message: 'success' });
-            }, 100);
-          }
-          return undefined;
-        } else {
-          // 同步调用
-          if (window.external && window.external.callNative) {
-            const result = window.external.callNative(method, message);
-            try {
-              return result ? JSON.parse(result) : null;
-            } catch (e) {
-              return { status: false, message: e.message };
-            }
-          } else {
-            // 模拟同步返回
-            return { status: true, data: 'windows mock response' };
-          }
+    (function () {
+        'use strict';
+
+        console.log('dsBridge Hook脚本启动...');
+
+        // 环境检测
+        function isWindows() {
+            return true;
         }
-      },
-      
-      register: function(method, handler) {
-        console.log(`Windows Bridge Register Sync: ${method}`);
-        if (window.external && window.external.registerSync) {
-          window.external.registerSync(method, function(args) {
-            try {
-              const result = handler(args ? JSON.parse(args) : args);
-              return JSON.stringify(result);
-            } catch (e) {
-              return JSON.stringify({ status: false, message: e.message });
-            }
-          });
-        }
-      },
-      
-      registerAsyn: function(method, handler) {
-        console.log(`Windows Bridge Register Async: ${method}`);
-        if (window.external && window.external.registerAsync) {
-          window.external.registerAsync(method, function(args, jsCallback) {
-            try {
-              handler(args ? JSON.parse(args) : args, function(result) {
-                jsCallback(JSON.stringify(result));
-              });
-            } catch (e) {
-              jsCallback(JSON.stringify({ status: false, message: e.message }));
-            }
-          });
-        }
-      }
-    };
-  }
-  
-  // Hook函数
-  function hookDsBridge() {
-    const windowsBridge = createWindowsBridge();
-    
-    // 保存原始引用
-    const originalDsBridge = window.dsBridge;
-    const originalBridge = window.bridge;
-    
-    // 使用Object.defineProperty防止被覆盖
-    Object.defineProperty(window, 'dsBridge', {
-      get: function() {
-        if (isWindows()) {
-          console.log('返回Windows Bridge实现');
-          return windowsBridge;
-        }
-        return originalDsBridge || windowsBridge;
-      },
-      set: function(value) {
-        console.log('dsBridge被重新赋值，记录原始引用');
-        // 不实际设置，保持我们的Hook
-      },
-      configurable: false,
-      enumerable: true
-    });
-    
-    Object.defineProperty(window, 'bridge', {
-      get: function() {
-        if (isWindows()) {
-          return windowsBridge;
-        }
-        return originalBridge || originalDsBridge || windowsBridge;
-      },
-      set: function(value) {
-        console.log('bridge被重新赋值，记录原始引用');
-      },
-      configurable: false,
-      enumerable: true
-    });
-    
-    // Hook import语句
-    if (isWindows()) {
-      interceptModuleSystem();
-    }
-    
-    console.log('dsBridge Hook完成');
-  }
-  
-  // 拦截模块系统
-  function interceptModuleSystem() {
-    // 记录原始import
-    const originalImport = window.import;
-    
-    // 覆写import
-    if (originalImport) {
-      window.import = function(modulePath) {
-        return originalImport.call(this, modulePath).then(module => {
-          if (modulePath.includes('dsbridge') && module.default) {
-            // 替换dsbridge模块
+
+        // 创建Windows bridge实现
+        function createWindowsBridge() {
+            const callbacks = {};
+
             return {
-              ...module,
-              default: createWindowsBridge()
+                call: function (method, args, callback) {
+                    const message = JSON.stringify({ type: method, payload: args });
+                    console.log(`Windows Bridge Call: ${method}`, args);
+
+                    if (typeof callback === 'function') {
+                        // 异步调用
+                        const callbackId = 'cb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                        callbacks[callbackId] = callback;
+
+                        if (window.external && window.external.callNativeAsync) {
+                            window.external.callNativeAsync(method, message, callbackId);
+                        } else {
+                            // 模拟异步返回
+                            setTimeout(() => {
+                                callback({ status: true, message: 'success' });
+                            }, 100);
+                        }
+                        return undefined;
+                    } else {
+                        // 同步调用
+                        if (window.external && window.external.callNative) {
+                            const result = window.external.callNative(method, message);
+                            try {
+                                return result ? JSON.parse(result) : null;
+                            } catch (e) {
+                                return { status: false, message: e.message };
+                            }
+                        } else {
+                            // 模拟同步返回
+                            return { status: true, data: 'windows mock response' };
+                        }
+                    }
+                },
+
+                register: function (method, handler) {
+                    console.log(`Windows Bridge Register Sync: ${method}`);
+                    if (window.external && window.external.registerSync) {
+                        window.external.registerSync(method, function (args) {
+                            try {
+                                const result = handler(args ? JSON.parse(args) : args);
+                                return JSON.stringify(result);
+                            } catch (e) {
+                                return JSON.stringify({ status: false, message: e.message });
+                            }
+                        });
+                    }
+                },
+
+                registerAsyn: function (method, handler) {
+                    console.log(`Windows Bridge Register Async: ${method}`);
+                    if (window.external && window.external.registerAsync) {
+                        window.external.registerAsync(method, function (args, jsCallback) {
+                            try {
+                                handler(args ? JSON.parse(args) : args, function (result) {
+                                    jsCallback(JSON.stringify(result));
+                                });
+                            } catch (e) {
+                                jsCallback(JSON.stringify({ status: false, message: e.message }));
+                            }
+                        });
+                    }
+                }
             };
-          }
-          return module;
-        });
-      };
-    }
-    
-    // 覆写require（如果存在）
-    if (typeof require !== 'undefined') {
-      const originalRequire = require;
-      window.require = function(modulePath) {
-        const module = originalRequire.call(this, modulePath);
-        if (modulePath.includes('dsbridge')) {
-          return createWindowsBridge();
         }
-        return module;
-      };
-    }
-  }
-  
-  // 执行Hook
-  if (isWindows()) {
-    // 等待页面加载完成
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', hookDsBridge);
-    } else {
-      hookDsBridge();
-    }
-  }
-})();
+
+        // Hook函数
+        function hookDsBridge() {
+            const windowsBridge = createWindowsBridge();
+
+            // 保存原始引用
+            const originalDsBridge = window.dsBridge;
+            const originalBridge = window.bridge;
+
+            // 使用Object.defineProperty防止被覆盖
+            Object.defineProperty(window, 'dsBridge', {
+                get: function () {
+                    if (isWindows()) {
+                        console.log('返回Windows Bridge实现');
+                        return windowsBridge;
+                    }
+                    return originalDsBridge || windowsBridge;
+                },
+                set: function (value) {
+                    console.log('dsBridge被重新赋值，记录原始引用');
+                    // 不实际设置，保持我们的Hook
+                },
+                configurable: false,
+                enumerable: true
+            });
+
+            Object.defineProperty(window, 'bridge', {
+                get: function () {
+                    if (isWindows()) {
+                        return windowsBridge;
+                    }
+                    return originalBridge || originalDsBridge || windowsBridge;
+                },
+                set: function (value) {
+                    console.log('bridge被重新赋值，记录原始引用');
+                },
+                configurable: false,
+                enumerable: true
+            });
+
+            // Hook import语句
+            if (isWindows()) {
+                interceptModuleSystem();
+            }
+
+            console.log('dsBridge Hook完成');
+        }
+
+        // 拦截模块系统
+        function interceptModuleSystem() {
+            // 记录原始import
+            const originalImport = window.import;
+
+            // 覆写import
+            if (originalImport) {
+                window.import = function (modulePath) {
+                    return originalImport.call(this, modulePath).then(module => {
+                        if (modulePath.includes('dsbridge') && module.default) {
+                            // 替换dsbridge模块
+                            return {
+                                ...module,
+                                default: createWindowsBridge()
+                            };
+                        }
+                        return module;
+                    });
+                };
+            }
+
+            // 覆写require（如果存在）
+            if (typeof require !== 'undefined') {
+                const originalRequire = require;
+                window.require = function (modulePath) {
+                    const module = originalRequire.call(this, modulePath);
+                    if (modulePath.includes('dsbridge')) {
+                        return createWindowsBridge();
+                    }
+                    return module;
+                };
+            }
+        }
+
+        // 执行Hook
+        if (isWindows()) {
+            // 等待页面加载完成
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', hookDsBridge);
+            } else {
+                hookDsBridge();
+            }
+        }
+    })();
 })();
