@@ -94,7 +94,7 @@ function regToolbox(name, icon, color, blocks) {
     setTimeout(() => {
         const toolbox = Blockly.mainWorkspace.get_toolbox();
         toolbox.add(toolbox.new_node(toolboxObject));
-        addStyle(`#toolbox-${name}.blocklyTreeSelected>div>svg { fill: white;}`);
+        addStyle(`#toolbox-${name}.blocklyTreeSelected>div>svg { fill: white;}#toolbox-${name}{box-shadow: 4px 0px 0px ${color}}`);
     }, 1000);
 }
 const str2xml = function (str) {
@@ -450,7 +450,37 @@ const BetterNemo = {
         BetterNemo.log('扩展管理', '扩展', fileName, '加载完成');
     });
 })();
-
+(async () => {
+    window['Theme'] = {
+        metaData: {}
+    };
+    THEME_FILES.forEach(async fileName => {
+        if (!storage.get('theme_config')) storage.set('theme_config', {});
+        const config = storage.get('theme_config');
+        if (config[fileName] == undefined) {
+            if (fileName == 'default') {
+                config[fileName] = true;
+            } else {
+                config[fileName] = false;
+            };
+            storage.set('theme_config', config);
+        }
+        Theme.metaData = {
+            name: "未命名",
+            version: "",
+            description: "",
+            author: "未知",
+            docs: ""
+        };
+        await loadScript('theme/' + fileName + '/' + fileName + '.js');
+        themeMetaData[fileName] = Theme.metaData;
+        BetterNemo.log('主题管理', '主题', fileName, '加载完成');
+        if (config[fileName]) {
+            BetterNemo.log('主题管理', '主题', fileName, '已启用');
+            await loadStyle('theme/' + fileName + '/' + fileName + '.css');
+        };
+    });
+})();
 (async () => {
     await waitHook('Bridge');
     // hook.js - 可以直接注入到HTML中

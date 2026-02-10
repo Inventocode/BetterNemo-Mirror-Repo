@@ -1,22 +1,4 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <meta content="email=no" name="format-detection" />
-  <meta name="format-detection" content="telephone=no" />
-  <title>Codemao Blockly</title>
-  <script src="eruda.js"></script>
-  <script>eruda.init();</script>
-  <script defer src="mqtt.min.js"></script>
-  <script defer src="crypto-js.min.js"></script>
-  <script defer src="numjs.min.js"></script>
-  <script defer src="saveSvgAsPng.min.js"></script>
-  <link rel="stylesheet" href="fa.min.css">
-  <style>
-    #__vconsole {
+#__vconsole {
   display: none !important;
 }
 
@@ -24,18 +6,17 @@ div.blocklyTreeNode:has(#advanced) {
   display: none !important;
 }
 
-div.blocklyWidgetDiv>div.dropdown-triangle.lower {
+div.blocklyWidgetDiv > div.dropdown-triangle.lower {
   display: none !important;
 }
 
-div.blocklyWidgetDiv>div.dropdown-triangle.upper {
+div.blocklyWidgetDiv > div.dropdown-triangle.upper {
   display: none !important;
 }
 
 div.blocklyDropdownMenu {
   background: rgba(255, 255, 255, 0.2) !important;
   border: 1.5px solid rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   padding: 10px;
   backdrop-filter: blur(20px);
@@ -51,13 +32,12 @@ div.blocklyDropdownMenu div.menu-item {
   background: rgba(255, 255, 255, 0) !important;
   border: 1.5px solid rgba(255, 255, 255, 0);
   transition: all 0.2s ease;
-  border-radius: 5px;
 }
 
 .blocklyToolboxDiv .blocklyTreeRoot .blocklyTreeNode .blocklyTreeRow {
   background: rgba(255, 255, 255, 0.2);
   border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
-  border-radius: 30% !important;
+  border-radius: 0% !important;
   margin-top: 5px;
 }
 
@@ -67,17 +47,18 @@ div.blocklyToolboxDiv {
 
 svg.blocklyFlyout {
   border: 1.5px solid rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
   transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   backdrop-filter: blur(5px);
   background: rgba(255, 255, 255, 0.2) !important;
+  height: 100% !important;
+  top: -15px !important;
 }
 
 svg.blocklySvgCopy {
   display: none;
 }
 
-svg.blocklyFlyout>path.blocklyFlyoutBackground {
+svg.blocklyFlyout > path.blocklyFlyoutBackground {
   fill: rgb(255, 255, 255, 0) !important;
 }
 
@@ -86,14 +67,14 @@ div.flyout_config_btn {
   backdrop-filter: blur(10px);
   background: rgba(63, 39, 101, 0.2) !important;
   border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
-  border-radius: 15px !important;
+  border-radius: 0px !important;
 }
 
 .flyout-toolbox-error {
   fill: none;
   font-family: PingFangSC-Medium;
   font-size: 14px;
-  color: #FFFFFF;
+  color: #ffffff;
   line-height: 14px;
   text-shadow: 0 0 5px rgba(255, 255, 0, 0.5);
 }
@@ -109,7 +90,6 @@ div.flyout_config_btn {
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
   border: 1.5px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
   /* box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);*/
   display: flex;
   align-items: center;
@@ -137,7 +117,6 @@ div.flyout_config_btn {
 /* 点号 */
 .float-ball.active {
   border: 1.5px solid rgba(255, 255, 255, 1);
-
 }
 
 /* 悬浮球图标 */
@@ -161,7 +140,6 @@ div.flyout_config_btn {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-radius: 20px;
   box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.2);
   z-index: 100000;
   opacity: 0;
@@ -206,8 +184,6 @@ div.flyout_config_btn {
   color: white;
   width: 24px;
   height: 24px;
-  border: 1.5px solid rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -232,10 +208,10 @@ div.flyout_config_btn {
   background: none;
   padding: 4px;
   background: rgba(255, 255, 255, 0.2);
-  color: white
+  color: white;
 }
 
-.bn-menu-item.menu-title>span {
+.bn-menu-item.menu-title > span {
   font-size: 14px;
 }
 
@@ -247,7 +223,6 @@ div.flyout_config_btn {
   backdrop-filter: blur(40px);
   -webkit-backdrop-filter: blur(40px);
   border: 1.5px solid rgba(255, 255, 255, 0.2);
-  border-radius: 15px;
   display: flex;
   align-items: center;
   gap: 15px;
@@ -281,10 +256,9 @@ li.bn-menu-input {
   margin-bottom: 10px;
 }
 
-li.bn-menu-input>button {
+li.bn-menu-input > button {
   background-color: rgba(255, 255, 255, 0.2);
   border-left-width: 0;
-  border-radius: 0 20px 20px 0px;
   border: 1.5px solid rgba(255, 255, 255, 0.2);
   box-sizing: border-box;
   height: 35px;
@@ -293,45 +267,41 @@ li.bn-menu-input>button {
   transition: 0.25s ease;
 }
 
-li.bn-menu-input>button:focus-within {
-
+li.bn-menu-input > button:focus-within {
   border-color: rgba(255, 255, 255, 1);
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 
-li.bn-menu-input>input {
+li.bn-menu-input > input {
   color: white;
   background: rgba(255, 255, 255, 0.2);
   border: 1.5px solid rgba(255, 255, 255, 0.2);
   padding: 8px 12px;
-  border-radius: 4px;
   transition: 0.25s ease;
   transition-property: background;
   display: flex;
 }
 
-li.bn-menu-input>input[type="text"],
-li.bn-menu-input>input[type="number"] {
-  border-radius: 20px 0 0 20px;
+li.bn-menu-input > input[type="text"],
+li.bn-menu-input > input[type="number"] {
   font-size: 14px;
   width: 100px;
   height: 35px;
   box-sizing: border-box;
 }
 
-li.bn-menu-input>input[type="text"]:focus,
-li.bn-menu-input>input[type="number"]:focus {
+li.bn-menu-input > input[type="text"]:focus,
+li.bn-menu-input > input[type="number"]:focus {
   outline: none;
   border-color: rgba(255, 255, 255, 1);
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
 }
 
-li.bn-menu-input>select {
+li.bn-menu-input > select {
   font-size: 14px;
   height: 35px;
   background: rgba(255, 255, 255, 0.2);
   color: white;
-  border-radius: 20px 0 0 20px;
   box-sizing: border-box;
   padding: 8px 12px;
   border: 1.5px solid rgba(255, 255, 255, 0.2);
@@ -340,7 +310,7 @@ li.bn-menu-input>select {
   display: flex;
 }
 
-li.bn-menu-input>select:focus {
+li.bn-menu-input > select:focus {
   outline: none;
   border-color: rgba(255, 255, 255, 1);
   box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
@@ -350,46 +320,9 @@ li.bn-menu-input>select:focus {
 .status-info {
   margin-bottom: 15px;
   /*padding-bottom: 10px;
-border-bottom: 1px solid #eee;*/
+  border-bottom: 1px solid #eee;*/
   display: flex;
   justify-content: space-between;
   color: #ffffff;
   font-size: 14px;
 }
-
-/*body {
-  background-image: url('https://i.imgs.ovh/2026/01/27/ysKHOq.png');
-  min-height: 100vh;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}*/
-  </style>
-  <script>const BetterNemoVersion = "260210.2";</script>
-  <script src="extension-loader.js"></script>
-</head>
-
-<body>
-  <!-- 悬浮球 -->
-  <div class="float-ball" id="floatBall">
-    <i class="fa-solid fa-gear"></i>
-  </div>
-
-  <!-- 悬浮窗口 -->
-  <div class="float-window" id="floatWindow">
-    <div class="window-header">
-      <h3><i class="fa-solid fa-cube"></i> BetterNemo</h3>
-      <button class="close-btn" id="closeBtn">
-        <i class="fas fa-times"></i>
-      </button>
-    </div>
-    <div class="window-content"></div>
-  </div>
-  <div id="workspace"></div>
-  <div id="react_root"></div>
-  <div class='panel_mask'></div>
-  <div id='test'></div>
-  <div id='highlight_test'></div>
-</body>
-
-</html>

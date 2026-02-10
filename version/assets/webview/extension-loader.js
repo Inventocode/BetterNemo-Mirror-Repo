@@ -82,31 +82,7 @@ function get_run_mgr() {
     return HookRuntime.exports.get_webview_runtime().heart.runtime_manager.run_mgr;
 }
 let extensionMetaData = {};
-/*extensionMgrLog('尝试获取扩展列表');
-let extension_files = [];
-let ok = -1;
-fetch(getExtensionPath('extensions.json')).then(async data => {
-    try { extension_files = await data.json(); } catch (e) { extensionMgrError(e.message) }
-    extensionMgrLog('扩展列表：', extension_files.join(','));
-    extension_files.forEach(async (fileName) => {
-        extensionMgrLog('尝试获取', fileName);
-        try {
-            await fetch(getExtensionPath(fileName)).then(async data => {
-                const script = await data.text();
-                if (script === '404 Not Found\n') throw new Error(fileName + '不存在！');
-                const metaData = parseJSDocHeader(script);
-                extensions[fileName] = {
-                    script,
-                    metaData
-                };
-                extensionMgrLog(fileName, '获取成功');
-                if (ok === -1) ok = 0;
-                ok++;
-            });
-        } catch (e) { extensionMgrError(e.message); if (ok === -1) ok = 0; ok++; }
-    });
-});*/
-
+let themeMetaData = {};
 function loadScript(src) {
     if (navigator.userAgent !== '__TEST_ENV__' && BetterNemoVersion === "999999.99")
         src = `http://192.168.1.11:8080/${src}`;
@@ -118,9 +94,24 @@ function loadScript(src) {
         document.head.appendChild(script);
     });
 }
+function loadStyle(src) {
+    if (navigator.userAgent !== '__TEST_ENV__' && BetterNemoVersion === "999999.99")
+        src = `http://127.0.0.1:8080/${src}`;
+    return new Promise((resolve, reject) => {
+        const style = document.createElement('link');
+        style.rel = 'stylesheet';
+        style.type = 'text/css';
+        style.href = src;
+        style.onload = resolve;
+        style.onerror = reject;
+        document.head.appendChild(style);
+    });
+}
 (async () => {
     await loadScript('extensions/_CONFIG.js');
     extensionMgrLog('扩展列表:', EXTENSION_FILES.join(', '))
+    await loadScript('theme/_CONFIG.js');
+    extensionMgrLog('主题列表:', THEME_FILES.join(', '))
     await loadScript('workspace-scripts/storage.js');
     await loadScript('workspace-scripts/utils.js');
     loadScript('workspace.bundle.79d6432e01ccdecb492a.js');

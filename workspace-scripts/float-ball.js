@@ -164,6 +164,7 @@
             UI.setStatus('Version: ' + BetterNemoVersion);
             UI.button(() => { UI.load(Page.clipboard); }, '剪切板', 'clipboard');
             UI.button(() => { UI.load(Page.extensions); }, '扩展', 'puzzle-piece');
+            UI.button(() => { UI.load(Page.theme); }, '主题', 'palette');
             UI.button(() => { UI.load(Page.editorConfig); }, '编辑器', 'laptop-code');
             UI.button(() => { UI.load(Page.runtimeConfig); }, '运行时', 'cog');
             UI.button(() => { UI.load(Page.more); }, '更多', 'ellipsis');
@@ -371,6 +372,39 @@
                                     '状态', [['开', true], ['关', false]],
                                     config[fileName], true, '60px'
                                 );
+                            });
+                        }, menuName, 'toggle-off');
+            });
+        },
+        theme: () => {
+            UI.setTitle('主题');
+            UI.setStatus('重进后生效');
+            let config = storage.get('theme_config');
+            THEME_FILES.forEach(async name => {
+                let menuName = name;
+                const metaData = themeMetaData[name];
+                console.log(themeMetaData);
+                if (metaData.name) menuName = metaData.name;
+                if (name.includes(''))
+                    if (config[name] == true) {
+                        UI.button(() => {
+                            UI.load(() => {
+                                UI.setTitle(metaData.name + ' ' + metaData.version);
+                                UI.setStatus(metaData.description + '<br>作者：' + metaData.author);
+                            });
+                        }, menuName, 'toggle-on');
+                    } else
+                        UI.button(() => {
+                            UI.load(() => {
+                                UI.setTitle(metaData.name + ' ' + metaData.version);
+                                UI.setStatus(metaData.description + '<br>作者：' + metaData.author);
+                                UI.button(async () => {
+                                    Object.keys(config).forEach(key => {
+                                        config[key] = key == name;
+                                    });
+                                    storage.set('theme_config', config);
+                                    UI.load(Page.home);
+                                }, '开启', 'open');
                             });
                         }, menuName, 'toggle-off');
             });
