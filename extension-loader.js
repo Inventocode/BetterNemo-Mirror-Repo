@@ -131,7 +131,7 @@ setInterval(() => {
         };
         const postMessageAsyn = _dsaf.postMessageAsyn;
         _dsaf.postMessageAsyn = async (...args) => {
-            console.log('[Nemo -> Webview] [ASYNC]', ...args);
+            // console.log('[Nemo -> Webview] [ASYNC]', ...args);
             return postMessageAsyn.apply(_dsaf, args);
         };
     }

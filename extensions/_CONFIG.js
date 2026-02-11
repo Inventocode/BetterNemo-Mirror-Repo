@@ -6,7 +6,7 @@ const EXTENSION_FILES = [
     "[简单文件系统]SFS.js",
     "[数组运算]array_operators.js",
     "[天气]weather.js",
-    "ottama.js",
+    "[AI对话]ottama.js",
     "[IP工具]IP Tool.js",
     "[便捷FPS]fps.js"
 ]
