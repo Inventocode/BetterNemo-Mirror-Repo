@@ -1,5 +1,6 @@
 const THEME_FILES = [
     "default",
     "angle",
-    "vanilla"
+    "vanilla",
+    "AFS"
 ]

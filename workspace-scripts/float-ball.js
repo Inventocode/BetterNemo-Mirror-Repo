@@ -93,14 +93,36 @@
             const menuItem = document.createElement('li');
             menuItem.innerHTML = `${icon ? `<i class="fas fa-${icon}"></i>` : ''}<span>${name}</span>`;
             menuItem.className = 'bn-menu-item';
+            let touchStartTime = 0;
+            let startX, startY;
+            const MENU_CLICK_MAX_DISTANCE = 20; // 像素
+            menuItem.ontouchstart = (e) => {
+                const touch = e.touches[0];
+                touchStartTime = Date.now();
+                startX = touch.clientX;
+                startY = touch.clientY;
+            };
+            menuItem.ontouchmove = (e) => {
+                if (!touchStartTime) return;
+                const touch = e.touches[0];
+                const deltaX = Math.abs(touch.clientX - startX);
+                const deltaY = Math.abs(touch.clientY - startY);
+                if (deltaX > MENU_CLICK_MAX_DISTANCE || deltaY > MENU_CLICK_MAX_DISTANCE) {
+                    touchStartTime = 0;
+                }
+            };
             menuItem.ontouchend = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                callback();
+                if (touchStartTime > 0) {
+                    callback();
+                }
+                touchStartTime = 0;
             };
+            
             windowContent.appendChild(menuItem);
         },
-        reset_icon: `<img src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgc3R5bGU9Ii1tcy10cmFuc2Zvcm06cm90YXRlKDM2MGRlZyk7LXdlYmtpdC10cmFuc2Zvcm06cm90YXRlKDM2MGRlZyk7dHJhbnNmb3JtOnJvdGF0ZSgzNjBkZWcpIj48cGF0aCBkPSJNMyAxMWExIDEgMCAwIDEgMSAxIDguMDUgOC4wNSAwIDEgMCAyLjIyLTUuNWgyLjRhMSAxIDAgMCAxIDAgMkg0LjA5YTEgMSAwIDAgMS0xLTFWM2ExIDEgMCAwIDEgMiAwdjEuNzdBMTAgMTAgMCAxIDEgMiAxMmExIDEgMCAwIDEgMS0xeiIgZmlsbD0iI2ZmZiIvPjxwYXRoIGZpbGw9InJnYmEoMCwgMCwgMCwgMCkiIGQ9Ik0wIDBoMjR2MjRIMHoiLz48L3N2Zz4=" draggable="false" width="20" height="20">`,
+        reset_icon: `<img src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgc3R5bGU9Ii1tcy10cmFuc2Zvcm06cm90YXRlKDM2MGRlZyk7LXdlY2tpdC10cmFuc2Zvcm06cm90YXRlKDM2MGRlZyk7dHJhbnNmb3JtOnJvdGF0ZSgzNjBkZWcpIj48cGF0aCBkPSJNMyAxMWExIDEgMCAwIDEgMSAxIDguMDUgOC4wNSAwIDEgMCAyLjIyLTUuNWgyLjRhMSAxIDAgMCAxIDAgMkg0LjA5YTEgMSAwIDAgMS0xLTFWM2ExIDEgMCAwIDEgMiAwdjEuNzdBMTAgaTEwIDAgMCAxIDEgMTJhMSAxIDAgMCAxIDEteiIgZmlsbD0iI2ZmZiIvPjxwYXRoIGZpbGw9InJnYmEoMCwgMCwgMCwgMCkiIGQ9Ik0wIDBoMjR2MjRIMHoiLz48L3N2Zz4=" draggable="false" width="20" height="20">`,
         numberInput: (callback, name = '数字', value = 0, defualtValue = 0, width = '100px') => {
             const menuItem = document.createElement('li');
             menuItem.innerHTML = `<label style="margin-right: 10px">${name}</label><input style="width:${width}" type="number" value="${value}""><button>${UI.reset_icon}</button>`;
@@ -403,8 +425,9 @@
                                         config[key] = key == name;
                                     });
                                     storage.set('theme_config', config);
-                                    UI.load(Page.home);
-                                }, '开启', 'open');
+                                    UI.load(Page.theme);
+                                    reloadTheme();
+                                }, '开启', 'circle-check');
                             });
                         }, menuName, 'toggle-off');
             });

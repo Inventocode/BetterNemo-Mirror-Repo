@@ -35,6 +35,7 @@ hook("./src/webview/bridge/index.ts", "HookBridge");
 hook("./src/webview/bridge/messages.ts", "HookBridgeMsg");
 hook("./node_modules/@crc/heart/build/opti/compiler.js", "HookOptiCompiler");
 hook("./node_modules/@crc/stage/build/core/physics/actor_body.js", "HookActorBody");
+hook("./node_modules/dsbridge/index.js", "HookDsbridge");
 
 function getExtensionPath(name) {
     if (navigator.userAgent !== '__TEST_ENV__' && BetterNemoVersion === "999999.99")
@@ -68,14 +69,14 @@ function extensionMgrLog(...msg) {
         `%c BetterNemo %c %c 扩展管理 %c ${msg.join(' ')}`,
         'border-radius:5px;padding:2px;font-weight:bold;background: #20A5C4;color:white;', '',
         'border-radius:5px;padding:2px;font-weight:bold;background: #20A5C4;color:white;', ''
-    )
+    );
 }
 function extensionMgrError(...msg) {
     console.log(
         `%c BetterNemo %c %c 扩展管理 %c ${msg.join(' ')}`,
         'border-radius:5px;padding:2px;font-weight:bold;background: #ff0000;color:white;', '',
         'border-radius:5px;padding:2px;font-weight:bold;background: #ff0000;color:white;', ''
-    )
+    );
 }
 function get_run_mgr() {
     if (!window['HookRuntime']) return;
@@ -101,17 +102,66 @@ function loadStyle(src) {
         const style = document.createElement('link');
         style.rel = 'stylesheet';
         style.type = 'text/css';
+        style.classList.add('bn-theme');
         style.href = src;
         style.onload = resolve;
         style.onerror = reject;
         document.head.appendChild(style);
     });
 }
+let ok = false;
+setInterval(() => {
+    // window._dsInit = true;
+    if (window._dsf) {
+        const postMessage = _dsf.postMessage;
+        _dsf.postMessage = (...args) => {
+            if (args.length === 2)
+                if (args[0] === 'INIT_WEBVIEW_DATA') {
+                    let data = JSON.parse(args[1]);
+                    console.log('已拦截初始化信息！', data);
+                    data.context_menu_with_set_block_visibility = true;
+                    data.translucent_block_visible = 'translucent';
+                    return postMessage.apply(_dsf, [
+                        'INIT_WEBVIEW_DATA',
+                        JSON.stringify(data)
+                    ]);
+                }
+            console.log('[Nemo -> Webview]', ...args);
+            return postMessage.apply(_dsf, args);
+        };
+        const postMessageAsyn = _dsaf.postMessageAsyn;
+        _dsaf.postMessageAsyn = async (...args) => {
+            console.log('[Nemo -> Webview] [ASYNC]', ...args);
+            return postMessageAsyn.apply(_dsaf, args);
+        };
+    }
+    if ((!ok) && window['_dsbridge']) {
+        // _dsbridge.call('_dsb.dsinit', "{\"data\":null}");
+        const call = _dsbridge.call;
+        _dsbridge.call = (...args) => {
+            console.log('_dsbridge.call', ...args);
+            return call.apply(_dsbridge, args);
+        };
+        console.log('WOOOOOOOOOOOOOOOOOOOOOOWWWWWWWWWW', 'dsbridge');
+        ok = true;
+    }
+}, 50);
+const log = console.log;
+console.log = function (...args) {
+    try {
+        if (args[0])
+            if (args[0].includes('%c')) {
+                log(...args);
+                return;
+            }
+    } catch (e) { }
+    log(new Date().toLocaleTimeString(), ...args);
+};
 (async () => {
     await loadScript('extensions/_CONFIG.js');
-    extensionMgrLog('扩展列表:', EXTENSION_FILES.join(', '))
+    extensionMgrLog('扩展列表:', EXTENSION_FILES.join(', '));
     await loadScript('theme/_CONFIG.js');
-    extensionMgrLog('主题列表:', THEME_FILES.join(', '))
+    extensionMgrLog('主题列表:', THEME_FILES.join(', '));
     await loadScript('workspace-scripts/storage.js');
     await loadScript('workspace-scripts/utils.js');
     loadScript('workspace.bundle.79d6432e01ccdecb492a.js');

@@ -23,9 +23,67 @@ Extension.metaData = {
     // 开始定义你的自定义积木吧
     const templateBlocks = [
         {
-            type: "template_block",
-            message0: "这是模板里的一个自定义积木呀",
+            type: "template_3",
+            message0: "触发事件",
             args0: [],
+            ...Block.methodBlock
+        },
+        {
+            type: "template_4",
+            message0: "%1 %2 %3 %4 %5 %6 %7 %8 %9 %10",
+            args0: (function () {
+                let args = [];
+                for (let index = 0; index < 10; index++) {
+                    args.push({
+                        "type": "field_led_matrix",
+                        "name": "value",
+                        "custom": true,
+                        "value": "0101011111111110111000100"
+                    });
+                }
+                return args;
+            })(),
+            ...Block.methodBlock
+        },
+        {
+            type: "template_1",
+            message0: "电梯选层 %1",
+            args0: [{
+                "type": "field_number_advanced",
+                "custom": true,
+                "name": "NUM",
+                "value": 1,
+                "min": -10,
+                "max": 10,
+                "editor": "single_number"
+            }],
+            ...Block.methodBlock
+        },
+        {
+            type: "template_2",
+            message0: "%1",
+            args0: [{
+                "type": "field_image",
+                "src": "https://imgsa.baidu.com/forum/w%3D580/sign=4befe2e68c8ba61edfeec827713597cc/0aeeb3fb43166d22b590f1b8482309f79152d2c9.jpg",
+                "width": 100,
+                "height": 100,
+                "alt": "*"
+            }],
+            ...Block.methodBlock
+        },
+        {
+            type: "template_5",
+            message0: "%2 咕咕嘎...%1",
+            args0: [{
+                "type": "field_gesture",
+                "name": "gesture",
+                "custom": true
+            },{
+                "type": "field_piano",
+                "custom": true,
+                "name": "note",
+                "note": "C4"
+            }],
             ...Block.methodBlock
         }
     ].map((block) => { return { ...block, colour: "%{BKY_TEMPLATE_HUE}" }; });
@@ -37,7 +95,12 @@ Extension.metaData = {
     // 定义你的积木盒
     const templateXML = [
         Toolbox.title("模板 · Template"),
-        Toolbox.block("template_block"),
+        Toolbox.block("template_3"),
+        Toolbox.error("这到底是什么啊啊啊？！"),
+        Toolbox.block("template_1"),
+        Toolbox.block("template_2"),
+        Toolbox.block("template_4"),
+        Toolbox.block("template_5"),
         Toolbox.flyout_bottom(),
     ];
     // 为你的积木盒注册一个图标
