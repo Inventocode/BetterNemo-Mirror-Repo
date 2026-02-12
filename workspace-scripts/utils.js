@@ -510,7 +510,7 @@ async function showFullscreenTextInput(value = '') {
     const textField = document.getElementById('dialogTextField');
     const cancelBtn = document.getElementById('dialogCancelBtn');
     const confirmBtn = document.getElementById('dialogConfirmBtn');
-    textField.value = va;
+    textField.value = value;
     // 使用 AbortController 管理一次性监听器，避免冲突
     const controller = new AbortController();
     const { signal } = controller;
