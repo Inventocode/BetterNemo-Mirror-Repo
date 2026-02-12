@@ -8,5 +8,6 @@ const EXTENSION_FILES = [
     "[天气]weather.js",
     "[AI对话]ottama.js",
     "[IP工具]IP Tool.js",
-    "[便捷FPS]fps.js"
+    "[便捷FPS]fps.js",
+    "[图像处理]image_tool.js",
 ]

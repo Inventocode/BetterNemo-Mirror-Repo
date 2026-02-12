@@ -13,6 +13,7 @@ hook.js
 fa.min.css
 desktop.ini
 
+extension-shop
 version/archive
 version/*.*
 version/assets/webview/extensions

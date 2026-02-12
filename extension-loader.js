@@ -36,7 +36,9 @@ hook("./src/webview/bridge/messages.ts", "HookBridgeMsg");
 hook("./node_modules/@crc/heart/build/opti/compiler.js", "HookOptiCompiler");
 hook("./node_modules/@crc/stage/build/core/physics/actor_body.js", "HookActorBody");
 hook("./node_modules/dsbridge/index.js", "HookDsbridge");
-
+function isPhoneTestEnv() {
+    return !navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99";
+}
 function getExtensionPath(name) {
     if (!navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99")
         return `http://192.168.1.11:8080/extensions/${name}`;
@@ -85,7 +87,7 @@ function get_run_mgr() {
 let extensionMetaData = {};
 let themeMetaData = {};
 function loadScript(src) {
-    if (!navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99")
+    if (isPhoneTestEnv())
         src = `http://192.168.1.11:8080/${src}`;
     return new Promise((resolve, reject) => {
         const script = document.createElement('script');
@@ -96,7 +98,7 @@ function loadScript(src) {
     });
 }
 function loadStyle(src) {
-    if (!navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99")
+    if (isPhoneTestEnv())
         src = `http://192.168.1.11:8080/${src}`;
     return new Promise((resolve, reject) => {
         const style = document.createElement('link');
@@ -126,7 +128,7 @@ setInterval(() => {
                         JSON.stringify(data)
                     ]);
                 }
-            console.log('[Nemo -> Webview]', ...args);
+            if (isPhoneTestEnv()) console.log('[Nemo -> Webview]', ...args);
             return postMessage.apply(_dsf, args);
         };
         const postMessageAsyn = _dsaf.postMessageAsyn;

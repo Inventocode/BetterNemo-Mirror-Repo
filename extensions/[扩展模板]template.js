@@ -8,7 +8,12 @@ Extension.metaData = {
     docs: ""
 };
 
-
+(async ()=>{
+    /** @type {BetterNemo} */
+    const BN = Extension.API;
+    const Brush = (await BN.getHook("Brush")).Brush;
+    console.log('已获取Brush原型：', Brush);
+})();
 (async () => {
     // 在这里定义了一些必要的API
     /** @type {BetterNemo} */

@@ -74,8 +74,9 @@ const waitGetGlobal = async (name) => {
  * @param {string} icon 图标symbol的id
  * @param {string} color 颜色
  * @param {string[]} blocks 积木XML文本列表
+ * @param {boolean} selectedColor 选中时颜色，默认为白
  */
-function regToolbox(name, icon, color, blocks) {
+function regToolbox(name, icon, color, blocks, selectedColor='white') {
     function addStyle(style) {
         const styleElement = document.getElementById('toolbox-style');
         if (!styleElement) {
@@ -94,7 +95,7 @@ function regToolbox(name, icon, color, blocks) {
     setTimeout(() => {
         const toolbox = Blockly.mainWorkspace.get_toolbox();
         toolbox.add(toolbox.new_node(toolboxObject));
-        addStyle(`#toolbox-${name}.blocklyTreeSelected>div>svg { fill: white;}#toolbox-${name}{box-shadow: 4px 0px 0px ${color}}`);
+        addStyle(`#toolbox-${name}.blocklyTreeSelected>div>svg { fill: ${selectedColor};}#toolbox-${name}{box-shadow: 4px 0px 0px ${color}}`);
     }, 1000);
 }
 const str2xml = function (str) {
@@ -375,6 +376,12 @@ const BetterNemo = {
             const blockJSON = window['blockObjects'].find((block) => block.type === type);
             if (blockJSON) {
                 if (!blockJSON.args0) return [BetterNemo.Toolbox.error(type + "缺少args0属性"), `<block type="${type}">${values.join("")}</block>`];
+                for (let i = 1; i <= blockJSON.args0.length; i++)
+                    if (!blockJSON.message0.includes(`%${i}`)) {
+                        const msg = `${type}的message0缺少%${i}`;
+                        console.error(msg);
+                        return BetterNemo.Toolbox.error(msg);
+                    }
                 blockJSON.args0.forEach((arg) => {
                     if (arg.value !== undefined) {
                         switch (arg.type) {
@@ -453,85 +460,81 @@ const BetterNemo = {
         BetterNemo.log('扩展管理', '扩展', fileName, '加载完成');
     });
 })();
+window['Theme'] = {
+    metaData: {}
+};
+THEME_FILES.forEach(async fileName => {
+    if (!storage.get('theme_config')) storage.set('theme_config', {});
+    const config = storage.get('theme_config');
+    if (config[fileName] == undefined) {
+        if (fileName == 'default') {
+            config[fileName] = true;
+        } else {
+            config[fileName] = false;
+        };
+        storage.set('theme_config', config);
+    }
+    Theme.metaData = {
+        name: "未命名",
+        version: "",
+        description: "",
+        author: "未知",
+        docs: ""
+    };
+    await loadScript('theme/' + fileName + '/on_disable.js');
+    themeMetaData[fileName] = Theme.metaData;
+    BetterNemo.log('主题管理', '主题', fileName, '加载完成');
+    if (config[fileName]) {
+        BetterNemo.log('主题管理', '主题', fileName, '已启用');
+        await loadStyle('theme/' + fileName + '/style.css');
+    };
+});
 async function reloadTheme() {
     document.querySelectorAll('.bn-theme').forEach(el => el.remove());
-    window['Theme'] = {
-        metaData: {}
-    };
     THEME_FILES.forEach(async fileName => {
-        if (!storage.get('theme_config')) storage.set('theme_config', {});
         const config = storage.get('theme_config');
-        if (config[fileName] == undefined) {
-            if (fileName == 'default') {
-                config[fileName] = true;
-            } else {
-                config[fileName] = false;
-            };
-            storage.set('theme_config', config);
-        }
-        Theme.metaData = {
-            name: "未命名",
-            version: "",
-            description: "",
-            author: "未知",
-            docs: ""
-        };
-        await loadScript('theme/' + fileName + '/' + fileName + '.js');
-        themeMetaData[fileName] = Theme.metaData;
-        BetterNemo.log('主题管理', '主题', fileName, '加载完成');
+        await loadScript('theme/' + fileName + '/on_disable.js');
         if (config[fileName]) {
             BetterNemo.log('主题管理', '主题', fileName, '已启用');
-            await loadStyle('theme/' + fileName + '/' + fileName + '.css');
+            await loadStyle('theme/' + fileName + '/style.css');
+            await loadScript('theme/' + fileName + '/on_enable.js');
         };
     });
 }
-reloadTheme();
 /**
  * 打开预定义的 mdui 全屏对话框，等待用户输入
  * @returns {Promise<string|null>} 确认返回字符串，取消/关闭返回 null
  */
 async function showFullscreenTextInput(value = '') {
-  const dialog = document.getElementById('fullscreenTextDialog');
-  const textField = document.getElementById('dialogTextField');
-  const cancelBtn = document.getElementById('dialogCancelBtn');
-  const confirmBtn = document.getElementById('dialogConfirmBtn');
+    const dialog = document.getElementById('fullscreenTextDialog');
+    const textField = document.getElementById('dialogTextField');
+    const cancelBtn = document.getElementById('dialogCancelBtn');
+    const confirmBtn = document.getElementById('dialogConfirmBtn');
+    textField.value = va;
+    // 使用 AbortController 管理一次性监听器，避免冲突
+    const controller = new AbortController();
+    const { signal } = controller;
 
-  // 清空上次输入
-  textField.value = value;
-
-  // 使用 AbortController 管理一次性监听器，避免冲突
-  const controller = new AbortController();
-  const { signal } = controller;
-
-  return new Promise((resolve) => {
-    // 确认按钮
-    confirmBtn.addEventListener('click', () => {
-      const value = textField.value;
-      cleanup();
-      resolve(value);
-    }, { signal });
-
-    // 取消按钮
-    cancelBtn.addEventListener('click', () => {
-      cleanup();
-      resolve(null);
-    }, { signal });
-
-    // 对话框关闭事件（ESC 或外部调用 close）
-    dialog.addEventListener('closed', () => {
-      cleanup();
-      resolve(null);
-    }, { signal, once: true }); // once 确保只触发一次
-
-    // 打开对话框
-    dialog.open = true;
-
-    // 清理函数：关闭对话框并终止所有监听
-    const cleanup = () => {
-      dialog.open = false;
-      controller.abort(); // 移除所有通过 signal 添加的监听器
-    };
-  });
+    return new Promise((resolve) => {
+        // 确认按钮
+        confirmBtn.addEventListener('click', () => {
+            const value = textField.value;
+            cleanup();
+            resolve(value);
+        }, { signal });
+        // 取消按钮
+        cancelBtn.addEventListener('click', () => {
+            cleanup();
+            resolve(null);
+        }, { signal });
+        // 打开对话框
+        dialog.open = true;
+        // 清理函数：关闭对话框并终止所有监听
+        const cleanup = () => {
+            dialog.open = false;
+            controller.abort(); // 移除所有通过 signal 添加的监听器
+        };
+    });
 }
 (async () => {
     const dsbridge = await waitHook('Dsbridge');
@@ -542,16 +545,25 @@ async function showFullscreenTextInput(value = '') {
                 const data = JSON.parse(args[1]);
                 const payload = data.payload;
                 if (data.type === 'EDIT_TEXT') {
-                    console.log('[文本编辑]', payload);
+                    console.log('[原生劫持 - 文本编辑]', payload);
                     (async () => {
                         const text = await showFullscreenTextInput(payload.text);
                         if (text !== null) args[2](text);
                     })();
                     return;
                 }
+                if (data.type === 'SELECT_EXTENSIONS_CATEGORIES') {
+                    console.log('[原生劫持 - 扩展选择]', payload);
+                    (async () => {
+                        const selected_categories = payload.selected_categories;
+                        if (!selected_categories.includes('microbit'))
+                            args[2]('["microbit"]');
+                    })();
+                    return;
+                }
             } catch (e) { console.error(e); }
         const result = call.apply(dsbridge, args);
-        console.log('[Webview -> Nemo] args:', ...args, 'result:', result);
+        if (isPhoneTestEnv()) console.log('[Webview -> Nemo] args:', ...args, 'result:', result);
         return result;
     };
 })();

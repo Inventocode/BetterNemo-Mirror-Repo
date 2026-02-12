@@ -111,8 +111,9 @@ interface BetterNemo {
      * @param {string} icon 图标symbol的id
      * @param {string} color 颜色
      * @param {string[]} blocks 积木XML文本列表
+     * @param {boolean} selectedColor 选中时颜色，默认为白
      */
-    addToolbox: (name: string, icon: string, color: string, blocks: string[]) => void;
+    addToolbox: (name: string, icon: string, color: string, blocks: string[], selectedColor?: string) => void;
     /**
      * 注册图标symbol，id建议使用icon-XXX格式命名
      * @param {string} svg svg字符串

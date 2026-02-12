@@ -1,12 +1,12 @@
 
 // -----------------悬浮球-面板---------------
+const presetBackgroundImage = 'http://youke.xn--y7xa690gmna.cn/s1/2026/01/25/697632d161f0a.webp';
+const presetBackgroundColor = "#221D4E";
 (function float_ball() {
     const floatBall = document.getElementById('floatBall');
     const floatWindow = document.getElementById('floatWindow');
     const closeBtn = document.getElementById('closeBtn');
     let windowContent = document.querySelector("#floatWindow > div.window-content");
-    const presetBackgroundImage = 'http://youke.xn--y7xa690gmna.cn/s1/2026/01/25/697632d161f0a.webp';
-    const presetBackgroundColor = "#221D4E";
     let backgroundImage = storage.get('backgroundImage') || presetBackgroundImage;
     let backgroundColor = storage.get('backgroundColor') || "#221D4E";
     setInterval(() => {
@@ -121,10 +121,10 @@
 
             windowContent.appendChild(menuItem);
         },
-        reset_icon: `<img src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgc3R5bGU9Ii1tcy10cmFuc2Zvcm06cm90YXRlKDM2MGRlZyk7LXdlY2tpdC10cmFuc2Zvcm06cm90YXRlKDM2MGRlZyk7dHJhbnNmb3JtOnJvdGF0ZSgzNjBkZWcpIj48cGF0aCBkPSJNMyAxMWExIDEgMCAwIDEgMSAxIDguMDUgOC4wNSAwIDEgMCAyLjIyLTUuNWgyLjRhMSAxIDAgMCAxIDAgMkg0LjA5YTEgMSAwIDAgMS0xLTFWM2ExIDEgMCAwIDEgMiAwdjEuNzdBMTAgaTEwIDAgMCAxIDEgMTJhMSAxIDAgMCAxIDEteiIgZmlsbD0iI2ZmZiIvPjxwYXRoIGZpbGw9InJnYmEoMCwgMCwgMCwgMCkiIGQ9Ik0wIDBoMjR2MjRIMHoiLz48L3N2Zz4=" draggable="false" width="20" height="20">`,
-        numberInput: (callback, name = '数字', value = 0, defualtValue = 0, width = '100px') => {
+        reset_icon: `<img src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgc3R5bGU9Ii1tcy10cmFuc2Zvcm06cm90YXRlKDM2MGRlZyk7LXdlYmtpdC10cmFuc2Zvcm06cm90YXRlKDM2MGRlZyk7dHJhbnNmb3JtOnJvdGF0ZSgzNjBkZWcpIj48cGF0aCBkPSJNMyAxMWExIDEgMCAwIDEgMSAxIDguMDUgOC4wNSAwIDEgMCAyLjIyLTUuNWgyLjRhMSAxIDAgMCAxIDAgMkg0LjA5YTEgMSAwIDAgMS0xLTFWM2ExIDEgMCAwIDEgMiAwdjEuNzdBMTAgMTAgMCAxIDEgMiAxMmExIDEgMCAwIDEgMS0xeiIgZmlsbD0iI2ZmZiIvPjxwYXRoIGZpbGw9InJnYmEoMCwgMCwgMCwgMCkiIGQ9Ik0wIDBoMjR2MjRIMHoiLz48L3N2Zz4=" draggable="false" width="20" height="20">`,
+        numberInput: (callback, name = '数字', value = 0, defaultValue = 0, width = '100px') => {
             const menuItem = document.createElement('li');
-            menuItem.innerHTML = `<label style="margin-right: 10px">${name}</label><input style="width:${width}" type="number" value="${value}""><button>${UI.reset_icon}</button>`;
+            menuItem.innerHTML = `<label style="margin-right: 10px">${name}</label><input style="width:${width}" type="number" value="${value}"><button>${UI.reset_icon}</button>`;
             menuItem.className = 'bn-menu-input';
             menuItem.querySelector('input').onchange = (e) => {
                 callback(Number(e.target.value));
@@ -132,13 +132,13 @@
             menuItem.querySelector('button').onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                menuItem.querySelector('input').value = defualtValue;
-                callback(defualtValue);
+                menuItem.querySelector('input').value = defaultValue;
+                callback(defaultValue);
             };
             windowContent.appendChild(menuItem);
         },
-        textInput: (callback, name = '文本', value = '', defualtValue = [''], width = '100px') => {
-            if (!Array.isArray(defualtValue)) defualtValue = [defualtValue];
+        textInput: (callback, name = '文本', value = '', defaultValue = [''], width = '100px') => {
+            if (!Array.isArray(defaultValue)) defaultValue = [defaultValue];
             const menuItem = document.createElement('li');
             menuItem.innerHTML = `<label style="margin-right: 10px">${name}</label><input style="width:${width}" type="text" value="${value}""><button>${UI.reset_icon}</button>`;
             menuItem.className = 'bn-menu-input';
@@ -150,7 +150,7 @@
                 const reset_counter = Number(resetButton.getAttribute('reset_counter')) || 0;
                 e.preventDefault();
                 e.stopPropagation();
-                const value = defualtValue[reset_counter % defualtValue.length];
+                const value = defaultValue[reset_counter % defaultValue.length];
                 menuItem.querySelector('input').value = value;
                 callback(value);
                 resetButton.setAttribute('reset_counter', reset_counter + 1);
@@ -158,11 +158,11 @@
             windowContent.appendChild(menuItem);
         },
         selectInput: (callback, name = '选择', options = [['选项1', '1'], ['选项2', '2']],
-            value = '', defualtValue = '', width = '100px') => {
+            value = '', defaultValue = '', width = '100px') => {
             const valueOption = options.find(option => option[1] == value);
             const menuItem = document.createElement('li');
             menuItem.innerHTML = `<label style="margin-right: 10px">${name}</label>
-            <select value=${value} style="width:${width}">${options.map(
+            <select value="${value}" style="width:${width}">${options.map(
                 option => `<option value="${option[1]}"${option == valueOption ? ' selected' : ''}>${option[0]}</option>`
             ).join('')}
             </select><button>${UI.reset_icon}</button>`;
@@ -173,8 +173,8 @@
             menuItem.querySelector('button').onclick = (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                menuItem.querySelector('select').value = defualtValue;
-                callback(defualtValue);
+                menuItem.querySelector('select').value = defaultValue;
+                callback(defaultValue);
             };
             windowContent.appendChild(menuItem);
         },
@@ -422,7 +422,6 @@
             THEME_FILES.forEach(async name => {
                 let menuName = name;
                 const metaData = themeMetaData[name];
-                console.log(themeMetaData);
                 if (metaData.name) menuName = metaData.name;
                 if (name.includes(''))
                     if (config[name] == true) {
