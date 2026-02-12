@@ -299,6 +299,8 @@ function regBlocks(blocks) {
                 output: "String",
             };
         }
+        // 防止有人漏写了
+        if (!block.args0) block.args0 = [];
         // 注册积木
         Blockly.Blocks[block.type] = {
             init: function () {
@@ -372,6 +374,7 @@ const BetterNemo = {
         block: (type, ...values) => {
             const blockJSON = window['blockObjects'].find((block) => block.type === type);
             if (blockJSON) {
+                if (!blockJSON.args0) return [BetterNemo.Toolbox.error(type + "缺少args0属性"), `<block type="${type}">${values.join("")}</block>`];
                 blockJSON.args0.forEach((arg) => {
                     if (arg.value !== undefined) {
                         switch (arg.type) {
@@ -387,9 +390,9 @@ const BetterNemo = {
                             case "field_dropdown":
                                 values.push(BetterNemo.Toolbox.optionValue(arg.name, arg.value));
                                 break;
-                            default: console.warn("未知类型参数", arg.type, blockJSON, arg);
+                            // default: console.warn("未知类型参数", arg.type, blockJSON, arg);
                         }
-                    } else console.warn("无默认值", blockJSON, arg);
+                    } // else console.warn("无默认值", blockJSON, arg);
                 });
                 return `<block type="${type}">${values.join("")}</block>`;
             } else if (Blockly.Blocks[type]) {
@@ -483,10 +486,106 @@ async function reloadTheme() {
     });
 }
 reloadTheme();
+/**
+ * 弹出多行文本输入对话框
+ * @returns {Promise<string|null>} 确认时返回输入字符串，取消/关闭时返回 null
+ */
+async function showFullscreenTextInput(value = '') {
+  return new Promise((resolve) => {
+    // 1. 创建自定义元素
+    const dialog = document.createElement('mdui-dialog');
+    dialog.setAttribute('fullscreen', '');
+    dialog.setAttribute('close-on-overlay-click', 'false');
+    dialog.classList.add('mdui-theme-dark');
+    // 2. 构建对话框内容（使用 mdui 组件）
+    dialog.innerHTML = `
+      <div style="display: flex; flex-direction: column; height: 100%;">
+        <div style="padding: 1.5rem; overflow: auto;height: 80vh;}">
+          <mdui-text-field
+            id="fullscreen-textarea"
+            rows="8"
+            label="请输入内容"
+            placeholder="在此输入..."
+            style="width: 100%;height: 100%;"
+          ></mdui-text-field>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; padding: 1.5rem; border-top: 1px solid var(--mdui-color-outline-variant);">
+          <mdui-button id="cancelBtn" variant="text">取消</mdui-button>
+          <mdui-button id="confirmBtn" variant="raised">确认</mdui-button>
+        </div>
+      </div>
+    `;
+    dialog.style.zIndex = 999999999999;
+
+    // 3. 挂载到 body
+    document.body.appendChild(dialog);
+
+    // 4. 获取内部组件引用
+    const textField = dialog.querySelector('mdui-text-field');
+    textField.value = value;
+    const cancelBtn = dialog.querySelector('#cancelBtn');
+    const confirmBtn = dialog.querySelector('#confirmBtn');
+
+    // 5. 标记是否已 resolve，防止重复调用
+    let resolved = false;
+
+    // 清理函数：关闭并移除对话框
+    const cleanup = () => {
+      dialog.open = false;            // 关闭
+      // 监听一次 closed 事件，确保移除 DOM
+      dialog.addEventListener('closed', () => {
+        if (dialog.parentNode) dialog.remove();
+      }, { once: true });
+    };
+
+    // 6. 确认按钮：获取输入并 resolve
+    confirmBtn.addEventListener('click', () => {
+      if (resolved) return;
+      resolved = true;
+      const value = textField.value;  // 通过 .value 属性获取输入
+      cleanup();
+      resolve(value);
+    });
+
+    // 7. 取消按钮：resolve null
+    cancelBtn.addEventListener('click', () => {
+      if (resolved) return;
+      resolved = true;
+      cleanup();
+      resolve(null);
+    });
+
+    // 8. 其他关闭方式（ESC 等）：resolve null
+    dialog.addEventListener('closed', () => {
+      if (resolved) return;
+      resolved = true;
+      resolve(null);
+      // 移除 DOM 已在 cleanup 的 closed 监听中处理，此处不需要重复移除
+      // 但由于 cleanup 已经添加了移除监听，且已经触发 closed，无需额外操作
+      // 这里仅做 resolve
+    }, { once: true });
+
+    // 9. 打开对话框
+    dialog.open = true;
+  });
+}
 (async () => {
     const dsbridge = await waitHook('Dsbridge');
     const call = dsbridge.call;
     dsbridge.call = (...args) => {
+        if (args.length === 3)
+            try {
+                const data = JSON.parse(args[1]);
+                const payload = data.payload;
+                if (data.type === 'EDIT_TEXT') {
+                    console.log('[文本编辑]', payload);
+                    (async () => {
+                        const text = await showFullscreenTextInput(payload.text);
+                        if (text !== null) args[2](text);
+                    })();
+                    return;
+                }
+            } catch (e) { console.error(e); }
         const result = call.apply(dsbridge, args);
         console.log('[Webview -> Nemo] args:', ...args, 'result:', result);
         return result;

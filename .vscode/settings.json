@@ -202,5 +202,6 @@
         "fefcb1f6a2bddd63d9bf9932a43783bc.mp3": true,
         "helps.bundle.e4d0903f2dd8ee370199.js": true,
         "helps.bundle.e4d0903f2dd8ee370199.js.map": true
-    }
+    },
+    "commentTranslate.hover.enabled": false
 }

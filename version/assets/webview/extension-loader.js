@@ -38,7 +38,7 @@ hook("./node_modules/@crc/stage/build/core/physics/actor_body.js", "HookActorBod
 hook("./node_modules/dsbridge/index.js", "HookDsbridge");
 
 function getExtensionPath(name) {
-    if (navigator.userAgent !== '__TEST_ENV__' && BetterNemoVersion === "999999.99")
+    if (!navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99")
         return `http://192.168.1.11:8080/extensions/${name}`;
     return `./extensions/${name}`;
 }
@@ -85,7 +85,7 @@ function get_run_mgr() {
 let extensionMetaData = {};
 let themeMetaData = {};
 function loadScript(src) {
-    if (navigator.userAgent !== '__TEST_ENV__' && BetterNemoVersion === "999999.99")
+    if (!navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99")
         src = `http://192.168.1.11:8080/${src}`;
     return new Promise((resolve, reject) => {
         const script = document.createElement('script');
@@ -96,7 +96,7 @@ function loadScript(src) {
     });
 }
 function loadStyle(src) {
-    if (navigator.userAgent !== '__TEST_ENV__' && BetterNemoVersion === "999999.99")
+    if (!navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99")
         src = `http://127.0.0.1:8080/${src}`;
     return new Promise((resolve, reject) => {
         const style = document.createElement('link');
