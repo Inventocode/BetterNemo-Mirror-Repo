@@ -97,7 +97,7 @@ function loadScript(src) {
 }
 function loadStyle(src) {
     if (!navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99")
-        src = `http://127.0.0.1:8080/${src}`;
+        src = `http://192.168.1.11:8080/${src}`;
     return new Promise((resolve, reject) => {
         const style = document.createElement('link');
         style.rel = 'stylesheet';

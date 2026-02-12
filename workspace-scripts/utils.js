@@ -487,86 +487,50 @@ async function reloadTheme() {
 }
 reloadTheme();
 /**
- * 弹出多行文本输入对话框
- * @returns {Promise<string|null>} 确认时返回输入字符串，取消/关闭时返回 null
+ * 打开预定义的 mdui 全屏对话框，等待用户输入
+ * @returns {Promise<string|null>} 确认返回字符串，取消/关闭返回 null
  */
 async function showFullscreenTextInput(value = '') {
+  const dialog = document.getElementById('fullscreenTextDialog');
+  const textField = document.getElementById('dialogTextField');
+  const cancelBtn = document.getElementById('dialogCancelBtn');
+  const confirmBtn = document.getElementById('dialogConfirmBtn');
+
+  // 清空上次输入
+  textField.value = value;
+
+  // 使用 AbortController 管理一次性监听器，避免冲突
+  const controller = new AbortController();
+  const { signal } = controller;
+
   return new Promise((resolve) => {
-    // 1. 创建自定义元素
-    const dialog = document.createElement('mdui-dialog');
-    dialog.setAttribute('fullscreen', '');
-    dialog.setAttribute('close-on-overlay-click', 'false');
-    dialog.classList.add('mdui-theme-dark');
-    // 2. 构建对话框内容（使用 mdui 组件）
-    dialog.innerHTML = `
-      <div style="display: flex; flex-direction: column; height: 100%;">
-        <div style="padding: 1.5rem; overflow: auto;height: 80vh;}">
-          <mdui-text-field
-            id="fullscreen-textarea"
-            rows="8"
-            label="请输入内容"
-            placeholder="在此输入..."
-            style="width: 100%;height: 100%;"
-          ></mdui-text-field>
-        </div>
-        <div style="display: flex; justify-content: flex-end; gap: 0.5rem; padding: 1.5rem; border-top: 1px solid var(--mdui-color-outline-variant);">
-          <mdui-button id="cancelBtn" variant="text">取消</mdui-button>
-          <mdui-button id="confirmBtn" variant="raised">确认</mdui-button>
-        </div>
-      </div>
-    `;
-    dialog.style.zIndex = 999999999999;
-
-    // 3. 挂载到 body
-    document.body.appendChild(dialog);
-
-    // 4. 获取内部组件引用
-    const textField = dialog.querySelector('mdui-text-field');
-    textField.value = value;
-    const cancelBtn = dialog.querySelector('#cancelBtn');
-    const confirmBtn = dialog.querySelector('#confirmBtn');
-
-    // 5. 标记是否已 resolve，防止重复调用
-    let resolved = false;
-
-    // 清理函数：关闭并移除对话框
-    const cleanup = () => {
-      dialog.open = false;            // 关闭
-      // 监听一次 closed 事件，确保移除 DOM
-      dialog.addEventListener('closed', () => {
-        if (dialog.parentNode) dialog.remove();
-      }, { once: true });
-    };
-
-    // 6. 确认按钮：获取输入并 resolve
+    // 确认按钮
     confirmBtn.addEventListener('click', () => {
-      if (resolved) return;
-      resolved = true;
-      const value = textField.value;  // 通过 .value 属性获取输入
+      const value = textField.value;
       cleanup();
       resolve(value);
-    });
+    }, { signal });
 
-    // 7. 取消按钮：resolve null
+    // 取消按钮
     cancelBtn.addEventListener('click', () => {
-      if (resolved) return;
-      resolved = true;
       cleanup();
       resolve(null);
-    });
+    }, { signal });
 
-    // 8. 其他关闭方式（ESC 等）：resolve null
+    // 对话框关闭事件（ESC 或外部调用 close）
     dialog.addEventListener('closed', () => {
-      if (resolved) return;
-      resolved = true;
+      cleanup();
       resolve(null);
-      // 移除 DOM 已在 cleanup 的 closed 监听中处理，此处不需要重复移除
-      // 但由于 cleanup 已经添加了移除监听，且已经触发 closed，无需额外操作
-      // 这里仅做 resolve
-    }, { once: true });
+    }, { signal, once: true }); // once 确保只触发一次
 
-    // 9. 打开对话框
+    // 打开对话框
     dialog.open = true;
+
+    // 清理函数：关闭对话框并终止所有监听
+    const cleanup = () => {
+      dialog.open = false;
+      controller.abort(); // 移除所有通过 signal 添加的监听器
+    };
   });
 }
 (async () => {

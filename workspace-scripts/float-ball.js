@@ -5,12 +5,13 @@
     const floatWindow = document.getElementById('floatWindow');
     const closeBtn = document.getElementById('closeBtn');
     let windowContent = document.querySelector("#floatWindow > div.window-content");
-    const presetBackgroundImage = [
-        'http://youke.xn--y7xa690gmna.cn/s1/2026/01/22/6972260195516.webp',
-        'http://youke.xn--y7xa690gmna.cn/s1/2026/01/25/697632d161f0a.webp'
-    ];
-    let backgroundImage = storage.get('backgroundImage') || presetBackgroundImage[1];
+    const presetBackgroundImage = 'http://youke.xn--y7xa690gmna.cn/s1/2026/01/25/697632d161f0a.webp';
+    const presetBackgroundColor = "#221D4E";
+    let backgroundImage = storage.get('backgroundImage') || presetBackgroundImage;
+    let backgroundColor = storage.get('backgroundColor') || "#221D4E";
     setInterval(() => {
+        backgroundImage = storage.get('backgroundImage') || presetBackgroundImage;
+        backgroundColor = storage.get('backgroundColor') || "#221D4E";
         const treeNodeWithExtensions = Array.from(document.querySelectorAll("div.blocklyTreeNode")).find(node => node.querySelector('#extensions'));
         if (treeNodeWithExtensions) {
             document.querySelector("div.blocklyToolboxDiv").appendChild(treeNodeWithExtensions);
@@ -21,9 +22,7 @@
             injectionDiv.style.backgroundImage = `url("${backgroundImage}")`;
             injectionDiv.style.backgroundSize = 'contain';
             injectionDiv.style.backgroundRepeat = 'no-repeat';
-            if (backgroundImage == presetBackgroundImage[0]) {
-                injectionDiv.style.setProperty("background-color", "#201F52", "important");
-            } else injectionDiv.style.setProperty("background-color", "#221D4E", "important");
+            injectionDiv.style.setProperty("background-color", backgroundColor, "important");
         }
         const flyout = document.querySelector("#workspace > div > svg.blocklyFlyout");
         if (flyout) {
@@ -119,7 +118,7 @@
                 }
                 touchStartTime = 0;
             };
-            
+
             windowContent.appendChild(menuItem);
         },
         reset_icon: `<img src="data:image/svg+xml;charset=utf-8;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgc3R5bGU9Ii1tcy10cmFuc2Zvcm06cm90YXRlKDM2MGRlZyk7LXdlY2tpdC10cmFuc2Zvcm06cm90YXRlKDM2MGRlZyk7dHJhbnNmb3JtOnJvdGF0ZSgzNjBkZWcpIj48cGF0aCBkPSJNMyAxMWExIDEgMCAwIDEgMSAxIDguMDUgOC4wNSAwIDEgMCAyLjIyLTUuNWgyLjRhMSAxIDAgMCAxIDAgMkg0LjA5YTEgMSAwIDAgMS0xLTFWM2ExIDEgMCAwIDEgMiAwdjEuNzdBMTAgaTEwIDAgMCAxIDEgMTJhMSAxIDAgMCAxIDEteiIgZmlsbD0iI2ZmZiIvPjxwYXRoIGZpbGw9InJnYmEoMCwgMCwgMCwgMCkiIGQ9Ik0wIDBoMjR2MjRIMHoiLz48L3N2Zz4=" draggable="false" width="20" height="20">`,
@@ -198,20 +197,38 @@
         editorConfig: () => {
             UI.setTitle('编辑器设置');
             UI.setStatus('此配置跟随Webview存储');
-            UI.textInput((value) => {
-                storage.set('backgroundImage', value);
-                backgroundImage = value;
-            }, '背景', backgroundImage, presetBackgroundImage, '130px');
+            UI.selectInput(
+                (value) => {
+                    storage.set('background', value);
+                    switch (value) {
+                        case 'preset1':
+                            storage.set('backgroundImage', presetBackgroundImage);
+                            storage.set('backgroundColor', presetBackgroundColor);
+                            break;
+                        default:
+                            storage.set('backgroundImage', backgroundImage);
+                            storage.set('backgroundColor', backgroundColor);
+                            break;
+                    }
+                    UI.load(Page.editorConfig);
+                },
+                '背景', [['BetterNemo', 'preset1'], ['自定义', 'custom']],
+                storage.get('background'), 'preset1', '80px'
+            );
+            if (storage.get('background') == 'custom') {
+                UI.textInput((value) => {
+                    storage.set('backgroundImage', value);
+                }, '背景图片', backgroundImage, presetBackgroundImage, '100px');
+                UI.textInput((value) => {
+                    storage.set('backgroundColor', value);
+                }, '背景颜色', backgroundColor, presetBackgroundColor, '100px');
+            }
             UI.button(() => {
                 storage.set('cat', !storage.get('cat'));
                 if (storage.get('cat')) enableCatBlock();
                 else disableCatBlock();
                 UI.load(Page.editorConfig);
             }, (storage.get('cat') ? '关闭' : '打开') + '猫块', 'save');
-            // UI.selectInput((value) => {
-            //     console.log(value);
-            // }, '主题', [['默认', 'default'], ['深色', 'dark']], 'dark', 'default');
-
         },
         runtimeConfig: () => {
             UI.setTitle('运行时设置');
