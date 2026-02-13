@@ -174,3 +174,4 @@ console.log = function (...args) {
     await loadScript('workspace-scripts/cat-block.js');
     await loadScript('workspace-scripts/float-ball.js');
 })();
+function getBrowserVersion() { return parseInt((new UAParser()).getResult().browser.version); }

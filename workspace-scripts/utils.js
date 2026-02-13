@@ -542,8 +542,6 @@ function showMsg(msg) {
     snackbar.open = true;
 }
 async function showExtensionShop(disable = []) {
-    showMsg('WOW test<ggg>');
-
     const dialog = document.querySelector(".extension-shop");
     const cards = document.querySelector(".extension-shop-cards");
     const closeButton = dialog.querySelector(".extension-shop-close-btn");
@@ -633,19 +631,28 @@ async function showExtensionShop(disable = []) {
                 const payload = data.payload;
                 if (data.type === 'EDIT_TEXT') {
                     console.log('[原生劫持 - 文本编辑]', payload);
-                    (async () => {
-                        const text = await showFullscreenTextInput(payload.text);
-                        if (text !== null) args[2](text);
-                    })();
-                    return;
+                    if (getBrowserVersion() > 86) {
+                        (async () => {
+                            const text = await showFullscreenTextInput(payload.text);
+                            if (text !== null) args[2](text);
+                        })();
+                        return;
+                    }
+                    // else args[2](prompt('请输入文本'));
+                    else return call.apply(dsbridge, args);
                 }
                 if (data.type === 'SELECT_EXTENSIONS_CATEGORIES') {
                     console.log('[原生劫持 - 扩展选择]', payload);
-                    (async () => {
-                        const selected_categories = payload.selected_categories;
-                        const selected_extensions = await showExtensionShop(selected_categories);
-                        if (selected_extensions.includes('microbit')) args[2]('["microbit"]');
-                    })();
+                    if (getBrowserVersion() < 86) {
+                        alert("这个还没兼容，所以我只能帮你加一个microbit了");
+                        args[2]('["microbit"]');
+                    } else
+                        (async () => {
+                            const selected_categories = payload.selected_categories;
+                            const selected_extensions = await showExtensionShop(selected_categories);
+                            console.log(selected_extensions);
+                            if (selected_extensions.includes('microbit')) args[2]('["microbit"]');
+                        })();
                     return;
                 }
             } catch (e) { console.error(e); }

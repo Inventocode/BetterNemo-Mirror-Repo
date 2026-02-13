@@ -3,7 +3,7 @@
 
 Extension.metaData = {
   name: "数组计算",
-  version: "1.0.0",
+  version: "1.0.1",
   description: "提供各种常见的数组计算，使用numjs库",
   author: "皌 & DeepSeek",
   docs: ""
@@ -19,9 +19,6 @@ Extension.metaData = {
   // --------------------------------积木-------------------------------
   // 这条语句会等待Blockly加载完毕，别动
   await BN.waitBlocklyLoaded();
-  // 这条语句会注册一个颜色
-  BN.regColor("LIST_OPS_HUE", "#f9a633", "#f9a633");
-
   // 数组转换函数
   function arrayToString(arr) {
     if (typeof arr === 'string') return arr;
@@ -85,7 +82,7 @@ Extension.metaData = {
           value: 1
         }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // nj.zeros
     {
@@ -98,7 +95,7 @@ Extension.metaData = {
         value: "(2, 3)"
       }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // nj.ones
     {
@@ -111,7 +108,7 @@ Extension.metaData = {
         value: "(2, 3)"
       }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // nj.eye (单位矩阵)
     {
@@ -125,7 +122,7 @@ Extension.metaData = {
         value: 3
       }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // nj.linspace
     {
@@ -153,7 +150,7 @@ Extension.metaData = {
           value: 10
         }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // nj.random.rand
     {
@@ -166,7 +163,7 @@ Extension.metaData = {
         value: "(2, 3)"
       }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
 
     // ========== 数组转换 ==========
@@ -181,7 +178,7 @@ Extension.metaData = {
         value: "[1, 2, 3]"
       }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 重塑形状
     {
@@ -200,7 +197,7 @@ Extension.metaData = {
           value: "(2, 3)"
         }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 展平数组
     {
@@ -213,7 +210,7 @@ Extension.metaData = {
         value: "[1, 2, 3, 4, 5]"
       }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 转置数组
     {
@@ -226,7 +223,7 @@ Extension.metaData = {
         value: "[1, 2, 3, 4, 5]"
       }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
 
     // ========== 数组运算 ==========
@@ -266,7 +263,7 @@ Extension.metaData = {
           value: "[1, 2, 3, 4, 5]"
         }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 数学函数
     {
@@ -299,7 +296,7 @@ Extension.metaData = {
           value: "[1, 2, 3, 4, 5]"
         }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 点积
     {
@@ -318,7 +315,7 @@ Extension.metaData = {
           value: "[1, 2, 3, 4, 5]"
         }],
       output: "Number",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
 
     // ========== 基本统计 ==========
@@ -352,7 +349,7 @@ Extension.metaData = {
           value: "[1, 2, 3, 4, 5]"
         }],
       output: "Number",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 沿轴统计
     {
@@ -389,7 +386,7 @@ Extension.metaData = {
           value: "[[1, 2], [3, 4]]"
         }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
 
     // ========== 数组操作 ==========
@@ -420,7 +417,7 @@ Extension.metaData = {
           ]
         }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 切片
     {
@@ -445,7 +442,7 @@ Extension.metaData = {
           value: "3"
         }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 条件筛选
     {
@@ -464,7 +461,7 @@ Extension.metaData = {
           value: "item > 0"
         }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 替换值
     {
@@ -490,7 +487,7 @@ Extension.metaData = {
           value: 1
         }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
 
     // ========== 线性代数 ==========
@@ -505,7 +502,7 @@ Extension.metaData = {
         value: "[[1, 2], [3, 4]]"
       }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 矩阵行列式
     {
@@ -518,7 +515,7 @@ Extension.metaData = {
         value: "[[1, 2], [3, 4]]"
       }],
       output: "Number",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 解方程
     {
@@ -537,7 +534,7 @@ Extension.metaData = {
           value: "[3, 3]"
         }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
 
     // ========== 实用工具 ==========
@@ -552,7 +549,7 @@ Extension.metaData = {
         value: "[1, 2, 3, 4, 5]"
       }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 获取大小
     {
@@ -565,7 +562,7 @@ Extension.metaData = {
         value: "[1, 2, 3, 4, 5]"
       }],
       output: "Number",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 数组转字符串
     {
@@ -578,7 +575,7 @@ Extension.metaData = {
         value: "[1, 2, 3, 4, 5]"
       }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 判断形状
     {
@@ -597,7 +594,7 @@ Extension.metaData = {
           value: "(2, 3)"
         }],
       output: "Boolean",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
 
     // ========== 高级功能 ==========
@@ -632,7 +629,7 @@ Extension.metaData = {
           value: "[1, 2, 3, 4, 5]"
         }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 卷积运算（简化版）
     {
@@ -651,7 +648,7 @@ Extension.metaData = {
           value: "[0.2, 0.6, 0.2]"
         }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 傅里叶变换
     {
@@ -664,7 +661,7 @@ Extension.metaData = {
         value: "[1, 2, 3, 4]"
       }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
 
     // ========== 排序和索引 ==========
@@ -689,7 +686,7 @@ Extension.metaData = {
           ]
         }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 获取索引
     {
@@ -708,7 +705,7 @@ Extension.metaData = {
           value: "0"
         }],
       output: "Number",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 查找位置
     {
@@ -728,7 +725,7 @@ Extension.metaData = {
           value: 0
         }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
 
     // ========== 游戏/动画相关 ==========
@@ -755,7 +752,7 @@ Extension.metaData = {
           value: 0.5
         }],
       output: "Number",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 颜色混合
     {
@@ -780,7 +777,7 @@ Extension.metaData = {
           value: 0.5
         }],
       output: "String",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     },
     // 距离计算
     {
@@ -799,7 +796,7 @@ Extension.metaData = {
           value: "[3, 4]"
         }],
       output: "Number",
-      colour: "%{LIST_OPS_HUE}"
+      colour: "%{LISTS_HUE}"
     }];
 
   // 等待积木对象加载完毕，别动

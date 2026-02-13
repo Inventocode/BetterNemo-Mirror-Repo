@@ -28,11 +28,12 @@
   <link rel="stylesheet" href="version/assets/webview/mdui.css" />
   <link rel="stylesheet" href="version/assets/webview/material-icons.css" />
   <script src="version/assets/webview/mdui.global.js"></script>
+  <script src="version/assets/webview/ua-parser.min.js"></script>
 </head>
 
 <body class="mdui-theme-dark">
-  <mdui-snackbar closeable style="z-index: 2147483647;"></mdui-snackbar>
-  <mdui-dialog fullscreen class="extension-shop" style="z-index: 2147483646;">
+  <mdui-snackbar closeable style="z-index: 2147483647;display: none;"></mdui-snackbar>
+  <mdui-dialog fullscreen class="extension-shop" style="z-index: 2147483646;display: none;">
     <mdui-circular-progress class="extension-shop-loading"
       style="position:absolute;top:calc(50% - 20px);left:calc(50% - 20px);" max="1"></mdui-circular-progress>
     <mdui-top-app-bar slot="header" style="padding:15px;position: absolute;left: 80px;" variant="small">

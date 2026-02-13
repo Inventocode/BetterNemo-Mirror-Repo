@@ -10,4 +10,5 @@ const EXTENSION_FILES = [
     "[IP工具]IP Tool.js",
     "[便捷FPS]fps.js",
     "[图像处理]image_tool.js",
+    "[代你学物理]robin.js"
 ]
