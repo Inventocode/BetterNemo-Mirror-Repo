@@ -26,12 +26,32 @@
       }, 100);
   </script>
   <link rel="stylesheet" href="version/assets/webview/mdui.css" />
+  <link rel="stylesheet" href="version/assets/webview/material-icons.css" />
   <script src="version/assets/webview/mdui.global.js"></script>
 </head>
 
 <body class="mdui-theme-dark">
+  <mdui-snackbar closeable style="z-index: 2147483647;"></mdui-snackbar>
+  <mdui-dialog fullscreen class="extension-shop" style="z-index: 2147483646;">
+    <mdui-circular-progress class="extension-shop-loading"
+      style="position:absolute;top:calc(50% - 20px);left:calc(50% - 20px);" max="1"></mdui-circular-progress>
+    <mdui-top-app-bar slot="header" style="padding:15px;position: absolute;left: 80px;" variant="small">
+      <mdui-button-icon icon="extension" type="button" variant="standard"></mdui-button-icon>
+      <mdui-top-app-bar-title>扩展商城</mdui-top-app-bar-title>
+      <mdui-button-icon icon="close" class="extension-shop-close-btn" type="button" variant="standard"></mdui-button-icon>
+    </mdui-top-app-bar>
+    <mdui-navigation-rail value="recent" style="position: absolute;top: 0;left: 0;" placement="left" alignment="start">
+      <mdui-navigation-rail-item icon="gpp_good" value="official">官方</mdui-navigation-rail-item>
+      <mdui-navigation-rail-item icon="library_books" value="bn">BN</mdui-navigation-rail-item>
+      <mdui-navigation-rail-item icon="insert_drive_file" value="local" active>本地</mdui-navigation-rail-item>
+      <mdui-navigation-rail-item icon="inbox" value="custom">内置</mdui-navigation-rail-item>
+    </mdui-navigation-rail>
+    <div class="extension-shop-cards" style="position:absolute;top:64px;left:100px;"></div>
+    <mdui-button class="extension-shop-ok-btn" style="position:absolute;bottom:25px;right:25px">完成</mdui-button>
+  </mdui-dialog>
   <!-- 全屏多行文本输入对话框 -->
-  <mdui-dialog id="fullscreenTextDialog" fullscreen close-on-esc close-on-overlay-click="false" style="display: none;z-index: 999999999999;">
+  <mdui-dialog id="fullscreenTextDialog" fullscreen close-on-overlay-click="false"
+    style="display: none;z-index: 2147483646;">
     <div style="display: flex; flex-direction: column; height: 100%;">
       <div style="padding: 1.5rem; overflow: auto;height: 90vh;">
         <mdui-text-field id="dialogTextField" rows="8" label="请输入内容"

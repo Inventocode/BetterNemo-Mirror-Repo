@@ -76,7 +76,7 @@ const waitGetGlobal = async (name) => {
  * @param {string[]} blocks 积木XML文本列表
  * @param {boolean} selectedColor 选中时颜色，默认为白
  */
-function regToolbox(name, icon, color, blocks, selectedColor='white') {
+function regToolbox(name, icon, color, blocks, selectedColor = 'white') {
     function addStyle(style) {
         const styleElement = document.getElementById('toolbox-style');
         if (!styleElement) {
@@ -510,7 +510,7 @@ async function showFullscreenTextInput(value = '') {
     const textField = document.getElementById('dialogTextField');
     const cancelBtn = document.getElementById('dialogCancelBtn');
     const confirmBtn = document.getElementById('dialogConfirmBtn');
-    textField.value = va;
+    textField.value = value;
     // 使用 AbortController 管理一次性监听器，避免冲突
     const controller = new AbortController();
     const { signal } = controller;
@@ -529,6 +529,93 @@ async function showFullscreenTextInput(value = '') {
         }, { signal });
         // 打开对话框
         dialog.open = true;
+        // 清理函数：关闭对话框并终止所有监听
+        const cleanup = () => {
+            dialog.open = false;
+            controller.abort(); // 移除所有通过 signal 添加的监听器
+        };
+    });
+}
+function showMsg(msg) {
+    const snackbar = document.querySelector("mdui-snackbar");
+    snackbar.textContent = msg;
+    snackbar.open = true;
+}
+async function showExtensionShop(disable = []) {
+    showMsg('WOW test<ggg>');
+
+    const dialog = document.querySelector(".extension-shop");
+    const cards = document.querySelector(".extension-shop-cards");
+    const closeButton = dialog.querySelector(".extension-shop-close-btn");
+    const okButton = dialog.querySelector(".extension-shop-ok-btn");
+    const nav = dialog.querySelector("mdui-navigation-rail");
+    const allCards = [
+        // official
+        { id: 'microbit', title: 'micro:bit', content: 'micro:bit是一款小型可编程计算机，包含丰富的功能', page: 'official' },
+        // custom
+        { id: 'gugu', title: '并非并非非并非并非', content: '意大利面一定要拌42号混凝土', page: 'custom' }
+    ];
+    function createCard(cardData, disable = false) {
+        const card = document.createElement('mdui-card');
+        card.classList.add('extension-shop-card-' + cardData.id);
+        card.setAttribute('data-page', cardData.page); // 添加页面标识
+        card.setAttribute('clickable', '');
+        if (disable) card.setAttribute('disabled', '');
+        else card.setAttribute('onclick', 'this.childNodes[2].click()');
+
+        card.setAttribute('style', 'width:230px;height:150px;padding:15px;margin:10px');
+        card.innerHTML = `<h3 style="margin:10px 0">${cardData.title}</h3>${cardData.content}<mdui-checkbox style="position:absolute;
+            bottom:5px;right:5px" onclick="this.click()" ${disable ? 'disabled checked' : ''}></mdui-checkbox>`;
+        return card;
+    }
+    function getCard(id) {
+        return document.querySelector('.extension-shop-card-' + id);
+    }
+    function initializeCards() {
+        cards.innerHTML = '';
+        allCards.forEach(cardData => {
+            const card = createCard(cardData, disable.includes(cardData.id));
+            cards.appendChild(card);
+        });
+    }
+    function showPageCards(page) {
+        const allCards = document.querySelectorAll('[class^="extension-shop-card-"]');
+        allCards.forEach(card => {
+            card.style.display = 'none';
+        });
+        const pageCards = document.querySelectorAll(`[data-page="${page}"]`);
+        pageCards.forEach(card => {
+            card.style.display = 'block';
+        });
+    }
+    // 使用 AbortController 管理一次性监听器，避免冲突
+    const controller = new AbortController();
+    const { signal } = controller;
+
+    return new Promise((resolve) => {
+        nav.addEventListener("change", () => showPageCards(nav.value), { signal });
+        closeButton.addEventListener("click", () => {
+            cleanup();
+            resolve(null);
+        }, { signal });
+        okButton.addEventListener("click", () => {
+            let data = [];
+            allCards.forEach(({ id }) => {
+                const card = getCard(id);
+                if (card && card.childNodes[2].checked) {
+                    data.push(id);
+                }
+            });
+            console.log(data);
+            cleanup();
+            resolve(data);
+        }, { signal });
+
+        // 初始化并打开对话框
+        initializeCards();
+        nav.querySelector('mdui-navigation-rail-item[value="custom"]').click();
+        dialog.open = true;
+
         // 清理函数：关闭对话框并终止所有监听
         const cleanup = () => {
             dialog.open = false;
@@ -556,8 +643,8 @@ async function showFullscreenTextInput(value = '') {
                     console.log('[原生劫持 - 扩展选择]', payload);
                     (async () => {
                         const selected_categories = payload.selected_categories;
-                        if (!selected_categories.includes('microbit'))
-                            args[2]('["microbit"]');
+                        const selected_extensions = await showExtensionShop(selected_categories);
+                        if (selected_extensions.includes('microbit')) args[2]('["microbit"]');
                     })();
                     return;
                 }
