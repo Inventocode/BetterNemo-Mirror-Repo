@@ -11,5 +11,6 @@ const EXTENSION_FILES = [
     "[便捷FPS]fps",
     "[图像处理]image_tool",
     "[代你学物理]robin",
-    "[正则表达式]regex"
+    "[正则表达式]regex",
+    "[条码大师]QRCodes",
 ]

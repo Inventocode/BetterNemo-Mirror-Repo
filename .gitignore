@@ -16,6 +16,7 @@ extension-shop
 version/archive
 version/*.*
 version/assets/webview/extensions
+version/assets/webview/theme
 version/assets/webview/workspace-scripts
 version/assets/webview/workspace.html
 version/assets/webview/extension-loader.js

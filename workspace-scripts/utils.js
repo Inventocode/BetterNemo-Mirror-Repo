@@ -475,7 +475,7 @@ function reloadExtension() {
             return args;
         };
         api.loadScript = async function (url) {
-            await loadScript('extensions/' + fileName+ '/' + url);
+            await loadScript('extensions/' + extensionMetaData.fileName+ '/' + url);
         };
         return api;
     }
