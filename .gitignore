@@ -10,7 +10,6 @@ helps.html
 version.json
 template.html
 hook.js
-fa.min.css
 desktop.ini
 
 extension-shop
@@ -19,6 +18,7 @@ version/*.*
 version/assets/webview/extensions
 version/assets/webview/workspace-scripts
 version/assets/webview/workspace.html
+version/assets/webview/extension-loader.js
 
 0013325635f1a2c1ef26a60f9725ee48.mp3
 0062cd306b54b2f8fc5f464bbef9428a.mp3
