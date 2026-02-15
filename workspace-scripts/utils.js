@@ -421,7 +421,6 @@ const BetterNemo = {
     regBlocks,
     regSimpleEvent,
     regMethod: regDomainFunction,
-    addToolbox: regToolbox,
     regIcon: (svg) => {
         document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML("beforeend", svg);
     },
@@ -437,6 +436,10 @@ const BetterNemo = {
     getEventParams,
     updateBrush: (actor) => {
         actor.parent_scene.should_update_brush();
+    },
+    getCtx: async () => {
+        await isBlocklyLoaded();
+        return Blockly.utils.canvas_context;
     }
 };
 const extensionToolboxs = [];
@@ -471,6 +474,9 @@ function reloadExtension() {
             extensionToolboxs.push([extensionMetaData.fileName, args]);
             return args;
         };
+        api.loadScript = async function (url) {
+            await loadScript('extensions/' + fileName+ '/' + url);
+        };
         return api;
     }
     for (const fileName of EXTENSION_FILES) {
@@ -493,7 +499,7 @@ function reloadExtension() {
         });
         const extensionAPI = createExtensionAPI(extMetaData);
         Extension.API = extensionAPI;
-        await loadScript('extensions/' + fileName);
+        await loadScript('extensions/' + fileName + '/index.js');
         extensionMetaData[fileName] = { ...extMetaData };
         BetterNemo.log('扩展管理', '扩展', fileName, '加载完成');
     }

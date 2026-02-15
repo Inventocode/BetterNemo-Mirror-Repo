@@ -143,4 +143,12 @@ interface BetterNemo {
      * @returns {object} 参数
      */
     getEventParams: (utils: any) => object;
+    /**
+     * （异步）加载前置脚本
+     * 仅在解释器中使用不要加await影响定义
+     * 其它地方使用加await等待加载完成
+     * 举例：扩展A加载loadSricpt('res/前置B.js') => extensions/A/res/前置B.js
+     * @param url 前置脚本路径
+     */
+    loadScript: (url: string) => Promise<void>;
 }

@@ -39,11 +39,6 @@ hook("./node_modules/dsbridge/index.js", "HookDsbridge");
 function isPhoneTestEnv() {
     return !navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99";
 }
-function getExtensionPath(name) {
-    if (!navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99")
-        return `http://192.168.1.11:8080/extensions/${name}`;
-    return `./extensions/${name}`;
-}
 function parseJSDocHeader(fileContent) {
     // 匹配文件开头的 /** ... */ 注释块
     const headerCommentRegex = /^\/\*\*[\s\S]*?\*\//;

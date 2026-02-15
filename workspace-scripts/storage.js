@@ -1,7 +1,7 @@
 
 class Storage {
-    constructor() {
-        this.namespace = 'bn';
+    constructor(namespace) {
+        this.namespace = namespace;
         this.storage = this.getAll() || {};
     }
     getAll() {
@@ -36,8 +36,10 @@ class Storage {
         return { ...this.storage };
     }
 }
-const storage = new Storage();
+const storage = new Storage('bn');
 window['storage'] = storage;
+const eStorage = new Storage('localExtensions');
+window['eStorage'] = eStorage;
 
 const experimentalConfig = {
     "disable_repeat_forever_in_warp": false,
