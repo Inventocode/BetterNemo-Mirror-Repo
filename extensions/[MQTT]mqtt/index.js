@@ -1,4 +1,4 @@
-/// <reference path="./_TYPE.d.ts"/>
+/// <reference path="../_TYPE.d.ts"/>
 Extension.metaData = {
     name: "MQTT",
     version: "0.0.1",
@@ -13,6 +13,7 @@ Extension.metaData = {
     const BN = Extension.API;
     const Block = BN.Block;
     const Toolbox = BN.Toolbox;
+    BN.loadScript("mqtt.min.js");
     // --------------------------------积木-------------------------------
     await BN.waitBlocklyLoaded();
     const mqttEventIconField = {

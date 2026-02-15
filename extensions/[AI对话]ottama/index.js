@@ -1,4 +1,4 @@
-/// <reference path="./_TYPE.d.ts"/>
+/// <reference path="../_TYPE.d.ts"/>
 Extension.metaData = {
     name: "AI对话 · Ottama",
     version: "0.2.0",

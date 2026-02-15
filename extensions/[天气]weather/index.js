@@ -1,4 +1,4 @@
-/// <reference path="./_TYPE.d.ts"/>
+/// <reference path="../_TYPE.d.ts"/>
 //Powered by DeepSeek
 
 Extension.metaData = {

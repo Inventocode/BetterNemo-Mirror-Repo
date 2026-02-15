@@ -1,4 +1,4 @@
-/// <reference path="./_TYPE.d.ts"/>
+/// <reference path="../_TYPE.d.ts"/>
 Extension.metaData = {
     name: "知更鸟",
     version: "0.0.1",

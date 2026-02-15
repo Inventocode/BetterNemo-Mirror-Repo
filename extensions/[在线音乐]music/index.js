@@ -1,4 +1,4 @@
-/// <reference path="./_TYPE.d.ts"/>
+/// <reference path="../_TYPE.d.ts"/>
 Extension.metaData = {
     name: "在线音乐",
     version: "1.2.1",

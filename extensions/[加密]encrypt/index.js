@@ -1,4 +1,4 @@
-/// <reference path="./_TYPE.d.ts"/>
+/// <reference path="../_TYPE.d.ts"/>
 
 Extension.metaData = {
     name: "加密",
@@ -14,6 +14,7 @@ Extension.metaData = {
     const BN = Extension.API;
     const Block = BN.Block;
     const Toolbox = BN.Toolbox;
+    BN.loadScript("crypto-js.min.js");
     
     // --------------------------------积木-------------------------------
     // 这条语句会等待Blockly加载完毕，别动
