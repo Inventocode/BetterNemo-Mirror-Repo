@@ -149,16 +149,16 @@ setInterval(() => {
     }
 }, 50);
 const log = console.log;
-console.log = function (...args) {
-    try {
-        if (args[0])
-            if (args[0].includes('%c')) {
-                log(...args);
-                return;
-            }
-    } catch (e) { }
-    log(new Date().toLocaleTimeString(), ...args);
-};
+// console.log = function (...args) {
+//     try {
+//         if (args[0])
+//             if (args[0].includes('%c')) {
+//                 log(...args);
+//                 return;
+//             }
+//     } catch (e) { }
+//     log(new Date().toLocaleTimeString(), ...args);
+// };
 (async () => {
     await loadScript('extensions/_CONFIG.js');
     extensionMgrLog('扩展列表:', EXTENSION_FILES.join(', '));

@@ -7,8 +7,9 @@ const EXTENSION_FILES = [
     "[数组运算]array_operators.js",
     "[天气]weather.js",
     "[AI对话]ottama.js",
-    "[IP工具]IP Tool.js",
+    "[IP工具]ip_tool.js",
     "[便捷FPS]fps.js",
     "[图像处理]image_tool.js",
-    "[代你学物理]robin.js"
+    "[代你学物理]robin.js",
+    "[正则表达式]regex.js"
 ]

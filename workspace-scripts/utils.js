@@ -15,6 +15,7 @@ const isBlocklyLoaded = async () => {
  * @returns WorkspaceSvg
  */
 const isBlocklyMainworkspaceLoaded = async () => {
+    await isBlocklyLoaded();
     while (!Blockly.mainWorkspace) {
         await new Promise((resolve) => requestAnimationFrame(resolve));
     }
@@ -433,36 +434,76 @@ const BetterNemo = {
     waitHook,
     waitRunmgrLoaded: isRunmgrHooked,
     emitSimpleEvent,
-    getEventParams
+    getEventParams,
+    updateBrush: (actor) => {
+        actor.parent_scene.should_update_brush();
+    }
 };
+const extensionToolboxs = [];
+function reloadExtension() {
+    if (!document.querySelector("#toolbox-bn")) return;
+    const codemaoToolboxs = [
+        "events", "control", "actions", "appearance", "sound", "pen", "sensing", "operators", "variables", "lists",
+        "cloud_var", "procedures", "advanced", "microbit", "extensions", "toolbox-network", "toolbox-websocket", "toolbox-bn"
+    ];
+    Blockly.mainWorkspace.get_toolbox().children_.forEach(node => {
+        if (!codemaoToolboxs.includes(node.name_)) {
+            node.dispose();
+        }
+    });
+    while (document.querySelector("#toolbox-bn").parentElement.nextElementSibling)
+        document.querySelector("#workspace > div > div > div.blocklyTreeRoot").lastChild.remove();
+    const config = storage.get('extension_config');
+    extensionToolboxs.forEach(([fileName, toolboxArgs]) => {
+        if (config[fileName]) regToolbox(...toolboxArgs);
+    });
+}
 (async () => {
+    if (!storage.get('extension_config')) storage.set('extension_config', {});
+    const config = storage.get('extension_config');
     window['Extension'] = {
         metaData: {},
         API: BetterNemo
     };
-    EXTENSION_FILES.forEach(async fileName => {
-        if (!storage.get('extension_config')) storage.set('extension_config', {});
-        const config = storage.get('extension_config');
+    function createExtensionAPI(extensionMetaData) {
+        const api = Object.create(BetterNemo);
+        api.addToolbox = function (...args) {
+            extensionToolboxs.push([extensionMetaData.fileName, args]);
+            return args;
+        };
+        return api;
+    }
+    for (const fileName of EXTENSION_FILES) {
         if (config[fileName] == undefined) {
             config[fileName] = true;
             storage.set('extension_config', config);
         }
-        if (!config[fileName]) return;
-        Extension.metaData = {
+        const extMetaData = {
+            fileName,
             name: "未命名",
             version: "",
             description: "",
             author: "未知",
             docs: ""
         };
+        Object.defineProperty(Extension, 'metaData', {
+            get() { return extMetaData; },
+            set(newValue) { Object.assign(extMetaData, newValue); },
+            configurable: true
+        });
+        const extensionAPI = createExtensionAPI(extMetaData);
+        Extension.API = extensionAPI;
         await loadScript('extensions/' + fileName);
-        extensionMetaData[fileName] = Extension.metaData;
+        extensionMetaData[fileName] = { ...extMetaData };
         BetterNemo.log('扩展管理', '扩展', fileName, '加载完成');
-    });
+    }
+    await isElementLoaded('#toolbox-bn');
+    setTimeout(() => {
+        reloadExtension();
+        BetterNemo.log('扩展管理', '已重新加载扩展积木盒');
+    }, 500);
 })();
-window['Theme'] = {
-    metaData: {}
-};
+window['Theme'] = { metaData: {} };
 THEME_FILES.forEach(async fileName => {
     if (!storage.get('theme_config')) storage.set('theme_config', {});
     const config = storage.get('theme_config');
@@ -541,7 +582,7 @@ function showMsg(msg) {
     snackbar.textContent = msg;
     snackbar.open = true;
 }
-async function showExtensionShop(disable = []) {
+async function showExtensionShop(disabled = [], callback) {
     const dialog = document.querySelector(".extension-shop");
     const cards = document.querySelector(".extension-shop-cards");
     const closeButton = dialog.querySelector(".extension-shop-close-btn");
@@ -549,21 +590,27 @@ async function showExtensionShop(disable = []) {
     const nav = dialog.querySelector("mdui-navigation-rail");
     const allCards = [
         // official
-        { id: 'microbit', title: 'micro:bit', content: 'micro:bit是一款小型可编程计算机，包含丰富的功能', page: 'official' },
-        // custom
-        { id: 'gugu', title: '并非并非非并非并非', content: '意大利面一定要拌42号混凝土', page: 'custom' }
+        { id: 'microbit', title: 'micro:bit', content: 'micro:bit是一款小型可编程计算机，包含丰富的功能', page: 'official' }
     ];
+    function getName(filename) {
+        const match = filename.match(/\[([^\]]+)\]/);
+        return match ? match[1] : '';
+    }
+    function setLoading(type) { document.querySelector('.extension-shop-loading').style.display = type ? 'block' : 'none'; }
     function createCard(cardData, disable = false) {
         const card = document.createElement('mdui-card');
         card.classList.add('extension-shop-card-' + cardData.id);
         card.setAttribute('data-page', cardData.page); // 添加页面标识
         card.setAttribute('clickable', '');
         if (disable) card.setAttribute('disabled', '');
-        else card.setAttribute('onclick', 'this.childNodes[2].click()');
-
-        card.setAttribute('style', 'width:230px;height:150px;padding:15px;margin:10px');
-        card.innerHTML = `<h3 style="margin:10px 0">${cardData.title}</h3>${cardData.content}<mdui-checkbox style="position:absolute;
-            bottom:5px;right:5px" onclick="this.click()" ${disable ? 'disabled checked' : ''}></mdui-checkbox>`;
+        else card.setAttribute('onclick', 'this.childNodes[3].click()');
+        card.style.width = '230px';
+        card.style.height = '150px';
+        card.style.padding = '15px';
+        card.style.margin = '10px';
+        card.innerHTML = `<h3 style="margin:5px 0">${cardData.title}</h3><p style="font-size:12px">${cardData.content}</p>
+        <mdui-checkbox style="position:absolute;bottom:5px;right:5px" onclick="this.click()" ${disable ? 'disabled checked' : ''}
+        ${cardData.checked ? 'checked' : ''}></mdui-checkbox>`;
         return card;
     }
     function getCard(id) {
@@ -572,7 +619,7 @@ async function showExtensionShop(disable = []) {
     function initializeCards() {
         cards.innerHTML = '';
         allCards.forEach(cardData => {
-            const card = createCard(cardData, disable.includes(cardData.id));
+            const card = createCard(cardData, disabled.includes(cardData.id));
             cards.appendChild(card);
         });
     }
@@ -583,9 +630,24 @@ async function showExtensionShop(disable = []) {
         });
         const pageCards = document.querySelectorAll(`[data-page="${page}"]`);
         pageCards.forEach(card => {
-            card.style.display = 'block';
+            card.style.display = '';
         });
     }
+    setLoading(false);
+    const config = storage.get('extension_config');
+    EXTENSION_FILES.forEach(fileName => {
+        let menuName = fileName;
+        if (getName(fileName)) menuName = getName(fileName);
+        if (fileName.includes(''))
+            if (extensionMetaData[fileName]) {
+                const metaData = extensionMetaData[fileName];
+                allCards.push({
+                    checked: config[fileName], fileName, id: fileName.replaceAll('[', '').replaceAll(']', '').replaceAll('.', ''),
+                    title: menuName, content: '作者：' + metaData.author + '<br>' + metaData.description, page: 'custom'
+                });
+                disabled.push(fileName);
+            }
+    });
     // 使用 AbortController 管理一次性监听器，避免冲突
     const controller = new AbortController();
     const { signal } = controller;
@@ -597,16 +659,23 @@ async function showExtensionShop(disable = []) {
             resolve(null);
         }, { signal });
         okButton.addEventListener("click", () => {
-            let data = [];
+            const data = [];
             allCards.forEach(({ id }) => {
                 const card = getCard(id);
-                if (card && card.childNodes[2].checked) {
+                if (card && !card.disabled && card.childNodes[3].checked) {
                     data.push(id);
                 }
             });
-            console.log(data);
+            const config = storage.get('extension_config');
+            allCards.filter(({ page }) => page === 'custom').forEach(({ id, fileName }) => {
+                const card = getCard(id);
+                if (card && !card.disabled) config[fileName] = card.childNodes[3].checked;
+            });
+            storage.set('extension_config', config);
             cleanup();
-            resolve(data);
+            if (data.includes('microbit')) callback('["microbit"]');
+            reloadExtension();
+            resolve(null);
         }, { signal });
 
         // 初始化并打开对话框
@@ -649,9 +718,7 @@ async function showExtensionShop(disable = []) {
                     } else
                         (async () => {
                             const selected_categories = payload.selected_categories;
-                            const selected_extensions = await showExtensionShop(selected_categories);
-                            console.log(selected_extensions);
-                            if (selected_extensions.includes('microbit')) args[2]('["microbit"]');
+                            await showExtensionShop(selected_categories, args[2]);
                         })();
                     return;
                 }

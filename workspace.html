@@ -15,7 +15,7 @@
   <script defer src="numjs.min.js"></script>
   <script defer src="saveSvgAsPng.min.js"></script>
   <link rel="stylesheet" href="fa.min.css">
-  <script>const BetterNemoVersion = "260213.4";</script>
+  <script>const BetterNemoVersion = "260215.1";</script>
   <script src="extension-loader.js"></script>
   <link rel="stylesheet" href="mdui.css" />
   <link rel="stylesheet" href="material-icons.css" />
@@ -27,7 +27,7 @@
   <mdui-snackbar closeable style="z-index: 2147483647;display: none;"></mdui-snackbar>
   <mdui-dialog fullscreen class="extension-shop" style="z-index: 2147483646;display: none;">
     <mdui-circular-progress class="extension-shop-loading"
-      style="position:absolute;top:calc(50% - 20px);left:calc(50% - 20px);" max="1"></mdui-circular-progress>
+      style="position:absolute;top:calc(50% - 20px);left:calc(50% - 20px);z-index: 2147483647;display:none" max="1"></mdui-circular-progress>
     <mdui-top-app-bar slot="header" style="padding:15px;position: absolute;left: 80px;" variant="small">
       <mdui-button-icon icon="extension" type="button" variant="standard"></mdui-button-icon>
       <mdui-top-app-bar-title>扩展商城</mdui-top-app-bar-title>
@@ -35,11 +35,13 @@
     </mdui-top-app-bar>
     <mdui-navigation-rail value="recent" style="position: absolute;top: 0;left: 0;" placement="left" alignment="start">
       <mdui-navigation-rail-item icon="gpp_good" value="official">官方</mdui-navigation-rail-item>
-      <mdui-navigation-rail-item icon="library_books" value="bn">BN</mdui-navigation-rail-item>
+      <mdui-navigation-rail-item icon="cloud_download" value="cloud">云端</mdui-navigation-rail-item>
       <mdui-navigation-rail-item icon="insert_drive_file" value="local" active>本地</mdui-navigation-rail-item>
       <mdui-navigation-rail-item icon="inbox" value="custom">内置</mdui-navigation-rail-item>
     </mdui-navigation-rail>
-    <div class="extension-shop-cards" style="position:absolute;top:64px;left:100px;"></div>
+    <div class="extension-shop-cards"
+      style="position:absolute;top:64px;left:100px;overflow-y:auto;max-height:calc(100vh - 120px);width:calc(100vw - 200px);">
+    </div>
     <mdui-button class="extension-shop-ok-btn" style="position:absolute;bottom:25px;right:25px">完成</mdui-button>
   </mdui-dialog>
   <!-- 全屏多行文本输入对话框 -->

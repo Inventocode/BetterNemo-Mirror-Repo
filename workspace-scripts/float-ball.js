@@ -184,7 +184,7 @@ const presetBackgroundColor = "#221D4E";
         home: () => {
             UI.setStatus('Version: ' + BetterNemoVersion);
             UI.button(() => { UI.load(Page.clipboard); }, '剪切板', 'clipboard');
-            UI.button(() => { UI.load(Page.extensions); }, '扩展', 'puzzle-piece');
+            UI.button(() => { UI.load(Page.extensions); }, '内置扩展', 'puzzle-piece');
             UI.button(() => { UI.load(Page.theme); }, '主题', 'palette');
             UI.button(() => { UI.load(Page.editorConfig); }, '编辑器', 'laptop-code');
             UI.button(() => { UI.load(Page.runtimeConfig); }, '运行时', 'cog');
@@ -360,8 +360,8 @@ const presetBackgroundColor = "#221D4E";
             }, '导出积木PNG', 'image');
         },
         extensions: () => {
-            UI.setTitle('扩展');
-            UI.setStatus('重进后生效');
+            UI.setTitle('内置扩展');
+            UI.setStatus('仅用于兼容webview<86的用户，重进后生效');
             let config = storage.get('extension_config');
             function getName(filename) {
                 const match = filename.match(/\[([^\]]+)\]/);
