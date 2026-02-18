@@ -281,7 +281,7 @@
     BetterNemo.log('OptiCompilerImpl注入', "开始");
     const compile_repeat_forever = OptiCompilerImpl.prototype.compile_repeat_forever;
     OptiCompilerImpl.prototype.compile_repeat_forever = function () {
-        console.log('compile_repeat_forever', arguments);
+        // console.log('compile_repeat_forever', arguments);
         return compile_repeat_forever.apply(this, arguments);
     }
     BetterNemo.log('OptiCompilerImpl注入', "完成");

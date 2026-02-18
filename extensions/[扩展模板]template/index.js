@@ -8,11 +8,10 @@ Extension.metaData = {
     docs: ""
 };
 
-(async ()=>{
+(async () => {
     /** @type {BetterNemo} */
     const BN = Extension.API;
     const Brush = (await BN.getHook("Brush")).Brush;
-    console.log('已获取Brush原型：', Brush);
 })();
 (async () => {
     // 在这里定义了一些必要的API
@@ -28,9 +27,40 @@ Extension.metaData = {
     // 开始定义你的自定义积木吧
     const templateBlocks = [
         {
+            type: "template_6",
+            message0: "%1 当 触发事件 %2",
+            args0: [{
+                "type": "field_icon",
+                "is_head": true,
+                "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYiIGhlaWdodD0iMzYiIHZpZXdCb3g9IjAgMCAzNiAzNiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxwYXRoIGQ9Ik0xOCAzNmM5Ljk0MSAwIDE4LTguMDU5IDE4LTE4UzI3Ljk0MSAwIDE4IDAgMCA4LjA1OSAwIDE4czguMDU5IDE4IDE4IDE4eiIgZmlsbD0iIzU2ODBENSIvPjxwYXRoIGQ9Ik0xOCAzNWM5LjM4OSAwIDE3LTcuNjExIDE3LTE3UzI3LjM4OSAxIDE4IDEgMSA4LjYxMSAxIDE4czcuNjExIDE3IDE3IDE3eiIgZmlsbD0iI0ZGRiIvPjxwYXRoIGQ9Ik0yNS41NiAxNi40NTdjMS45MTUgMS4xMyAxLjkyNSAyLjk1NCAwIDQuMDlsLTEwLjA5NCA1Ljk1N0MxMy41NTIgMjcuNjM0IDEyIDI2Ljc2NiAxMiAyNC41OFYxMi40MjRjMC0yLjE5MiAxLjU0MS0zLjA2IDMuNDY2LTEuOTI0bDEwLjA5NCA1Ljk1N3oiIGZpbGw9IiM2MDhGRUUiLz48L2c+PC9zdmc+Cg==",
+                "width": 38,
+                "height": 38,
+                "alt": "*"
+            }, {
+                type: "field_dropdown",
+                name: "type",
+                options: [
+                    ["a", "a"],
+                    ["b", "b"],
+                    ["c", "c"]
+                ],
+                value: "a"
+            }],
+            ...Block.eventBlock,
+        },
+        {
             type: "template_3",
-            message0: "触发事件",
-            args0: [],
+            message0: "触发事件 type %1",
+            args0: [{
+                type: "field_dropdown",
+                name: "arg",
+                options: [
+                    ["a", "a"],
+                    ["b", "b"],
+                    ["c", "c"]
+                ],
+                value: "a"
+            }],
             ...Block.methodBlock
         },
         {
@@ -83,7 +113,7 @@ Extension.metaData = {
                 "type": "field_gesture",
                 "name": "gesture",
                 "custom": true
-            },{
+            }, {
                 "type": "field_piano",
                 "custom": true,
                 "name": "note",
@@ -100,6 +130,7 @@ Extension.metaData = {
     // 定义你的积木盒
     const templateXML = [
         Toolbox.title("模板 · Template"),
+        Toolbox.simpleEventBlock("template_6"),
         Toolbox.block("template_3"),
         Toolbox.error("这到底是什么啊啊啊？！"),
         Toolbox.block("template_1"),
@@ -115,8 +146,40 @@ Extension.metaData = {
     // ---------------------------解释器-------------------------------------
     // 等待Runmgr加载完毕，别动
     await BN.waitRunmgrLoaded();
+    (() => {
+        const action_type = {
+            id: eventBlockId,
+            entity_specific: false,
+            responder_blocks: [{
+                id: eventBlockId,
+                type: "action",
+                async: false,
+            }],
+        };
+        const registry = get_run_mgr().registry;
+        registry.register_action_type({
+            namespace: "",
+            id: action_type.id,
+        });
+        registry.register({
+            namespace: "",
+            id: action_type.id,
+            respond: {
+                to_action: {
+                    namespace: "",
+                    id: action_type.id,
+                },
+                type: 'action',
+                async: false,
+                priority: undefined,
+                entity_specific: action_type.entity_specific,
+                trigger_function: undefined,
+                filter_arg_names: undefined,
+            },
+        });
+    })();
     // 给你的积木定义一个解释器
-    BN.regMethod('template_block', (params, _, __, ___) => {
-        alert("Hello, BetterNemo!");
+    BN.regMethod('template_3', (params, _, __, ___) => {
+        BN.emitSimpleEvent("template_6", params.arg);
     });
 })();

@@ -110,7 +110,6 @@
                 u.flyout_bottom(),
             ].map((block) => str2xml(block)),
         );
-    console.log(Blockly.mainWorkspace.toolbox_.children_[5].blocks);
     // 运算扩展
     Blockly.mainWorkspace.toolbox_.children_[7].blocks.pop();
     Blockly.mainWorkspace.toolbox_.children_[7].blocks =

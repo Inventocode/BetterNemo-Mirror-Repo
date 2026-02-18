@@ -42,5 +42,6 @@ const eStorage = new Storage('localExtensions');
 window['eStorage'] = eStorage;
 
 const experimentalConfig = {
-    "disable_repeat_forever_in_warp": false,
+    disable_repeat_forever_in_warp: false,
+    webview_debug: isPhoneTestEnv(),
 }

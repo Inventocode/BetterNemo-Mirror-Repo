@@ -39,6 +39,18 @@ hook("./node_modules/dsbridge/index.js", "HookDsbridge");
 function isPhoneTestEnv() {
     return !navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99";
 }
+function isPCTestEnv() {
+    return navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99";
+}
+let debugServer;
+if (isPhoneTestEnv()){ debugServer = new WebSocket("ws://192.168.1.11:1234");
+    function reconnect() {
+        console.log('重连');
+        debugServer = new WebSocket("ws://192.168.1.11:1234");
+        debugServer.onclose = reconnect;
+    };
+    debugServer.onclose = reconnect; 
+}
 function parseJSDocHeader(fileContent) {
     // 匹配文件开头的 /** ... */ 注释块
     const headerCommentRegex = /^\/\*\*[\s\S]*?\*\//;
@@ -112,6 +124,13 @@ setInterval(() => {
     if (window._dsf) {
         const postMessage = _dsf.postMessage;
         _dsf.postMessage = (...args) => {
+            if (experimentalConfig.webview_debug) {
+                console.log('[Nemo -> Webview]', ...args);
+                debugServer.send(JSON.stringify({
+                    type: 'n2w',
+                    data: [...args]
+                }));
+            }
             if (args.length === 2)
                 if (args[0] === 'INIT_WEBVIEW_DATA') {
                     let data = JSON.parse(args[1]);
@@ -123,12 +142,17 @@ setInterval(() => {
                         JSON.stringify(data)
                     ]);
                 }
-            if (isPhoneTestEnv()) console.log('[Nemo -> Webview]', ...args);
             return postMessage.apply(_dsf, args);
         };
         const postMessageAsyn = _dsaf.postMessageAsyn;
         _dsaf.postMessageAsyn = async (...args) => {
-            // console.log('[Nemo -> Webview] [ASYNC]', ...args);
+            if (experimentalConfig.webview_debug) {
+                console.log('[Nemo -> Webview] [ASYNC]', ...args);
+                debugServer.send(JSON.stringify({
+                    type: 'n2w async',
+                    data: [...args]
+                }));
+            }
             return postMessageAsyn.apply(_dsaf, args);
         };
     }

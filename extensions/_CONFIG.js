@@ -13,4 +13,7 @@ const EXTENSION_FILES = [
     "[代你学物理]robin",
     "[正则表达式]regex",
     "[条码大师]QRCodes",
+    "[公式印章]MathJax",
+    "[更好的交互]BetterChat",
+    "[舞台触控]DNDToucher",
 ]

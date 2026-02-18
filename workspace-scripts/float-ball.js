@@ -300,6 +300,11 @@ const presetBackgroundColor = "#221D4E";
                 '禁用一步执行中的死循环', [['开', true], ['关', false]],
                 experimentalConfig.disable_repeat_forever_in_warp, false, '60px'
             );
+            UI.selectInput(
+                (value) => { experimentalConfig.webview_debug = value; },
+                'webview调试', [['开', true], ['关', false]],
+                experimentalConfig.webview_debug, false, '60px'
+            );
         },
         clipboard: () => {
             UI.setTitle('剪切板');
@@ -464,8 +469,9 @@ const presetBackgroundColor = "#221D4E";
                     }, '刷新Webview', 'sync-alt');
                 });
             }, '刷新Webview', 'sync-alt');
-            UI.button(() => { window.location = 'https://codemao.rth1.xyz/'; }, '测试', 'flask');
             UI.button(() => { UI.load(Page.experimentalConfig); }, '实验性', 'flask');
+            UI.button(() => { dsBridge.call('postMessageSyn','{"type":"TOGGLE_BLUETOOTH_CONNECTION_PAGE","payload":{"visible":true}}') }, '切换蓝牙页', 'flask');
+            UI.button(() => { dsBridge.call('postMessageAsyn','{"type":"GOTO_SYSTEM_SETTINGS","payload":{"path":"bluetooth"}}') }, '跳转系统设置', 'flask');
         }
     };
     UI.home = Page.home;

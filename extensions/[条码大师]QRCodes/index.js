@@ -184,15 +184,8 @@ Extension.metaData = {
     ];
     
     // 注册图标
-    BN.regIcon(`<symbol id="icon-barcode" viewBox="0 0 24 24">
-        <rect x="3" y="5" width="2" height="14" fill="white"/>
-        <rect x="6" y="5" width="1" height="14" fill="white"/>
-        <rect x="8" y="5" width="3" height="14" fill="white"/>
-        <rect x="12" y="5" width="1" height="14" fill="white"/>
-        <rect x="14" y="5" width="2" height="14" fill="white"/>
-        <rect x="17" y="5" width="1" height="14" fill="white"/>
-        <rect x="19" y="5" width="2" height="14" fill="white"/>
-        <circle cx="18" cy="14" r="2" fill="white" opacity="0.8"/>
+    BN.regIcon(`<symbol id="icon-barcode" viewBox="-1500 -1500 4000 4000">
+        <path d="M234.666667 149.333333v704H170.666667V149.333333h64z m640 0v704h-42.666667V149.333333h42.666667zM576 789.333333v64h-42.666667v-64h42.666667z m-106.666667 0v64h-64v-64h64z m-128 0v64h-42.666666v-64h42.666666z m426.666667 0v64h-128v-64h128zM576 149.333333v576h-42.666667V149.333333h42.666667z m-106.666667 0v576h-64V149.333333h64z m-128 0v576h-42.666666V149.333333h42.666666z m426.666667 0v576h-128V149.333333h128z" p-id="1630"></path>
     </symbol>`);
     
     BN.addToolbox("barcode", "icon-barcode", "#333333", barcodeXML);

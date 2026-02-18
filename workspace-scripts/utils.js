@@ -173,13 +173,11 @@ function regSimpleEvent(eventBlockId) {
     regAction({
         id: eventBlockId,
         entity_specific: false,
-        responder_blocks: [
-            {
-                id: eventBlockId,
-                type: "action",
-                async: false,
-            },
-        ],
+        responder_blocks: [{
+            id: eventBlockId,
+            type: "action",
+            async: false,
+        }],
     });
     regDomainFunction(eventBlockId, () => { });
     // window['customEvents'].push(eventBlockId);
@@ -454,8 +452,21 @@ function reloadExtension() {
             node.dispose();
         }
     });
-    while (document.querySelector("#toolbox-bn").parentElement.nextElementSibling)
-        document.querySelector("#workspace > div > div > div.blocklyTreeRoot").lastChild.remove();
+    const toolboxBn = document.querySelector("#toolbox-bn");
+    if (toolboxBn) {
+        let nextElement = toolboxBn.parentElement.nextElementSibling;
+        while (nextElement) {
+            if (nextElement.querySelector && nextElement.querySelector("#microbit")) {
+                nextElement = nextElement.nextElementSibling;
+                continue;
+            }
+            const treeRoot = document.querySelector("#workspace > div > div > div.blocklyTreeRoot");
+            if (treeRoot && treeRoot.lastChild) {
+                treeRoot.lastChild.remove();
+            }
+            nextElement = toolboxBn.parentElement.nextElementSibling;
+        }
+    }
     const config = storage.get('extension_config');
     extensionToolboxs.forEach(([fileName, toolboxArgs]) => {
         if (config[fileName]) regToolbox(...toolboxArgs);
@@ -475,7 +486,7 @@ function reloadExtension() {
             return args;
         };
         api.loadScript = async function (url) {
-            await loadScript('extensions/' + extensionMetaData.fileName+ '/' + url);
+            await loadScript('extensions/' + extensionMetaData.fileName + '/' + url);
         };
         return api;
     }
@@ -700,6 +711,13 @@ async function showExtensionShop(disabled = [], callback) {
     const dsbridge = await waitHook('Dsbridge');
     const call = dsbridge.call;
     dsbridge.call = (...args) => {
+        if (experimentalConfig.webview_debug) {
+            console.log('[Webview -> Nemo] args:', ...args);
+            debugServer.send(JSON.stringify({
+                type: 'w2n',
+                data: [...args]
+            }));
+        }
         if (args.length === 3)
             try {
                 const data = JSON.parse(args[1]);
@@ -730,7 +748,14 @@ async function showExtensionShop(disabled = [], callback) {
                 }
             } catch (e) { console.error(e); }
         const result = call.apply(dsbridge, args);
-        if (isPhoneTestEnv()) console.log('[Webview -> Nemo] args:', ...args, 'result:', result);
+        // if (experimentalConfig.webview_debug) {
+        //     console.log('[Webview -> Nemo] args:', ...args, 'result:', result);
+        //     debugServer.send(JSON.stringify({
+        //         type: 'w2n',
+        //         data: [...args],
+        //         result
+        //     }));
+        // }
         return result;
     };
 })();

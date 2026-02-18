@@ -391,7 +391,6 @@ Extension.metaData = {
     BN.regBlocks(encryptBlocks);
     
     // --------------------------------积木盒-------------------------------
-    console.log("[Extension] 加密扩展已加载");
     // 定义你的积木盒
     const encryptXML = [
         Toolbox.title("加密 · Encrypt"),

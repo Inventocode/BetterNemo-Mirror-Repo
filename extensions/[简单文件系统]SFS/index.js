@@ -931,6 +931,4 @@ Extension.metaData = {
         
         return vfs.listDirectory(driveLetter, pathParts);
     });
-    
-    console.log("简单文件系统 扩展已加载😋");
 })();

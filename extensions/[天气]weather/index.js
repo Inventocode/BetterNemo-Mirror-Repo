@@ -2944,5 +2944,4 @@ Extension.metaData = {
         }
       });
 
-    console.log("[Extension] 天气扩展已加载（支持昨天天气和城市名输入）");
   })();

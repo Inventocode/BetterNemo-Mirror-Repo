@@ -324,11 +324,9 @@ Extension.metaData = {
         for (var i = 0; i < length; i++) {
             imageDataObj.data[i] = data[i];
         }
-        console.log(imageDataObj);
         
         ctx.putImageData(imageDataObj, center_x + range[0], center_y - range[1]);
         this.actor.parent_scene.should_update_brush();
     }
     
-    console.log('已获取Brush原型：', Brush);
 })();
