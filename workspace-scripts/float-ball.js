@@ -45,6 +45,13 @@ const presetBackgroundColor = "#221D4E";
                 }
             }
         }
+        if (window['Blockly']) {
+            const workspace = Blockly.mainWorkspace;
+            if (workspace) {
+                Blockly.mainWorkspace.options.flyout.max_width = storage.get('flyout_max_width') || 488;
+                Blockly.mainWorkspace.options.notch = storage.get('notch') || false;
+            }
+        }
     }, 100);
     // 拖拽相关变量
     let isDragging = false;
@@ -229,6 +236,14 @@ const presetBackgroundColor = "#221D4E";
                 else disableCatBlock();
                 UI.load(Page.editorConfig);
             }, (storage.get('cat') ? '关闭' : '打开') + '猫块', 'save');
+            UI.button(() => {
+                storage.set('notch', !storage.get('notch'));
+                UI.load(Page.editorConfig);
+            }, (storage.get('notch') ? '关闭' : '打开') + '积木缺口', 'save');
+            UI.numberInput((value) => {
+                storage.set('flyout_max_width', value);
+                UI.load(Page.editorConfig);
+            }, '积木盒最大宽度', storage.get('flyout_max_width'), 488, '50px');
         },
         runtimeConfig: () => {
             UI.setTitle('运行时设置');
@@ -470,8 +485,8 @@ const presetBackgroundColor = "#221D4E";
                 });
             }, '刷新Webview', 'sync-alt');
             UI.button(() => { UI.load(Page.experimentalConfig); }, '实验性', 'flask');
-            UI.button(() => { dsBridge.call('postMessageSyn','{"type":"TOGGLE_BLUETOOTH_CONNECTION_PAGE","payload":{"visible":true}}') }, '切换蓝牙页', 'flask');
-            UI.button(() => { dsBridge.call('postMessageAsyn','{"type":"GOTO_SYSTEM_SETTINGS","payload":{"path":"bluetooth"}}') }, '跳转系统设置', 'flask');
+            UI.button(() => { dsBridge.call('postMessageSyn', '{"type":"TOGGLE_BLUETOOTH_CONNECTION_PAGE","payload":{"visible":true}}'); }, '切换蓝牙页', 'flask');
+            UI.button(() => { dsBridge.call('postMessageAsyn', '{"type":"GOTO_SYSTEM_SETTINGS","payload":{"path":"bluetooth"}}'); }, '跳转系统设置', 'flask');
         }
     };
     UI.home = Page.home;

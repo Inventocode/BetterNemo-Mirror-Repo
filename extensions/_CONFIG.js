@@ -16,4 +16,7 @@ const EXTENSION_FILES = [
     "[公式印章]MathJax",
     "[更好的交互]BetterChat",
     "[舞台触控]DNDToucher",
+    "[MDUI控件]mdui",
+    "[用户信息]UserInf",
+    "[MC头像]MCHeadPicker"
 ]

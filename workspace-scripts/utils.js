@@ -407,21 +407,33 @@ const BetterNemo = {
                 return BetterNemo.Toolbox.error("错误：未能找到" + type + "的定义");
             }
         },
-        simpleEventBlock: (type, ...params) => [
+        eventBlock: (type, ...params) => [
             BetterNemo.Toolbox.sep(15),
             `<block type="${type}">${params.map(([name, type]) => `<value name="${name}"><block type="__${type}"></block></value>`)}</block>`,
         ],
+        /** @deprecated */
+        simpleEventBlock: (...args) => BetterNemo.Toolbox.eventBlock(...args),
+        button: (key, text, callback) => {
+            Blockly.mainWorkspace.register_button_callback(key, callback);
+            return `<button text="${text}" callbackKey="${key}"></button>`;
+        }
     },
     regColor: (colorID, fill, border, layer = '') => {
         if (layer) Blockly.theme.block_color[colorID] = { fill, border, layer };
         else Blockly.theme.block_color[colorID] = { fill, border };
     },
+    defineBlocks: regBlocks,
+    /** @deprecated */
     regBlocks,
+    /** @deprecated */
     regSimpleEvent,
+    regEvent: regSimpleEvent,
+    /** @deprecated */
     regMethod: regDomainFunction,
-    regIcon: (svg) => {
-        document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML("beforeend", svg);
-    },
+    regDomainFunction,
+    addIcon: (svg) => document.querySelector("#__SVG_SPRITE_NODE__").insertAdjacentHTML("beforeend", svg),
+    /** @deprecated */
+    regIcon: (svg) => BetterNemo.addIcon(svg),
     waitBlocklyLoaded: isBlocklyLoaded,
     waitBlockLoaded: async () => {
         while (window['blockObjects'] == [])

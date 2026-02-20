@@ -2,7 +2,7 @@
 
 Extension.metaData = {
     name: "条码大师",
-    version: "1.0.0",
+    version: "1.2.0",
     description: "生成二维码和条形码，支持30+种条码格式",
     author: "砂墨&Deepseek",
     docs: ""
@@ -60,7 +60,7 @@ Extension.metaData = {
                     ]
                 }
             ],
-            output: "String", // 返回 DataURL
+            output: "String",
             colour: "%{BKY_BARCODE_HUE}"
         },
         
@@ -125,7 +125,7 @@ Extension.metaData = {
         // ========== 绘制 ==========
         {
             type: "barcode_draw",
-            message0: "绘制条码 %1 到 X %2 Y %3 缩放 %4",
+            message0: "绘制图片 %1 到 X %2 Y %3 缩放 %4",
             args0: [
                 { type: "input_value", name: "CODE_DATA", check: "String", value: "" },
                 { type: "input_value", name: "X", check: "Number", value: 0 },
@@ -133,7 +133,7 @@ Extension.metaData = {
                 { type: "input_value", name: "SCALE", check: "Number", value: 1 }
             ],
             ...Block.methodBlock,
-            colour: "%{BKY_BARCODE_HUE}"
+            colour: "%{BKY_PEN_HUE}"
         },
         
         // ========== 验证 ==========
@@ -155,8 +155,19 @@ Extension.metaData = {
             ],
             output: "Boolean",
             colour: "%{BKY_BARCODE_HUE}"
+        },
+        
+        // ========== 条码转DataURL ==========
+        {
+            type: "barcode_to_dataurl",
+            message0: "条码转DataURL 条码数据 %1",
+            args0: [
+                { type: "input_value", name: "CODE_DATA", check: "String", value: "" }
+            ],
+            output: "String",
+            colour: "%{BKY_BARCODE_HUE}"
         }
-    ].map(block => ({ ...block, colour: "%{BKY_BARCODE_HUE}" }));
+    ];
     
     await BN.waitBlockLoaded();
     BN.regBlocks(barcodeBlocks);
@@ -179,6 +190,9 @@ Extension.metaData = {
         
         Toolbox.line("验证"),
         Toolbox.block("barcode_check"),
+        
+        Toolbox.line("转换"),
+        Toolbox.block("barcode_to_dataurl"),
         
         Toolbox.flyout_bottom()
     ];
@@ -429,5 +443,49 @@ Extension.metaData = {
         }
     });
     
-    BN.log('barcode', '条码生成器已加载');
+    // ========== 新增：条码转DataURL（真正的转换！） ==========
+    BN.regMethod('barcode_to_dataurl', async (params, uuid, uuid2, utils) => {
+        try {
+            const codeData = params.CODE_DATA || '';
+            
+            if (!codeData) {
+                BN.error('barcode', '条码数据不能为空');
+                return '';
+            }
+            
+            // 如果已经是DataURL，直接返回
+            if (codeData.startsWith('data:image/')) {
+                return codeData;
+            }
+            
+            // 如果是URL，加载图片转DataURL
+            if (codeData.startsWith('http://') || codeData.startsWith('https://') || codeData.startsWith('/')) {
+                const img = await loadImage(codeData);
+                
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                
+                return canvas.toDataURL('image/png');
+            }
+            
+            // 如果是base64图片（不带前缀）
+            if (/^[A-Za-z0-9+/=]+$/.test(codeData)) {
+                return `data:image/png;base64,${codeData}`;
+            }
+            
+            // 其他情况，尝试作为普通字符串处理
+            BN.log('barcode', '条码数据可能不是图片格式，直接返回原数据');
+            return codeData;
+            
+        } catch (error) {
+            BN.error('barcode', `条码转DataURL失败: ${error.message}`);
+            return '';
+        }
+    });
+    
+    BN.log('barcode', '条码大师已加载');
 })();

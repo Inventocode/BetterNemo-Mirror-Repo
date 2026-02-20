@@ -130,7 +130,8 @@ Extension.metaData = {
     // 定义你的积木盒
     const templateXML = [
         Toolbox.title("模板 · Template"),
-        Toolbox.simpleEventBlock("template_6"),
+        Toolbox.button("template_button", "template_button", () => console.log("嗯呃~")),
+        Toolbox.eventBlock("template_6"),
         Toolbox.block("template_3"),
         Toolbox.error("这到底是什么啊啊啊？！"),
         Toolbox.block("template_1"),

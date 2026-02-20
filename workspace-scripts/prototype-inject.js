@@ -47,7 +47,7 @@
         for (let i = 1; i < points.length; i++) {
             ctx.lineTo(center_x + points[i][0], center_y - points[i][1]);
         }
-        ctx.closePath()
+        ctx.closePath();
 
         var color2 = color;
         if (color2.substring(0, 1) == "[") {
@@ -271,7 +271,7 @@
             this.brush_gl = this.brush_canvas.getContext('webgl2');
         }
         return this.brush_gl;
-    }
+    };
     BetterNemo.log('Scene注入', "Scene原型注入完成");
 })();
 // ------------------OptiCompilerImpl原型注入------------------
@@ -283,6 +283,6 @@
     OptiCompilerImpl.prototype.compile_repeat_forever = function () {
         // console.log('compile_repeat_forever', arguments);
         return compile_repeat_forever.apply(this, arguments);
-    }
+    };
     BetterNemo.log('OptiCompilerImpl注入', "完成");
 })();

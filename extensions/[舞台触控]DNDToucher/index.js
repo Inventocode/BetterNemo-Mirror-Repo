@@ -1,8 +1,8 @@
-/// <reference path="./_TYPE.d.ts"/>
+/// <reference path="../_TYPE.d.ts"/>
 
 Extension.metaData = {
     name: "舞台触屏控件",
-    version: "1.2.0",
+    version: "1.2.5",
     description: "按钮、文本、摇杆等触屏控件，支持多触控",
     author: "砂墨&Deepseek",
     docs: ""
@@ -32,10 +32,10 @@ Extension.metaData = {
     ];
 
     const dndUIBlocks = [
-        // ========== 创建按钮 ==========
+        // ========== 创建按钮（中心点定位）==========
         {
             type: "dnd_ui_button",
-            message0: "创建按钮 ID %1 文本 %2 X %3 Y %4 宽度 %5 高度 %6 颜色 %7",
+            message0: "创建按钮 ID %1 文本 %2 中心X %3 中心Y %4 宽度 %5 高度 %6 颜色 %7",
             args0: [
                 { type: "input_value", name: "ID", check: "String", value: "btn1" },
                 { type: "input_value", name: "TEXT", check: "String", value: "按钮" },
@@ -48,10 +48,10 @@ Extension.metaData = {
             ...Block.methodBlock,
             colour: "%{BKY_DND_UI_HUE}"
         },
-        // ========== 创建文本（增强样式）==========
+        // ========== 创建文本（左上角定位，文本尺寸动态）==========
         {
             type: "dnd_ui_text",
-            message0: "创建文本 ID %1 内容 %2 X %3 Y %4 文本颜色 %5 文本透明度 %6 背景颜色 %7 背景透明度 %8 圆角 %9 阴影 %10",
+            message0: "创建文本 ID %1 内容 %2 左上X %3 左上Y %4 文本颜色 %5 文本透明度 %6 背景颜色 %7 背景透明度 %8 圆角 %9 阴影 %10",
             args0: [
                 { type: "input_value", name: "ID", check: "String", value: "text1" },
                 { type: "input_value", name: "TEXT", check: "String", value: "文本" },
@@ -67,10 +67,10 @@ Extension.metaData = {
             ...Block.methodBlock,
             colour: "%{BKY_DND_UI_HUE}"
         },
-        // ========== 创建摇杆 ==========
+        // ========== 创建摇杆（中心点定位）==========
         {
             type: "dnd_ui_joystick",
-            message0: "创建摇杆 ID %1 X %2 Y %3 半径 %4 颜色 %5",
+            message0: "创建摇杆 ID %1 中心X %2 中心Y %3 半径 %4 颜色 %5",
             args0: [
                 { type: "input_value", name: "ID", check: "String", value: "joy1" },
                 { type: "input_value", name: "X", check: "Number", value: 100 },
@@ -124,7 +124,7 @@ Extension.metaData = {
         },
         {
             type: "dnd_ui_set_position",
-            message0: "移动控件 %1 到 X %2 Y %3",
+            message0: "移动控件 %1 到 中心X %2 中心Y %3",
             args0: [
                 { type: "input_value", name: "ID", check: "String", value: "" },
                 { type: "input_value", name: "X", check: "Number", value: 0 },
@@ -209,12 +209,7 @@ Extension.metaData = {
         Toolbox.flyout_bottom()
     ];
 
-    BN.regIcon(`<symbol id="icon-dnd-ui" viewBox="0 0 24 24">
-        <rect x="4" y="4" width="16" height="16" rx="2" stroke="white" stroke-width="1.5" fill="none"/>
-        <circle cx="8" cy="12" r="2" fill="#4CAF50"/>
-        <rect x="12" y="10" width="6" height="4" fill="#2196F3"/>
-        <line x1="16" y1="6" x2="20" y2="10" stroke="#FF9800" stroke-width="2"/>
-    </symbol>`);
+    BN.regIcon(`<symbol id="icon-dnd-ui" viewBox="-1500 -1500 4000 4000"><path d="M263.529412 869.647059a79.058824 79.058824 0 0 1-78.908236-74.059294l-0.150588-4.99953V263.529412a79.058824 79.058824 0 0 1 74.059294-78.908236l4.99953-0.150588h527.058823a79.058824 79.058824 0 0 1 78.908236 74.059294l0.150588 4.99953v527.058823a79.058824 79.058824 0 0 1-74.059294 78.908236l-4.99953 0.150588H263.529412z m114.176-439.235765H237.176471v367.375059c0 9.697882 9.938824 17.709176 22.768941 18.974118l3.584 0.180705h114.176V430.411294z m439.235764 0H430.411294v386.529882H790.588235c13.342118 0 24.395294-7.228235 26.112-16.564705l0.240941-2.590118V430.381176z" fill="#000000" p-id="5695"></path></symbol>`);
 
     BN.addToolbox("dnd-ui", "icon-dnd-ui", "#4CAF50", dndUIXML);
 
@@ -254,7 +249,7 @@ Extension.metaData = {
         }, 100);
     }
 
-    // ========== 创建按钮 ==========
+    // ========== 创建按钮（中心点定位）==========
     BN.regMethod('dnd_ui_button', (params, uuid, uuid2, utils) => {
         const id = params.ID || `btn_${nextId++}`;
         if (uiControls.has(id)) {
@@ -263,20 +258,24 @@ Extension.metaData = {
         }
 
         const transformer = getTransformer();
-        const x = parseInt(params.X) || 100;
-        const y = parseInt(params.Y) || 100;
+        const centerX = parseInt(params.X) || 100;
+        const centerY = parseInt(params.Y) || 100;
         const w = parseInt(params.W) || 80;
         const h = parseInt(params.H) || 40;
         const color = params.COLOR || '#2196F3';
         const text = params.TEXT || '按钮';
+
+        // 计算左上角坐标
+        const left = centerX - w/2;
+        const top = centerY - h/2;
 
         const btn = document.createElement('div');
         btn.setAttribute('data-dnd-ui', 'true');
         btn.setAttribute('data-dnd-id', id);
         btn.style.cssText = `
             position: absolute;
-            left: ${x}px;
-            top: ${y}px;
+            left: ${left}px;
+            top: ${top}px;
             width: ${w}px;
             height: ${h}px;
             background: ${color};
@@ -327,7 +326,9 @@ Extension.metaData = {
         uiControls.set(id, {
             type: 'button',
             element: btn,
-            x, y, w, h, color, text,
+            x: centerX, // 存储中心坐标
+            y: centerY,
+            w, h, color, text,
             pressed: false,
             justPressed: false,
             justReleased: false,
@@ -335,7 +336,7 @@ Extension.metaData = {
         });
     });
 
-    // ========== 创建文本 ==========
+    // ========== 创建文本（左上角定位，文本尺寸动态）==========
     BN.regMethod('dnd_ui_text', (params, uuid, uuid2, utils) => {
         const id = params.ID || `text_${nextId++}`;
         if (uiControls.has(id)) {
@@ -378,24 +379,14 @@ Extension.metaData = {
 
         // 处理背景颜色透明度
         if (bgColor !== 'transparent' && bgColor.startsWith('#')) {
-            // 将十六进制颜色转换为rgba
             const r = parseInt(bgColor.slice(1, 3), 16);
             const g = parseInt(bgColor.slice(3, 5), 16);
             const b = parseInt(bgColor.slice(5, 7), 16);
             el.style.backgroundColor = `rgba(${r}, ${g}, ${b}, ${bgOpacity})`;
-        } else if (bgColor !== 'transparent') {
-            // 对于rgb或rgba格式，尝试覆盖透明度
-            if (bgColor.startsWith('rgb')) {
-                const rgb = bgColor.match(/\d+/g);
-                if (rgb && rgb.length >= 3) {
-                    el.style.backgroundColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${bgOpacity})`;
-                }
-            } else {
-                el.style.backgroundColor = bgColor;
-                // 如果设置了背景透明度但颜色不支持rgba，使用整体透明度
-                if (bgOpacity !== 1) {
-                    el.style.opacity = bgOpacity; // 这会同时影响文本
-                }
+        } else if (bgColor !== 'transparent' && bgColor.startsWith('rgb')) {
+            const rgb = bgColor.match(/\d+/g);
+            if (rgb && rgb.length >= 3) {
+                el.style.backgroundColor = `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${bgOpacity})`;
             }
         }
 
@@ -409,7 +400,7 @@ Extension.metaData = {
         });
     });
 
-    // ========== 创建摇杆（带扩大容器，支持多点触控）==========
+    // ========== 创建摇杆（中心点定位，支持多点触控，适配缩放）==========
     BN.regMethod('dnd_ui_joystick', (params, uuid, uuid2, utils) => {
         const id = params.ID || `joy_${nextId++}`;
         if (uiControls.has(id)) {
@@ -418,27 +409,30 @@ Extension.metaData = {
         }
 
         const transformer = getTransformer();
-        const x = parseInt(params.X) || 100;
-        const y = parseInt(params.Y) || 100;
-        const r = parseInt(params.R) || 50;
+        const centerX = parseInt(params.X) || 100;
+        const centerY = parseInt(params.Y) || 100;
+        const r = parseInt(params.R) || 50;          // 逻辑半径
         const color = params.COLOR || '#FF9800';
 
-        // 容器尺寸 = 直径 + 25（确保摇杆完整显示）
+        // 容器尺寸（逻辑像素）
         const containerSize = r * 2 + 25;
+        const left = centerX - containerSize / 2;
+        const top = centerY - containerSize / 2;
+
         const container = document.createElement('div');
         container.setAttribute('data-dnd-ui', 'true');
         container.setAttribute('data-dnd-id', id);
         container.style.cssText = `
             position: absolute;
-            left: ${x}px;
-            top: ${y}px;
+            left: ${left}px;
+            top: ${top}px;
             width: ${containerSize}px;
             height: ${containerSize}px;
             z-index: 10000;
             touch-action: none;
         `;
 
-        // 外圈（背景圆）
+        // 外圈（实际摇杆视觉区域）
         const outer = document.createElement('div');
         outer.style.cssText = `
             position: absolute;
@@ -472,14 +466,93 @@ Extension.metaData = {
         container.appendChild(knob);
         transformer.appendChild(container);
 
-        // 使用 Map 存储多个触摸点的状态
         const activeTouches = new Map(); // touchId -> { xVal, yVal, angle, force }
 
-        // 摇杆状态 - 使用 getter 返回最后一个触摸点的值
-        const control = {
+        // 更新摇杆状态的函数（基于 outer 实际渲染尺寸）
+        function updateJoystickForTouch(touch) {
+            const outerRect = outer.getBoundingClientRect();
+            const centerX = outerRect.left + outerRect.width / 2;
+            const centerY = outerRect.top + outerRect.height / 2;
+            const maxDist = r;
+
+            const dx = touch.clientX - centerX;
+            const dy = touch.clientY - centerY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            let xVal, yVal, angle, force;
+
+            if (dist < maxDist) {
+                xVal = dx / maxDist;
+                yVal = -dy / maxDist; // Y轴向上为正
+                angle = Math.atan2(dy, dx) * 180 / Math.PI;
+                force = dist / maxDist;
+            } else {
+                const angleRad = Math.atan2(dy, dx);
+                xVal = Math.cos(angleRad);
+                yVal = -Math.sin(angleRad);
+                angle = angleRad * 180 / Math.PI;
+                force = 1;
+            }
+
+            activeTouches.set(touch.identifier, { xVal, yVal, angle, force });
+
+            // 更新摇杆帽位置（基于实际像素）
+            const lastTouch = Array.from(activeTouches.values()).pop();
+            if (lastTouch) {
+                knob.style.transform = `translate(calc(-50% + ${lastTouch.xVal * maxDist}px), calc(-50% + ${-lastTouch.yVal * maxDist}px))`;
+            }
+        }
+
+        // 触摸事件
+        container.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            Array.from(e.touches).forEach(touch => updateJoystickForTouch(touch));
+        });
+
+        container.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            Array.from(e.touches).forEach(touch => {
+                if (activeTouches.has(touch.identifier)) {
+                    updateJoystickForTouch(touch);
+                }
+            });
+        });
+
+        container.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const remainingIds = new Set();
+            Array.from(e.touches).forEach(touch => remainingIds.add(touch.identifier));
+
+            for (let id of activeTouches.keys()) {
+                if (!remainingIds.has(id)) {
+                    activeTouches.delete(id);
+                }
+            }
+
+            if (activeTouches.size === 0) {
+                knob.style.transform = 'translate(-50%, -50%)';
+            } else {
+                // 用剩余的触摸点更新位置（需重新获取实际半径）
+                const lastTouch = Array.from(activeTouches.values()).pop();
+                const outerRect = outer.getBoundingClientRect();
+                const maxDist = outerRect.width / 2;
+                knob.style.transform = `translate(calc(-50% + ${lastTouch.xVal * maxDist}px), calc(-50% + ${-lastTouch.yVal * maxDist}px))`;
+            }
+        });
+
+        container.addEventListener('touchcancel', (e) => {
+            e.preventDefault();
+            activeTouches.clear();
+            knob.style.transform = 'translate(-50%, -50%)';
+        });
+
+        // 摇杆状态对象
+        uiControls.set(id, {
             type: 'joystick',
             element: container,
-            x, y, r, color,
+            x: centerX,
+            y: centerY,
+            r, color,
             get xVal() {
                 const last = Array.from(activeTouches.values()).pop();
                 return last ? last.xVal : 0;
@@ -496,97 +569,6 @@ Extension.metaData = {
                 const last = Array.from(activeTouches.values()).pop();
                 return last ? last.force : 0;
             }
-        };
-        uiControls.set(id, control);
-
-        // 计算摇杆位置的函数
-        function updateJoystickForTouch(touch) {
-            const rect = container.getBoundingClientRect();
-            const centerX = rect.left + containerSize/2;
-            const centerY = rect.top + containerSize/2;
-            const dx = touch.clientX - centerX;
-            const dy = touch.clientY - centerY;
-            const dist = Math.sqrt(dx*dx + dy*dy);
-            const maxDist = r;
-
-            let xVal, yVal, angle, force;
-
-            if (dist < maxDist) {
-                xVal = dx / maxDist;
-                yVal = -dy / maxDist;
-                angle = Math.atan2(dy, dx) * 180 / Math.PI;
-                force = Math.min(dist / maxDist, 1);
-            } else {
-                // 限制在圆内
-                const angleRad = Math.atan2(dy, dx);
-                const limitedX = Math.cos(angleRad) * maxDist;
-                const limitedY = Math.sin(angleRad) * maxDist;
-                xVal = limitedX / maxDist;
-                yVal = -limitedY / maxDist;
-                angle = angleRad * 180 / Math.PI;
-                force = 1;
-            }
-
-            // 更新该触摸点的状态
-            activeTouches.set(touch.identifier, { xVal, yVal, angle, force });
-
-            // 更新摇杆帽位置 - 使用最后一个触摸点
-            const lastTouch = Array.from(activeTouches.values()).pop();
-            if (lastTouch) {
-                const displayDx = lastTouch.xVal * maxDist;
-                const displayDy = -lastTouch.yVal * maxDist;
-                knob.style.transform = `translate(calc(-50% + ${displayDx}px), calc(-50% + ${displayDy}px))`;
-            }
-        }
-
-        // 触摸事件
-        container.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            Array.from(e.touches).forEach(touch => {
-                updateJoystickForTouch(touch);
-            });
-        });
-
-        container.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            Array.from(e.touches).forEach(touch => {
-                if (activeTouches.has(touch.identifier)) {
-                    updateJoystickForTouch(touch);
-                }
-            });
-        });
-
-        container.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            // 找出哪些触摸点结束了
-            const remainingIds = new Set();
-            Array.from(e.touches).forEach(touch => {
-                remainingIds.add(touch.identifier);
-            });
-
-            // 删除结束的触摸点
-            for (let [id] of activeTouches) {
-                if (!remainingIds.has(id)) {
-                    activeTouches.delete(id);
-                }
-            }
-
-            // 如果没有触摸点了，重置摇杆
-            if (activeTouches.size === 0) {
-                knob.style.transform = 'translate(-50%, -50%)';
-            } else {
-                // 用剩余的触摸点更新摇杆位置
-                const lastTouch = Array.from(activeTouches.values()).pop();
-                const displayDx = lastTouch.xVal * r;
-                const displayDy = -lastTouch.yVal * r;
-                knob.style.transform = `translate(calc(-50% + ${displayDx}px), calc(-50% + ${displayDy}px))`;
-            }
-        });
-
-        container.addEventListener('touchcancel', (e) => {
-            e.preventDefault();
-            activeTouches.clear();
-            knob.style.transform = 'translate(-50%, -50%)';
         });
     });
 
@@ -600,12 +582,12 @@ Extension.metaData = {
         if (state === 'pressed') return c.pressed;
         if (state === 'clicked') {
             const val = c.clicked;
-            c.clicked = false; // 消费后重置
+            c.clicked = false;
             return val;
         }
         if (state === 'released') {
             const val = c.justReleased;
-            c.justReleased = false; // 消费后重置
+            c.justReleased = false;
             return val;
         }
         return false;
@@ -647,13 +629,32 @@ Extension.metaData = {
 
     BN.regMethod('dnd_ui_set_position', (params, uuid, uuid2, utils) => {
         const id = params.ID;
-        const x = parseInt(params.X);
-        const y = parseInt(params.Y);
+        const newCenterX = parseInt(params.X);
+        const newCenterY = parseInt(params.Y);
         const c = uiControls.get(id);
         if (!c) return;
-        c.element.style.left = x + 'px';
-        c.element.style.top = y + 'px';
-        c.x = x; c.y = y;
+
+        if (c.type === 'button') {
+            const left = newCenterX - c.w/2;
+            const top = newCenterY - c.h/2;
+            c.element.style.left = left + 'px';
+            c.element.style.top = top + 'px';
+            c.x = newCenterX;
+            c.y = newCenterY;
+        } else if (c.type === 'joystick') {
+            const containerSize = c.r * 2 + 25;
+            const left = newCenterX - containerSize/2;
+            const top = newCenterY - containerSize/2;
+            c.element.style.left = left + 'px';
+            c.element.style.top = top + 'px';
+            c.x = newCenterX;
+            c.y = newCenterY;
+        } else if (c.type === 'text') {
+            c.element.style.left = newCenterX + 'px';
+            c.element.style.top = newCenterY + 'px';
+            c.x = newCenterX;
+            c.y = newCenterY;
+        }
     });
 
     BN.regMethod('dnd_ui_set_size', (params, uuid, uuid2, utils) => {
@@ -663,8 +664,13 @@ Extension.metaData = {
         const c = uiControls.get(id);
         if (!c) return;
         if (c.type === 'button') {
+            // 保持中心不变，调整左上角
+            const centerX = c.x;
+            const centerY = c.y;
             c.element.style.width = w + 'px';
             c.element.style.height = h + 'px';
+            c.element.style.left = (centerX - w/2) + 'px';
+            c.element.style.top = (centerY - h/2) + 'px';
             c.w = w; c.h = h;
         } else if (c.type === 'text') {
             c.element.style.width = w + 'px';

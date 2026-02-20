@@ -36,6 +36,7 @@ hook("./src/webview/bridge/messages.ts", "HookBridgeMsg");
 hook("./node_modules/@crc/heart/build/opti/compiler.js", "HookOptiCompiler");
 hook("./node_modules/@crc/stage/build/core/physics/actor_body.js", "HookActorBody");
 hook("./node_modules/dsbridge/index.js", "HookDsbridge");
+hook("./node_modules/@crc/blink/dist/core/singletons/theme.js", "HookTheme");
 function isPhoneTestEnv() {
     return !navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99";
 }

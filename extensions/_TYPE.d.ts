@@ -40,28 +40,33 @@ interface BetterNemo {
         /**
          * 创建一个标题
          * @param {string} text 标题
+         * @returns XML字符串
          */
         title: (text: string) => string;
         /**
          * 创建一个错误提示
          * @param {string} text 错误提示
+         * @returns XML字符串
          */
         error: (text: string) => string;
         /**
          * 创建一个分割线
          * @param {string} text 文本
          * @param {number} height 高度，可选，建议默认
+         * @returns XML字符串
          */
         line: (text: string, height?: number) => string;
         /**
          * 创建一个结束线
          * @param {number} width 宽，可选，建议默认
          * @param {number} height 高，可选，建议默认
+         * @returns XML字符串
          */
         flyout_bottom: (width?: number, height?: number) => string;
         /**
          * 创建一个间隔
          * @param {number} gap 间隔，可选
+         * @returns XML字符串
          */
         sep: (gap?: number) => string;
         numValue: (name: string, value: number) => string;
@@ -71,14 +76,26 @@ interface BetterNemo {
          * 创建一个积木
          * @param {string} type 积木ID
          * @param {string[]} values 其它输入的XML，可选
+         * @returns XML字符串
          */
         block: (type: string, ...values: string[]) => string;
         /**
-         * 创建一个简单事件积木
+         * 创建一个事件积木
          * @param {string} type 积木ID
-         * @param {string[][]} params 事件参数，可选，格式：[inputName, paramBlockID]
+         * @param {string[][]} [params] 事件参数，可选，格式：[inputName, paramBlockID]
+         * @returns XML字符串
          */
-        simpleEventBlock: (type: string, ...params: any[]) => string[];
+        eventBlock: (type: string, ...params: any[]) => string[];
+        /** @deprecated */
+        simpleEventBlock;
+        /**
+         * 创建一个按钮
+         * @param {string} key 唯一标识符
+         * @param {string} text 文本
+         * @param {Function} callback 回调
+         * @returns XML字符串
+         */
+        button: (key: string, text: string, callback: Function) => string;
     };
     /**
      * 注册新的颜色
@@ -87,38 +104,61 @@ interface BetterNemo {
      * @param {string} border 边框色
      * @param {string} layer 参数色，可选
      */
-    regColor: (colorID: string, fill: string, border: string, layer?: string) => void;
+    regColor: (
+        colorID: string,
+        fill: string,
+        border: string,
+        layer?: string,
+    ) => void;
     /**
      * 注册新的积木集
      * @param {object[]} blocks 积木定义
      */
-    regBlocks: (blocks: object[]) => void;
+    defineBlocks: (blocks: object[]) => void;
+    /** @deprecated */
+    regBlocks;
     /**
      * 注册一个简单事件积木
      * @param {string} eventBlockId 积木ID
      */
-    regSimpleEvent: (eventBlockId: string) => void;
+    regEvent: (eventBlockId: string) => void;
+    /** @deprecated */
+    regSimpleEvent;
     /**
      * 注册新的解释器
      * @param {string} name 积木ID
      * @param {function} func 解释器
      * @param {string} error_msg 出错提示，可选
      */
-    regMethod: (name: string, func: Function, error_msg?: string) => Promise<void>;
+    regDomainFunction: (
+        name: string,
+        func: Function,
+        error_msg?: string,
+    ) => Promise<void>;
+    /** @deprecated */
+    regMethod;
     /**
      * 追加新的积木盒
-     * @param {string} name 
+     * @param {string} name
      * @param {string} icon 图标symbol的id
      * @param {string} color 颜色
      * @param {string[]} blocks 积木XML文本列表
      * @param {boolean} selectedColor 选中时颜色，默认为白
      */
-    addToolbox: (name: string, icon: string, color: string, blocks: string[], selectedColor?: string) => void;
+    addToolbox: (
+        name: string,
+        icon: string,
+        color: string,
+        blocks: string[],
+        selectedColor?: string,
+    ) => void;
     /**
      * 注册图标symbol，id建议使用icon-XXX格式命名
      * @param {string} svg svg字符串
      */
-    regIcon: (svg: string) => void;
+    addIcon: (svg: string) => void;
+    /** @deprecated */
+    regIcon;
     /**
      * 等待Blockly加载完成，请置于颜色定义前。
      */
