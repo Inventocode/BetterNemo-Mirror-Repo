@@ -1,5 +1,6 @@
 const EXTENSION_FILES = [
     "[扩展模板]template",
+    "PEN+",
     "[MQTT]mqtt",
     "[加密]encrypt",
     "[在线音乐]music",
@@ -18,5 +19,5 @@ const EXTENSION_FILES = [
     "[舞台触控]DNDToucher",
     "[MDUI控件]mdui",
     "[用户信息]UserInf",
-    "[MC头像]MCHeadPicker"
+    "[MC头像]MCHeadPicker",
 ]

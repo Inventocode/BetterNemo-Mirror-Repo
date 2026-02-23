@@ -52,20 +52,20 @@ interface BetterNemo {
         /**
          * 创建一个分割线
          * @param {string} text 文本
-         * @param {number} height 高度，可选，建议默认
+         * @param {number} [height] 高度，可选，建议默认
          * @returns XML字符串
          */
         line: (text: string, height?: number) => string;
         /**
          * 创建一个结束线
-         * @param {number} width 宽，可选，建议默认
-         * @param {number} height 高，可选，建议默认
+         * @param {number} [width] 宽，可选，建议默认
+         * @param {number} [height] 高，可选，建议默认
          * @returns XML字符串
          */
         flyout_bottom: (width?: number, height?: number) => string;
         /**
          * 创建一个间隔
-         * @param {number} gap 间隔，可选
+         * @param {number} [gap] 间隔，可选
          * @returns XML字符串
          */
         sep: (gap?: number) => string;
@@ -75,7 +75,7 @@ interface BetterNemo {
         /**
          * 创建一个积木
          * @param {string} type 积木ID
-         * @param {string[]} values 其它输入的XML，可选
+         * @param {string[]} [values] 其它输入的XML，可选
          * @returns XML字符串
          */
         block: (type: string, ...values: string[]) => string;
@@ -93,16 +93,17 @@ interface BetterNemo {
          * @param {string} key 唯一标识符
          * @param {string} text 文本
          * @param {Function} callback 回调
+         * @param {string} [className] 类名，可选
          * @returns XML字符串
          */
-        button: (key: string, text: string, callback: Function) => string;
+        button: (key: string, text: string, callback: Function, className?: string) => string;
     };
     /**
      * 注册新的颜色
      * @param {string} colorID 颜色ID，建议使用XXX_HUE命名
      * @param {string} fill 填充色
      * @param {string} border 边框色
-     * @param {string} layer 参数色，可选
+     * @param {string} [layer] 参数色，可选
      */
     regColor: (
         colorID: string,
@@ -128,7 +129,7 @@ interface BetterNemo {
      * 注册新的解释器
      * @param {string} name 积木ID
      * @param {function} func 解释器
-     * @param {string} error_msg 出错提示，可选
+     * @param {string} [error_msg] 出错提示，可选
      */
     regDomainFunction: (
         name: string,
@@ -174,7 +175,7 @@ interface BetterNemo {
     /**
      * 触发一个事件
      * @param {string} eventBlockId 事件积木ID
-     * @param {object} params 参数，可选
+     * @param {object} [params] 参数，可选
      */
     emitSimpleEvent: (eventBlockId: string, params?: object) => void;
     /**

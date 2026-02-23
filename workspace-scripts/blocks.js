@@ -861,7 +861,7 @@
         },
         {
             type: "bn_color",
-            message0: "%1",
+            message0: "[B]%1",
             args0: [{ type: "field_colour", name: "color", colour: "#cc66cc" }],
             colour: "%{BKY_PEN_HUE}",
             inputsInline: true,

@@ -130,7 +130,7 @@ Extension.metaData = {
     // 定义你的积木盒
     const templateXML = [
         Toolbox.title("模板 · Template"),
-        Toolbox.button("template_button", "template_button", () => console.log("嗯呃~")),
+        Toolbox.button("template", "HELLO", () => console.log("嗯呃~")),
         Toolbox.eventBlock("template_6"),
         Toolbox.block("template_3"),
         Toolbox.error("这到底是什么啊啊啊？！"),
@@ -149,10 +149,10 @@ Extension.metaData = {
     await BN.waitRunmgrLoaded();
     (() => {
         const action_type = {
-            id: eventBlockId,
+            id: 'template_6',
             entity_specific: false,
             responder_blocks: [{
-                id: eventBlockId,
+                id: 'template_6',
                 type: "action",
                 async: false,
             }],

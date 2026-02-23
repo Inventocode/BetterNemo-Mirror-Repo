@@ -324,6 +324,7 @@ function emitSimpleEvent(name, params = {}) {
         });
     })();
 }
+
 const BetterNemo = {
     log: (moduleName, ...msgs) => {
         if (moduleName) {
@@ -413,9 +414,9 @@ const BetterNemo = {
         ],
         /** @deprecated */
         simpleEventBlock: (...args) => BetterNemo.Toolbox.eventBlock(...args),
-        button: (key, text, callback) => {
+        button: (key, text, callback, className = '') => {
             Blockly.mainWorkspace.register_button_callback(key, callback);
-            return `<button text="${text}" callbackKey="${key}"></button>`;
+            return `<button text="${text}" callbackkey="${key}" type="normal"${className ? ` web-class="${className}"` : ''}></button>`;
         }
     },
     regColor: (colorID, fill, border, layer = '') => {
@@ -674,7 +675,6 @@ async function showExtensionShop(disabled = [], callback) {
                     checked: config[fileName], fileName, id: fileName.replaceAll('[', '').replaceAll(']', '').replaceAll('.', ''),
                     title: menuName, content: '作者：' + metaData.author + '<br>' + metaData.description, page: 'custom'
                 });
-                disabled.push(fileName);
             }
     });
     // 使用 AbortController 管理一次性监听器，避免冲突
@@ -709,7 +709,7 @@ async function showExtensionShop(disabled = [], callback) {
 
         // 初始化并打开对话框
         initializeCards();
-        nav.querySelector('mdui-navigation-rail-item[value="custom"]').click();
+        showPageCards('custom');
         dialog.open = true;
 
         // 清理函数：关闭对话框并终止所有监听
