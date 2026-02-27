@@ -37,20 +37,23 @@ hook("./node_modules/@crc/heart/build/opti/compiler.js", "HookOptiCompiler");
 hook("./node_modules/@crc/stage/build/core/physics/actor_body.js", "HookActorBody");
 hook("./node_modules/dsbridge/index.js", "HookDsbridge");
 hook("./node_modules/@crc/blink/dist/core/singletons/theme.js", "HookTheme");
+const PLAYER = (new URLSearchParams(window.location.search)).get('player');
 function isPhoneTestEnv() {
+    if (PLAYER) return false;
     return !navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99";
 }
 function isPCTestEnv() {
     return navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99";
 }
-let debugServer;
-if (isPhoneTestEnv()){ debugServer = new WebSocket("ws://192.168.1.11:1234");
+let debugServer = { send: () => { } };
+if (isPhoneTestEnv()) {
+    debugServer = new WebSocket("ws://192.168.1.11:1234");
     function reconnect() {
         console.log('重连');
         debugServer = new WebSocket("ws://192.168.1.11:1234");
         debugServer.onclose = reconnect;
     };
-    debugServer.onclose = reconnect; 
+    debugServer.onclose = reconnect;
 }
 function parseJSDocHeader(fileContent) {
     // 匹配文件开头的 /** ... */ 注释块
@@ -92,8 +95,6 @@ function get_run_mgr() {
     if (!window['HookRuntime']) return;
     return HookRuntime.exports.get_webview_runtime().heart.runtime_manager.run_mgr;
 }
-let extensionMetaData = {};
-let themeMetaData = {};
 function loadScript(src) {
     if (isPhoneTestEnv())
         src = `http://192.168.1.11:8080/${src}`;
@@ -119,11 +120,21 @@ function loadStyle(src) {
         document.head.appendChild(style);
     });
 }
+if (!PLAYER && isPCTestEnv()) {
+    setInterval(() => {
+        if (document.querySelector("#theatre_container")) {
+            document.querySelector("#theatre_container").style.display = "none";
+        }
+    }, 100);
+}
+let extensionMetaData = {};
+let themeMetaData = {};
 let ok = false;
 setInterval(() => {
     // window._dsInit = true;
     if (window._dsf) {
         const postMessage = _dsf.postMessage;
+        window['postMsg'] = _dsf.postMessage;
         _dsf.postMessage = (...args) => {
             if (experimentalConfig.webview_debug) {
                 console.log('[Nemo -> Webview]', ...args);
@@ -146,6 +157,7 @@ setInterval(() => {
             return postMessage.apply(_dsf, args);
         };
         const postMessageAsyn = _dsaf.postMessageAsyn;
+        window['postMsgAsyn'] = _dsaf.postMessageAsyn;
         _dsaf.postMessageAsyn = async (...args) => {
             if (experimentalConfig.webview_debug) {
                 console.log('[Nemo -> Webview] [ASYNC]', ...args);
@@ -157,28 +169,7 @@ setInterval(() => {
             return postMessageAsyn.apply(_dsaf, args);
         };
     }
-    if ((!ok) && window['_dsbridge']) {
-        // _dsbridge.call('_dsb.dsinit', "{\"data\":null}");
-        const call = _dsbridge.call;
-        _dsbridge.call = (...args) => {
-            console.log('_dsbridge.call', ...args);
-            return call.apply(_dsbridge, args);
-        };
-        console.log('WOOOOOOOOOOOOOOOOOOOOOOWWWWWWWWWW', 'dsbridge');
-        ok = true;
-    }
 }, 50);
-const log = console.log;
-// console.log = function (...args) {
-//     try {
-//         if (args[0])
-//             if (args[0].includes('%c')) {
-//                 log(...args);
-//                 return;
-//             }
-//     } catch (e) { }
-//     log(new Date().toLocaleTimeString(), ...args);
-// };
 (async () => {
     await loadScript('extensions/_CONFIG.js');
     extensionMgrLog('扩展列表:', EXTENSION_FILES.join(', '));

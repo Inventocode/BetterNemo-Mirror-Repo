@@ -1,7 +1,10 @@
 const EXTENSION_FILES = [
     "[扩展模板]template",
-    "PEN+",
-    "[MQTT]mqtt",
+    "[PEN+]pen-plus",
+    "[MATH+]math-plus",
+    "[HTTP与JSON]network",
+    "WebSocket",
+    "MQTT",
     "[加密]encrypt",
     "[在线音乐]music",
     "[简单文件系统]SFS",

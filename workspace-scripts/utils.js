@@ -475,6 +475,7 @@ function reloadExtension() {
             }
             const treeRoot = document.querySelector("#workspace > div > div > div.blocklyTreeRoot");
             if (treeRoot && treeRoot.lastChild) {
+                console.log("remove", treeRoot.lastChild);
                 treeRoot.lastChild.remove();
             }
             nextElement = toolboxBn.parentElement.nextElementSibling;
@@ -672,7 +673,10 @@ async function showExtensionShop(disabled = [], callback) {
             if (extensionMetaData[fileName]) {
                 const metaData = extensionMetaData[fileName];
                 allCards.push({
-                    checked: config[fileName], fileName, id: fileName.replaceAll('[', '').replaceAll(']', '').replaceAll('.', ''),
+                    checked: config[fileName], fileName, id: ((t) => {
+                        '[],.+'.split('').forEach(c => t = t.replaceAll(c, ''));
+                        return t;
+                    })(fileName),
                     title: menuName, content: '作者：' + metaData.author + '<br>' + metaData.description, page: 'custom'
                 });
             }
@@ -720,6 +724,7 @@ async function showExtensionShop(disabled = [], callback) {
     });
 }
 (async () => {
+    if (isPCTestEnv()) window['_dsbridge'] = { call: (...args) => { console.log(...args); } };
     const dsbridge = await waitHook('Dsbridge');
     const call = dsbridge.call;
     dsbridge.call = (...args) => {
@@ -730,6 +735,118 @@ async function showExtensionShop(disabled = [], callback) {
                 data: [...args]
             }));
         }
+        if (args.length === 1)
+            if (args[0] === '_dsb.dsinit')
+                if (PLAYER) {
+                    document.querySelector("#floatBall").style.display = "none";
+                    const unloggedData = {
+                        avatar_url: "",
+                        bcm_version: "0.9.3",
+                        context_menu_with_set_block_visibility: false,
+                        enable_hide: false,
+                        is_login: false,
+                        is_pad: false,
+                        nickname: "",
+                        sidebar_width: 64,
+                        stage_position: {
+                            portrait: {
+                                fullscreen: { bottom: 0, height: 591, left: 0, ratio: 0, right: 0, top: 0, width: 369, },
+                                normal: { bottom: 0, height: 369, left: 0, ratio: 0, right: 0, top: 0, width: 231, }
+                            }
+                        },
+                        toolbox_mode: "normal",
+                        translucent_block_visible: "visible",
+                        user_id: "",
+                        user_level: -1,
+                        user_token: "",
+                        webview_height: 0,
+                    };
+                    async function loadWork(data, bcm) {
+                        postMsg('INIT_WEBVIEW_DATA', JSON.stringify(data));
+                        BetterNemo.log('Player', '初始化数据成功');
+                        console.log('Player BCM', bcm);
+                        await postMsgAsyn('LOAD_BCM', JSON.stringify(bcm));
+                        BetterNemo.log('Player', '作品已加载');
+                        postMsg('SET_THEATRE_VISIBLE', 'true');
+                        BetterNemo.log('Player', '已显示舞台');
+                        postMsg('SET_RUN_STATE', 'true');
+                        BetterNemo.log('Player', '运行状态：true');
+                        postMsg('THEATRE_FULL_SCREEN', '{"visible":true}');
+                    }
+                    function getCookie(cname) {
+                        var name = cname + "=";
+                        var ca = document.cookie.split(';');
+                        for (var i = 0; i < ca.length; i++) {
+                            var c = ca[i].trim();
+                            if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
+                        }
+                        return undefined;
+                    }
+                    async function codemaoLogin() {
+                        const overlay = document.createElement('div');
+                        overlay.setAttribute('style', 'position: fixed; top: 0px; left: 0px; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); z-index: 2147483647; display: none; align-items: center; justify-content: center; flex-direction: column;');
+                        const iframe = document.createElement('iframe');
+                        iframe.src = 'https://shequ.codemao.cn/codemao_login?language=zh&ageLimit=false&pageView=login&theme=violet&env=production&productCode=kitten&platform=pc';
+                        iframe.setAttribute('style', 'width: 100%;height: 100%;border: none;background: transparent;color-scheme: none;');
+                        iframe.allow = 'camera; microphone; fullscreen';
+                        overlay.appendChild(iframe);
+                        document.body.appendChild(overlay);
+                        let messageHandler = null;
+                        let isResolved = false;
+                        const waitForMessage = new Promise((resolve, reject) => {
+                            messageHandler = (event) => {
+                                if (event.origin !== 'https://shequ.codemao.cn') return;
+                                const data = event.data;
+                                console.log('收到消息:', data);
+                                if (!data.content) return;
+                                if (data.content.payload.event === 'IFRAME_READY')
+                                    overlay.style.display = 'flex';
+                                if (data.content.payload.event === 'PASSWORD_LOGIN_SUCCESS')
+                                    if (!isResolved) {
+                                        isResolved = true;
+                                        resolve(data.content.payload.value);
+                                        cleanup();
+                                    }
+                                if (data.content.payload.event === 'CLOSE_ANIMATION_END')
+                                    if (!isResolved) {
+                                        isResolved = true;
+                                        reject(new Error('取消'));
+                                        cleanup();
+                                    }
+                            };
+                            window.addEventListener('message', messageHandler);
+                        });
+                        const cleanup = () => {
+                            if (messageHandler) { window.removeEventListener('message', messageHandler); messageHandler = null; }
+                            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
+                        };
+                        return waitForMessage;
+                    }
+                    // const userToken = getCookie('authorization');
+                    // if (!userToken)
+                    //     codemaoLogin()
+                    //         .then(result => console.log('登录成功', result))
+                    //         .catch(err => console.log('登录取消', err));
+                    let webviewData = { ...unloggedData };
+                    webviewData.stage_position.portrait.fullscreen.height = document.documentElement.scrollHeight;
+                    webviewData.stage_position.portrait.fullscreen.width = document.documentElement.scrollHeight * 0.624365;
+                    if (PLAYER.startsWith('https://') || PLAYER.startsWith('http://'))
+                        fetch(PLAYER)
+                            .then(response => response.json())
+                            .then(data => loadWork(webviewData, data));
+                    else if (parseInt(PLAYER) !== NaN)
+                        fetch(`https://api.codemao.cn/creation-tools/v1/works/${parseInt(PLAYER)}/source/public`)
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data['error_code'])
+                                    document.write(`<h1>Error ${data['error_code']}: ${data['error_message']}</h1>`);
+                                const workId = data['work_id'];
+                                if (workId && data['work_urls'].length > 0)
+                                    fetch(data['work_urls'][0])
+                                        .then(response => response.json())
+                                        .then(data => loadWork(webviewData, data));
+                            });
+                }
         if (args.length === 3)
             try {
                 const data = JSON.parse(args[1]);
