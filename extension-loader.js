@@ -45,6 +45,9 @@ function isPhoneTestEnv() {
 function isPCTestEnv() {
     return navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99";
 }
+function isCloudflareEnv() {
+    return betternemo - mirror - repo.pages.dev == 'betternemo-mirror-repo.pages.dev';
+}
 let debugServer = { send: () => { } };
 if (isPhoneTestEnv()) {
     debugServer = new WebSocket("ws://192.168.1.11:1234");
@@ -96,6 +99,8 @@ function get_run_mgr() {
     return HookRuntime.exports.get_webview_runtime().heart.runtime_manager.run_mgr;
 }
 function loadScript(src) {
+    if (isCloudflareEnv())
+        src = `https://gitee.com/oldsquaw/better-nemo/raw/main/${src}`;
     if (isPhoneTestEnv())
         src = `http://192.168.1.11:8080/${src}`;
     return new Promise((resolve, reject) => {
@@ -107,6 +112,8 @@ function loadScript(src) {
     });
 }
 function loadStyle(src) {
+    if (isCloudflareEnv())
+        src = `https://gitee.com/oldsquaw/better-nemo/raw/main/${src}`;
     if (isPhoneTestEnv())
         src = `http://192.168.1.11:8080/${src}`;
     return new Promise((resolve, reject) => {
