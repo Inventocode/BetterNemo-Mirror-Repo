@@ -772,6 +772,7 @@ async function showExtensionShop(disabled = [], callback) {
                         postMsg('SET_RUN_STATE', 'true');
                         BetterNemo.log('Player', '运行状态：true');
                         postMsg('THEATRE_FULL_SCREEN', '{"visible":true}');
+                        hideLoader();
                     }
                     function getCookie(cname) {
                         var name = cname + "=";

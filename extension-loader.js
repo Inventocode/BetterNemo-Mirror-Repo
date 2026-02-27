@@ -37,7 +37,16 @@ hook("./node_modules/@crc/heart/build/opti/compiler.js", "HookOptiCompiler");
 hook("./node_modules/@crc/stage/build/core/physics/actor_body.js", "HookActorBody");
 hook("./node_modules/dsbridge/index.js", "HookDsbridge");
 hook("./node_modules/@crc/blink/dist/core/singletons/theme.js", "HookTheme");
+
 const PLAYER = (new URLSearchParams(window.location.search)).get('player');
+if (PLAYER)
+    (async function () {
+        while (!document['body']) await new Promise(resolve => setTimeout(resolve, 100));
+        document.body.insertAdjacentHTML("afterbegin", `<div class="loader-mask"><div class="loader">${'<div class="text"><span>Better Nemo</span></div>'.repeat(9)}<div class="line"></div></div></div>`);
+    })();
+function hideLoader() {
+    document.querySelector(".loader-mask").style.display = "none";
+}
 function isPhoneTestEnv() {
     if (PLAYER) return false;
     return !navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99";
@@ -46,7 +55,7 @@ function isPCTestEnv() {
     return navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99";
 }
 function isCloudflareEnv() {
-    return betternemo - mirror - repo.pages.dev == 'betternemo-mirror-repo.pages.dev';
+    return window.location.hostname == 'betternemo-mirror-repo.pages.dev';
 }
 let debugServer = { send: () => { } };
 if (isPhoneTestEnv()) {
@@ -178,6 +187,7 @@ setInterval(() => {
     }
 }, 50);
 (async () => {
+    loadStyle('style.css');
     await loadScript('extensions/_CONFIG.js');
     extensionMgrLog('扩展列表:', EXTENSION_FILES.join(', '));
     await loadScript('theme/_CONFIG.js');
