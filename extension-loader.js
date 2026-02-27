@@ -108,8 +108,8 @@ function get_run_mgr() {
     return HookRuntime.exports.get_webview_runtime().heart.runtime_manager.run_mgr;
 }
 function loadScript(src) {
-    if (isCloudflareEnv())
-        src = `https://gitee.com/oldsquaw/better-nemo/raw/main/${src}`;
+    // if (isCloudflareEnv())
+    //     src = `https://gitee.com/oldsquaw/better-nemo/raw/main/${src}`;
     if (isPhoneTestEnv())
         src = `http://192.168.1.11:8080/${src}`;
     return new Promise((resolve, reject) => {
@@ -121,8 +121,8 @@ function loadScript(src) {
     });
 }
 function loadStyle(src) {
-    if (isCloudflareEnv())
-        src = `https://gitee.com/oldsquaw/better-nemo/raw/main/${src}`;
+    // if (isCloudflareEnv())
+    //     src = `https://gitee.com/oldsquaw/better-nemo/raw/main/${src}`;
     if (isPhoneTestEnv())
         src = `http://192.168.1.11:8080/${src}`;
     return new Promise((resolve, reject) => {
@@ -194,7 +194,9 @@ setInterval(() => {
     extensionMgrLog('主题列表:', THEME_FILES.join(', '));
     await loadScript('workspace-scripts/storage.js');
     await loadScript('workspace-scripts/utils.js');
-    loadScript('workspace.bundle.79d6432e01ccdecb492a.js');
+    if (isCloudflareEnv())
+        loadScript('https://db0l8fnn8oqtof.database.nocode.cn/storage/v1/object/public/wenjian/anonymous/1772202797682_q1jamqn6clr.js');
+    else loadScript('workspace.bundle.79d6432e01ccdecb492a.js');
     await loadScript('workspace-scripts/blocks.js');
     await loadScript('workspace-scripts/prototype-inject.js');
     await loadScript('workspace-scripts/toolbox.js');
