@@ -55,7 +55,7 @@ function isPCTestEnv() {
     return navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99";
 }
 function isCloudflareEnv() {
-    return window.location.hostname == 'betternemo-mirror-repo.pages.dev';
+    return window.location.hostname == 'bn-p.pages.dev';
 }
 let debugServer = { send: () => { } };
 if (isPhoneTestEnv()) {
