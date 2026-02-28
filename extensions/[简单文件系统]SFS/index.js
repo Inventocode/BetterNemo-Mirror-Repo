@@ -2,12 +2,11 @@
 
 Extension.metaData = {
     name: "简单文件系统",
-    version: "0.1.0",
+    version: "0.2.0",
     description: "呃一个可以在作品内进行简单文件操作的系统",
     author: "砂墨",
     docs: ""
 };
-
 
 (async () => {
     // 在这里定义了一些必要的API
@@ -215,36 +214,50 @@ Extension.metaData = {
                 },
             ],
         },
+        // ========== 手动重置积木 ==========
+        {
+            type: "SFS_reset",
+            message0: "重置虚拟文件系统",
+            args0: [],
+            ...Block.methodBlock,
+        }
     ].map((block) => { return { ...block, colour: "%{BKY_SIMPLE_FILE_SYSTEM_HUE}" }; });
+    
     // 等待积木对象加载完毕，别动
     await BN.waitBlockLoaded();
     BN.regBlocks(SimpleFileSystemBlocks);
+    
     // --------------------------------积木盒-------------------------------
     // 积木盒定义
     const SFS_XML = [
         Toolbox.title("简单的文件系统 · SFS"),
-        Toolbox.title("虚拟盘 操作"),
+        Toolbox.line("虚拟盘 操作"),
         Toolbox.block("SFS_create_drive"),
         Toolbox.block("SFS_delete_drive"),
-        Toolbox.title("文件/文件夹 操作"),
+        Toolbox.line("文件/文件夹 操作"),
         Toolbox.block("SFS_create_folders"),
         Toolbox.block("SFS_create_file"),
-        Toolbox.title(""),
+        Toolbox.line(""),
         Toolbox.block("SFS_rename"),
         Toolbox.block("SFS_write"),
         Toolbox.block("SFS_move"),
         Toolbox.block("SFS_copy"),
         Toolbox.block("SFS_delete"),
-        Toolbox.title(""),
+        Toolbox.line(""),
         Toolbox.block("SFS_read"),
         Toolbox.block("SFS_check_existence"),
         Toolbox.block("SFS_list"),
+        Toolbox.line(""),
+        Toolbox.block("SFS_reset"),
         Toolbox.flyout_bottom(),
     ];
+    
     // 积木盒图标
     BN.regIcon(`<symbol id="icon-SFS" viewBox="-2000 -2000 5012 5012"><path d="M903.542857 256.685714L657.6 10.742857c-6.857143-6.857143-16.114286-10.742857-25.828571-10.742857H146.285714c-20.228571 0-36.571429 16.342857-36.571428 36.571429v950.857142c0 20.228571 16.342857 36.571429 36.571428 36.571429h731.428572c20.228571 0 36.571429-16.342857 36.571428-36.571429V282.628571c0-9.714286-3.885714-19.085714-10.742857-25.942857zM614.857143 84.342857L829.942857 299.428571H614.857143V84.342857z"></path></symbol>`);
+    
     // 添加积木盒
     BN.addToolbox("SFS", "icon-SFS", "#85a5d6", SFS_XML);
+    
     // ---------------------------虚拟文件系统实现-----------------------------
     // 非法字符定义
     const INVALID_CHARS = /[<>:"/\\|?*\x00-\x1F]/;
@@ -258,6 +271,7 @@ Extension.metaData = {
             this.separator = '/';
         }
         
+        // === 原有方法保持不变 ===
         // 验证盘符
         validateDriveLetter(driveLetter) {
             if (!driveLetter || typeof driveLetter !== 'string' || driveLetter.length !== 1) {
@@ -685,10 +699,39 @@ Extension.metaData = {
             this.drives.delete(driveLetter);
             return null;
         }
+        
+        // ========== 重置整个文件系统 ==========
+        reset() {
+            this.drives.clear();
+        }
     }
     
     // 创建全局文件系统实例
     const vfs = new VirtualFileSystem();
+    
+    // ---------------------------自动重置机制-----------------------------
+    let Runtime = null;
+    try {
+        Runtime = (await BN.waitHook('Runtime')).get_webview_runtime();
+    } catch (error) {
+        BN.error('SFS', '获取Runtime失败:', error.message);
+    }
+    
+    // 定期检查程序运行状态并重置文件系统
+    if (Runtime) {
+        setInterval(() => {
+            try {
+                // 检查程序是否在运行
+                if (!Runtime.heart.heart.get_runtime_data().is_running()) {
+                    vfs.reset();
+                }
+            } catch (error) {
+                // 忽略错误，可能是 Runtime 对象尚未完全初始化
+            }
+        }, 200); // 每200ms检查一次
+    } else {
+        BN.error('SFS', '无法获取Runtime，自动重置功能不可用');
+    }
     
     // ---------------------------解释器-------------------------------------
     await BN.waitRunmgrLoaded();
@@ -931,4 +974,12 @@ Extension.metaData = {
         
         return vfs.listDirectory(driveLetter, pathParts);
     });
+    
+    // ========== 重置积木解释器 ==========
+    BN.regMethod('SFS_reset', (params, _, __, ___) => {
+        vfs.reset();
+        console.log("虚拟文件系统已手动重置");
+    });
+    
+    console.log("简单文件系统 扩展已加载😋");
 })();

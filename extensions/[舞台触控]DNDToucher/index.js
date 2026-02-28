@@ -2,7 +2,7 @@
 
 Extension.metaData = {
     name: "舞台触屏控件",
-    version: "1.2.5",
+    version: "1.2.6",
     description: "按钮、文本、摇杆等触屏控件，支持多触控",
     author: "砂墨&Deepseek",
     docs: ""
@@ -35,8 +35,9 @@ Extension.metaData = {
         // ========== 创建按钮（中心点定位）==========
         {
             type: "dnd_ui_button",
-            message0: "创建按钮 ID %1 文本 %2 中心X %3 中心Y %4 宽度 %5 高度 %6 颜色 %7",
+            message0: "创建按钮 %1 ID %2 文本 %3 中心X %4 中心Y %5 宽度 %6 高度 %7 颜色 %8",
             args0: [
+                { type: "input_dummy" },
                 { type: "input_value", name: "ID", check: "String", value: "btn1" },
                 { type: "input_value", name: "TEXT", check: "String", value: "按钮" },
                 { type: "input_value", name: "X", check: "Number", value: 100 },
@@ -46,13 +47,15 @@ Extension.metaData = {
                 { type: "input_value", name: "COLOR", check: "String", value: "#2196F3" }
             ],
             ...Block.methodBlock,
+            inputsInline: false,
             colour: "%{BKY_DND_UI_HUE}"
         },
         // ========== 创建文本（左上角定位，文本尺寸动态）==========
         {
             type: "dnd_ui_text",
-            message0: "创建文本 ID %1 内容 %2 左上X %3 左上Y %4 文本颜色 %5 文本透明度 %6 背景颜色 %7 背景透明度 %8 圆角 %9 阴影 %10",
+            message0: "创建文本 %1 ID %2 内容 %3 左上X %4 左上Y %5 文本颜色 %6 文本透明度 %7 背景颜色 %8 背景透明度 %9 圆角 %10 阴影 %11",
             args0: [
+                { type: "input_dummy" },
                 { type: "input_value", name: "ID", check: "String", value: "text1" },
                 { type: "input_value", name: "TEXT", check: "String", value: "文本" },
                 { type: "input_value", name: "X", check: "Number", value: 100 },
@@ -65,13 +68,15 @@ Extension.metaData = {
                 { type: "input_value", name: "BOX_SHADOW", check: "String", value: "" }
             ],
             ...Block.methodBlock,
+            inputsInline: false,
             colour: "%{BKY_DND_UI_HUE}"
         },
         // ========== 创建摇杆（中心点定位）==========
         {
             type: "dnd_ui_joystick",
-            message0: "创建摇杆 ID %1 中心X %2 中心Y %3 半径 %4 颜色 %5",
+            message0: "创建摇杆 %1 ID %2 中心X %3 中心Y %4 半径 %5 颜色 %6",
             args0: [
+                { type: "input_dummy" },
                 { type: "input_value", name: "ID", check: "String", value: "joy1" },
                 { type: "input_value", name: "X", check: "Number", value: 100 },
                 { type: "input_value", name: "Y", check: "Number", value: 100 },
@@ -79,6 +84,7 @@ Extension.metaData = {
                 { type: "input_value", name: "COLOR", check: "String", value: "#FF9800" }
             ],
             ...Block.methodBlock,
+            inputsInline: false,
             colour: "%{BKY_DND_UI_HUE}"
         },
 

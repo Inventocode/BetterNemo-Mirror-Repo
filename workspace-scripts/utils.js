@@ -773,6 +773,10 @@ async function showExtensionShop(disabled = [], callback) {
                         webview_height: 0,
                     };
                     async function loadWork(data, bcm) {
+                        // 等待扩展加载完成
+                        setLoaderInfo('', 4);
+                        while (Object.keys(extensionMetaData).length !== EXTENSION_FILES.length)
+                            await new Promise((resolve) => requestAnimationFrame(resolve));
                         setLoaderInfo('初始化数据...', 4);
                         postMsg('INIT_WEBVIEW_DATA', JSON.stringify(data));
                         BetterNemo.log('Player', '初始化数据成功');

@@ -23,4 +23,9 @@ const EXTENSION_FILES = [
     "[MDUI控件]mdui",
     "[用户信息]UserInf",
     "[MC头像]MCHeadPicker",
+    "[更强大的文本印章]MarkdownPen",
+    "[掘隧]Tunnelor",
+    "[舞台iframe]iframe",
+    "[页面查看]htmlviewer",
+    "[B站万能助手]biliMulti",
 ]

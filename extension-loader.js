@@ -111,7 +111,7 @@ function loadScript(src) {
         document.head.appendChild(script);
     });
 }
-(function loadStyle(src) {
+function loadStyle(src) {
     // if (isCloudflareEnv())
     //     src = `https://gitee.com/oldsquaw/better-nemo/raw/main/${src}`;
     if (isPhoneTestEnv())
@@ -126,7 +126,8 @@ function loadScript(src) {
         style.onerror = reject;
         document.head.appendChild(style);
     });
-})('style.css');
+}
+loadStyle('style.css');
 // --------------- 电脑端测试编辑器时隐藏舞台 ---------------
 if (!PLAYER && isPCTestEnv()) {
     setInterval(() => {
