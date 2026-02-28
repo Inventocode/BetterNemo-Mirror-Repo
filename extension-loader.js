@@ -38,6 +38,7 @@ hook("./node_modules/@crc/stage/build/core/physics/actor_body.js", "HookActorBod
 hook("./node_modules/dsbridge/index.js", "HookDsbridge");
 hook("./node_modules/@crc/blink/dist/core/singletons/theme.js", "HookTheme");
 
+// --------------- Player检测 & 加载动画 ---------------
 const PLAYER = (new URLSearchParams(window.location.search)).get('player');
 if (PLAYER)
     (async function () {
@@ -45,8 +46,18 @@ if (PLAYER)
         document.body.insertAdjacentHTML("afterbegin", `<div class="loader-mask"><div class="loader">${'<div class="text"><span>Better Nemo</span></div>'.repeat(9)}<div class="line"></div></div></div>`);
     })();
 function hideLoader() {
+    if (!document.querySelector(".loader-mask")) return;
     document.querySelector(".loader-mask").style.display = "none";
 }
+function setLoaderInfo(info, id = 1) {
+    if (!document.querySelector(".loader")) return;
+    if (!document.querySelector(`.loader > .info.info-${id}`))
+        document.querySelector(".loader").insertAdjacentHTML("beforeend",
+            `<div class="info info-${id}" style="top:calc(50% + ${20 + id * 20}px)"><span>${info}</span></div>`);
+    document.querySelector(`.loader > .info.info-${id}`).innerHTML = `<span>${info}</span>`;
+}
+
+// --------------- 环境检测 ---------------
 function isPhoneTestEnv() {
     if (PLAYER) return false;
     return !navigator.userAgent.includes('__TEST_ENV__') && BetterNemoVersion === "999999.99";
@@ -57,6 +68,7 @@ function isPCTestEnv() {
 function isCloudflareEnv() {
     return window.location.hostname == 'bn-p.pages.dev';
 }
+// --------------- Webview调试服务器 ---------------
 let debugServer = { send: () => { } };
 if (isPhoneTestEnv()) {
     debugServer = new WebSocket("ws://192.168.1.11:1234");
@@ -67,28 +79,7 @@ if (isPhoneTestEnv()) {
     };
     debugServer.onclose = reconnect;
 }
-function parseJSDocHeader(fileContent) {
-    // 匹配文件开头的 /** ... */ 注释块
-    const headerCommentRegex = /^\/\*\*[\s\S]*?\*\//;
-    const match = fileContent.trim().match(headerCommentRegex);
-
-    if (!match) return null;
-
-    const comment = match[0];
-    const metadata = {};
-
-    // 提取 @tag value 格式的内容
-    const tagRegex = /@(\w+)\s+(.+)/g;
-    let tagMatch;
-
-    while ((tagMatch = tagRegex.exec(comment)) !== null) {
-        const tag = tagMatch[1];
-        const value = tagMatch[2].trim();
-        metadata[tag] = value;
-    }
-
-    return metadata;
-}
+// --------------- 工具函数 ---------------
 function extensionMgrLog(...msg) {
     console.log(
         `%c BetterNemo %c %c 扩展管理 %c ${msg.join(' ')}`,
@@ -136,6 +127,7 @@ function loadStyle(src) {
         document.head.appendChild(style);
     });
 }
+// --------------- 电脑端测试编辑器时隐藏舞台 ---------------
 if (!PLAYER && isPCTestEnv()) {
     setInterval(() => {
         if (document.querySelector("#theatre_container")) {
@@ -143,8 +135,10 @@ if (!PLAYER && isPCTestEnv()) {
         }
     }, 100);
 }
+// --------------- 扩展、主题数据初始化 ---------------
 let extensionMetaData = {};
 let themeMetaData = {};
+// --------------- 劫持Nemo向Webview发送的数据 ---------------
 let ok = false;
 setInterval(() => {
     // window._dsInit = true;
@@ -162,7 +156,6 @@ setInterval(() => {
             if (args.length === 2)
                 if (args[0] === 'INIT_WEBVIEW_DATA') {
                     let data = JSON.parse(args[1]);
-                    console.log('已拦截初始化信息！', data);
                     data.context_menu_with_set_block_visibility = true;
                     data.translucent_block_visible = 'translucent';
                     return postMessage.apply(_dsf, [
@@ -186,22 +179,35 @@ setInterval(() => {
         };
     }
 }, 50);
+// --------------- 加载页面 ---------------
 (async () => {
+    setLoaderInfo('加载样式...');
     loadStyle('style.css');
+    setLoaderInfo('获取扩展列表...');
     await loadScript('extensions/_CONFIG.js');
     extensionMgrLog('扩展列表:', EXTENSION_FILES.join(', '));
+    setLoaderInfo('获取主题列表...');
     await loadScript('theme/_CONFIG.js');
     extensionMgrLog('主题列表:', THEME_FILES.join(', '));
+    setLoaderInfo('初始化存储...');
     await loadScript('workspace-scripts/storage.js');
     await loadScript('workspace-scripts/utils.js');
+    setLoaderInfo('加载核心脚本...');
     if (isCloudflareEnv())
         loadScript('https://db0l8fnn8oqtof.database.nocode.cn/storage/v1/object/public/wenjian/anonymous/1772202797682_q1jamqn6clr.js');
     else loadScript('workspace.bundle.79d6432e01ccdecb492a.js');
+    setLoaderInfo('加载自定义积木...');
     await loadScript('workspace-scripts/blocks.js');
+    setLoaderInfo('注入原型...');
     await loadScript('workspace-scripts/prototype-inject.js');
+    setLoaderInfo('加载自定义积木盒...');
     await loadScript('workspace-scripts/toolbox.js');
+    setLoaderInfo('加载自定义解释器...');
     await loadScript('workspace-scripts/domain-functions.js');
+    setLoaderInfo('喵~');
     await loadScript('workspace-scripts/cat-block.js');
+    setLoaderInfo('加载悬浮球...');
     await loadScript('workspace-scripts/float-ball.js');
+    setLoaderInfo('资源加载完成！');
 })();
 function getBrowserVersion() { return parseInt((new UAParser()).getResult().browser.version); }

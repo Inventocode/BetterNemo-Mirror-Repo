@@ -9,7 +9,16 @@
   justify-content: center;
   align-items: center;
 }
-
+.loader > .info {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: var(--text-color);
+  font-size: calc(var(--main-size) / 20);
+  opacity: 0.8;
+  text-align: center;
+  width: 100%;
+}
 /* From Uiverse.io by andrew-manzyk */
 .loader {
   --main-size: 4em;

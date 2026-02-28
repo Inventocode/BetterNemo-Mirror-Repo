@@ -504,7 +504,10 @@ function reloadExtension() {
         };
         return api;
     }
+    let cnt = 0;
     for (const fileName of EXTENSION_FILES) {
+        cnt++;
+        setLoaderInfo(`加载扩展 (${cnt}/${EXTENSION_FILES.length})`, 2);
         if (config[fileName] == undefined) {
             config[fileName] = true;
             storage.set('extension_config', config);
@@ -528,39 +531,13 @@ function reloadExtension() {
         extensionMetaData[fileName] = { ...extMetaData };
         BetterNemo.log('扩展管理', '扩展', fileName, '加载完成');
     }
+    setLoaderInfo('扩展加载完成！', 2);
     await isElementLoaded('#toolbox-bn');
     setTimeout(() => {
         reloadExtension();
         BetterNemo.log('扩展管理', '已重新加载扩展积木盒');
     }, 500);
 })();
-window['Theme'] = { metaData: {} };
-THEME_FILES.forEach(async fileName => {
-    if (!storage.get('theme_config')) storage.set('theme_config', {});
-    const config = storage.get('theme_config');
-    if (config[fileName] == undefined) {
-        if (fileName == 'default') {
-            config[fileName] = true;
-        } else {
-            config[fileName] = false;
-        };
-        storage.set('theme_config', config);
-    }
-    Theme.metaData = {
-        name: "未命名",
-        version: "",
-        description: "",
-        author: "未知",
-        docs: ""
-    };
-    await loadScript('theme/' + fileName + '/on_disable.js');
-    themeMetaData[fileName] = Theme.metaData;
-    BetterNemo.log('主题管理', '主题', fileName, '加载完成');
-    if (config[fileName]) {
-        BetterNemo.log('主题管理', '主题', fileName, '已启用');
-        await loadStyle('theme/' + fileName + '/style.css');
-    };
-});
 async function reloadTheme() {
     document.querySelectorAll('.bn-theme').forEach(el => el.remove());
     THEME_FILES.forEach(async fileName => {
@@ -573,6 +550,39 @@ async function reloadTheme() {
         };
     });
 }
+(async () => {
+    window['Theme'] = { metaData: {} };
+    let cnt = 0;
+    THEME_FILES.forEach(async fileName => {
+        cnt++;
+        setLoaderInfo(`加载主题 (${cnt}/${EXTENSION_FILES.length})`, 3);
+        if (!storage.get('theme_config')) storage.set('theme_config', {});
+        const config = storage.get('theme_config');
+        if (config[fileName] == undefined) {
+            if (fileName == 'default') {
+                config[fileName] = true;
+            } else {
+                config[fileName] = false;
+            };
+            storage.set('theme_config', config);
+        }
+        Theme.metaData = {
+            name: "未命名",
+            version: "",
+            description: "",
+            author: "未知",
+            docs: ""
+        };
+        await loadScript('theme/' + fileName + '/on_disable.js');
+        themeMetaData[fileName] = Theme.metaData;
+        BetterNemo.log('主题管理', '主题', fileName, '加载完成');
+        if (config[fileName]) {
+            BetterNemo.log('主题管理', '主题', fileName, '已启用');
+            await loadStyle('theme/' + fileName + '/style.css');
+        };
+    });
+    setLoaderInfo('主题加载完成！', 3);
+})();
 /**
  * 打开预定义的 mdui 全屏对话框，等待用户输入
  * @returns {Promise<string|null>} 确认返回字符串，取消/关闭返回 null
@@ -725,6 +735,7 @@ async function showExtensionShop(disabled = [], callback) {
 }
 (async () => {
     if (isPCTestEnv()) window['_dsbridge'] = { call: (...args) => { console.log(...args); } };
+    setLoaderInfo('等待dsbridge初始化...', 4);
     const dsbridge = await waitHook('Dsbridge');
     const call = dsbridge.call;
     dsbridge.call = (...args) => {
@@ -762,15 +773,22 @@ async function showExtensionShop(disabled = [], callback) {
                         webview_height: 0,
                     };
                     async function loadWork(data, bcm) {
+                        setLoaderInfo('初始化数据...', 4);
                         postMsg('INIT_WEBVIEW_DATA', JSON.stringify(data));
                         BetterNemo.log('Player', '初始化数据成功');
                         console.log('Player BCM', bcm);
+                        setLoaderInfo('加载作品...', 4);
                         await postMsgAsyn('LOAD_BCM', JSON.stringify(bcm));
                         BetterNemo.log('Player', '作品已加载');
+                        setLoaderInfo('显示舞台...', 4);
                         postMsg('SET_THEATRE_VISIBLE', 'true');
                         BetterNemo.log('Player', '已显示舞台');
+                        setLoaderInfo('运行...', 4);
                         postMsg('SET_RUN_STATE', 'true');
                         BetterNemo.log('Player', '运行状态：true');
+                        await postMsgAsyn('CHANGE_RUNTIME_VARIABLES');
+                        Object.entries(bcm.scenes.scenes_dict).forEach(([key, value]) => postMsg('SCENE_SET_PROPERTY',
+                            JSON.stringify({ property_name: "current_style_id", scene_id: key, value: value.current_style_id })));
                         postMsg('THEATRE_FULL_SCREEN', '{"visible":true}');
                         hideLoader();
                     }
@@ -831,6 +849,7 @@ async function showExtensionShop(disabled = [], callback) {
                     let webviewData = { ...unloggedData };
                     webviewData.stage_position.portrait.fullscreen.height = document.documentElement.scrollHeight;
                     webviewData.stage_position.portrait.fullscreen.width = document.documentElement.scrollHeight * 0.624365;
+                    setLoaderInfo('获取作品数据...', 4);
                     if (PLAYER.startsWith('https://') || PLAYER.startsWith('http://'))
                         fetch(PLAYER)
                             .then(response => response.json())
