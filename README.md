@@ -1,4 +1,6 @@
-# Better Nemo
+# BetterNemo
+
+[仓库-PC移植](https://github.com/HHCL233/BetterNemoPC)
 
 [官方文档](https://better-nemo.feishu.cn/wiki/HH4kwHOoJihAVLkEIDacNawKnMf?fromScene=spaceOverview)
 
