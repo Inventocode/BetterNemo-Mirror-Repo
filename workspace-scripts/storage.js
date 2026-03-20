@@ -41,7 +41,11 @@ window['storage'] = storage;
 const eStorage = new Storage('localExtensions');
 window['eStorage'] = eStorage;
 
-const experimentalConfig = {
+let experimentalConfig = {
     disable_repeat_forever_in_warp: false,
     webview_debug: isPhoneTestEnv(),
-}
+};
+if (storage.get('experimentalConfig'))
+    experimentalConfig = storage.get('experimentalConfig');
+else
+    storage.set('experimentalConfig', experimentalConfig);

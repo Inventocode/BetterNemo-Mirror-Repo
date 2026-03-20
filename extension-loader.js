@@ -50,6 +50,7 @@ function hideLoader() {
     document.querySelector(".loader-mask").style.display = "none";
 }
 function setLoaderInfo(info, id = 1) {
+    if (id == 1) document.title = info;
     if (!document.querySelector(".loader")) return;
     if (!document.querySelector(`.loader > .info.info-${id}`))
         document.querySelector(".loader").insertAdjacentHTML("beforeend",
@@ -139,47 +140,6 @@ if (!PLAYER && isPCTestEnv()) {
 // --------------- 扩展、主题数据初始化 ---------------
 let extensionMetaData = {};
 let themeMetaData = {};
-// --------------- 劫持Nemo向Webview发送的数据 ---------------
-let ok = false;
-setInterval(() => {
-    // window._dsInit = true;
-    if (window._dsf) {
-        const postMessage = _dsf.postMessage;
-        window['postMsg'] = _dsf.postMessage;
-        _dsf.postMessage = (...args) => {
-            if (experimentalConfig.webview_debug) {
-                console.log('[Nemo -> Webview]', ...args);
-                debugServer.send(JSON.stringify({
-                    type: 'n2w',
-                    data: [...args]
-                }));
-            }
-            if (args.length === 2)
-                if (args[0] === 'INIT_WEBVIEW_DATA') {
-                    let data = JSON.parse(args[1]);
-                    data.context_menu_with_set_block_visibility = true;
-                    data.translucent_block_visible = 'translucent';
-                    return postMessage.apply(_dsf, [
-                        'INIT_WEBVIEW_DATA',
-                        JSON.stringify(data)
-                    ]);
-                }
-            return postMessage.apply(_dsf, args);
-        };
-        const postMessageAsyn = _dsaf.postMessageAsyn;
-        window['postMsgAsyn'] = _dsaf.postMessageAsyn;
-        _dsaf.postMessageAsyn = async (...args) => {
-            if (experimentalConfig.webview_debug) {
-                console.log('[Nemo -> Webview] [ASYNC]', ...args);
-                debugServer.send(JSON.stringify({
-                    type: 'n2w async',
-                    data: [...args]
-                }));
-            }
-            return postMessageAsyn.apply(_dsaf, args);
-        };
-    }
-}, 50);
 // --------------- 加载页面 ---------------
 (async () => {
     setLoaderInfo('获取扩展列表...');
@@ -208,5 +168,6 @@ setInterval(() => {
     setLoaderInfo('加载悬浮球...');
     await loadScript('workspace-scripts/float-ball.js');
     setLoaderInfo('资源加载完成！');
+    document.title = "BN - 更好的Nemo";
 })();
 function getBrowserVersion() { return parseInt((new UAParser()).getResult().browser.version); }

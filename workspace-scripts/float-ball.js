@@ -77,7 +77,7 @@ const presetBackgroundColor = "#221D4E";
                 windowContent.innerHTML = '<li class="bn-menu-item menu-title"><i class="fas fa-circle-chevron-left"></i><span></span></li>';
                 setTimeout(() => {
                     const backButton = document.querySelector('#floatWindow > div.window-content > li.menu-title');
-                    backButton.ontouchend = (e) => {
+                    backButton.ontouchend = e => {
                         e.preventDefault();
                         e.stopPropagation();
                         UI.back(page);
@@ -102,13 +102,13 @@ const presetBackgroundColor = "#221D4E";
             let touchStartTime = 0;
             let startX, startY;
             const MENU_CLICK_MAX_DISTANCE = 20; // 像素
-            menuItem.ontouchstart = (e) => {
+            menuItem.ontouchstart = e => {
                 const touch = e.touches[0];
                 touchStartTime = Date.now();
                 startX = touch.clientX;
                 startY = touch.clientY;
             };
-            menuItem.ontouchmove = (e) => {
+            menuItem.ontouchmove = e => {
                 if (!touchStartTime) return;
                 const touch = e.touches[0];
                 const deltaX = Math.abs(touch.clientX - startX);
@@ -117,7 +117,7 @@ const presetBackgroundColor = "#221D4E";
                     touchStartTime = 0;
                 }
             };
-            menuItem.ontouchend = (e) => {
+            menuItem.ontouchend = e => {
                 e.preventDefault();
                 e.stopPropagation();
                 if (touchStartTime > 0) {
@@ -133,10 +133,11 @@ const presetBackgroundColor = "#221D4E";
             const menuItem = document.createElement('li');
             menuItem.innerHTML = `<label style="margin-right: 10px">${name}</label><input style="width:${width}" type="number" value="${value}"><button>${UI.reset_icon}</button>`;
             menuItem.className = 'bn-menu-input';
-            menuItem.querySelector('input').onchange = (e) => {
-                callback(Number(e.target.value));
-            };
-            menuItem.querySelector('button').onclick = (e) => {
+            const input = menuItem.querySelector('input');
+            input.onchange = e => callback(Number(e.target.value));
+            input.onmousedown = e => e.stopPropagation();
+            input.onclick = e => e.stopPropagation();
+            menuItem.querySelector('button').onclick = e => {
                 e.preventDefault();
                 e.stopPropagation();
                 menuItem.querySelector('input').value = defaultValue;
@@ -147,13 +148,14 @@ const presetBackgroundColor = "#221D4E";
         textInput: (callback, name = '文本', value = '', defaultValue = [''], width = '100px') => {
             if (!Array.isArray(defaultValue)) defaultValue = [defaultValue];
             const menuItem = document.createElement('li');
-            menuItem.innerHTML = `<label style="margin-right: 10px">${name}</label><input style="width:${width}" type="text" value="${value}""><button>${UI.reset_icon}</button>`;
+            menuItem.innerHTML = `<label style="margin-right: 10px">${name}</label><input style="width:${width}" type="text" value="${value}"><button>${UI.reset_icon}</button>`;
             menuItem.className = 'bn-menu-input';
-            menuItem.querySelector('input').onchange = (e) => {
-                callback(e.target.value);
-            };
+            const input = menuItem.querySelector('input');
+            input.onchange = e => callback(e.target.value);
+            input.onmousedown = e => e.stopPropagation();
+            input.onclick = e => e.stopPropagation();
             const resetButton = menuItem.querySelector('button');
-            resetButton.onclick = (e) => {
+            resetButton.onclick = e => {
                 const reset_counter = Number(resetButton.getAttribute('reset_counter')) || 0;
                 e.preventDefault();
                 e.stopPropagation();
@@ -164,7 +166,7 @@ const presetBackgroundColor = "#221D4E";
             };
             windowContent.appendChild(menuItem);
         },
-        selectInput: (callback, name = '选择', options = [['选项1', '1'], ['选项2', '2']],
+        selectInput: (callback, name = '选择', options = [['选项 1', '1'], ['选项 2', '2']],
             value = '', defaultValue = '', width = '100px') => {
             const valueOption = options.find(option => option[1] == value);
             const menuItem = document.createElement('li');
@@ -174,10 +176,11 @@ const presetBackgroundColor = "#221D4E";
             ).join('')}
             </select><button>${UI.reset_icon}</button>`;
             menuItem.className = 'bn-menu-input';
-            menuItem.querySelector('select').onchange = (e) => {
-                callback(e.target.value);
-            };
-            menuItem.querySelector('button').onclick = (e) => {
+            const select = menuItem.querySelector('select');
+            select.onchange = e => callback(e.target.value);
+            select.onmousedown = e => e.stopPropagation();
+            select.onclick = e => e.stopPropagation();
+            menuItem.querySelector('button').onclick = e => {
                 e.preventDefault();
                 e.stopPropagation();
                 menuItem.querySelector('select').value = defaultValue;
@@ -310,13 +313,14 @@ const presetBackgroundColor = "#221D4E";
         experimentalConfig: () => {
             UI.setTitle('实验性功能');
             UI.setStatus('这些功能<del>可能</del>会导致问题。');
+            function save() { storage.set('experimentalConfig', experimentalConfig); }
             UI.selectInput(
-                (value) => { experimentalConfig.disable_repeat_forever_in_warp = value; },
+                (value) => { experimentalConfig.disable_repeat_forever_in_warp = value; save(); },
                 '禁用一步执行中的死循环', [['开', true], ['关', false]],
                 experimentalConfig.disable_repeat_forever_in_warp, false, '60px'
             );
             UI.selectInput(
-                (value) => { experimentalConfig.webview_debug = value; },
+                (value) => { experimentalConfig.webview_debug = value; save(); },
                 'webview调试', [['开', true], ['关', false]],
                 experimentalConfig.webview_debug, false, '60px'
             );

@@ -1,3 +1,6 @@
+#floatWindow {
+  z-index: 2147483647;
+}
 .loader-mask {
   position: absolute;
   left: 0;
