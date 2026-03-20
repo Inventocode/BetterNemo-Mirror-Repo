@@ -1,6 +1,6 @@
 
 // -----------------悬浮球-面板---------------
-const presetBackgroundImage = 'http://youke.xn--y7xa690gmna.cn/s1/2026/01/25/697632d161f0a.webp';
+const presetBackgroundImage = 'https://gitee.com/SandMo/BetterNemo-Extensions/raw/master/images/background/bn_background.webp';
 const presetBackgroundColor = "#221D4E";
 (function float_ball() {
     const floatBall = document.getElementById('floatBall');
