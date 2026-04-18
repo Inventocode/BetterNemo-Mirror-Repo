@@ -776,8 +776,12 @@ async function showExtensionShop(disabled = [], callback) {
                         sidebar_width: 64,
                         stage_position: {
                             portrait: {
-                                fullscreen: { bottom: 0, height: 591, left: 0, ratio: 0, right: 0, top: 0, width: 369, },
-                                normal: { bottom: 0, height: 369, left: 0, ratio: 0, right: 0, top: 0, width: 231, }
+                                fullscreen: { bottom: 0, height: 0, left: 0, ratio: 0, right: 0, top: 0, width: 0, },
+                                normal: { bottom: 0, height: 0, left: 0, ratio: 0, right: 0, top: 0, width: 0, }
+                            },
+                            landscape: {
+                                fullscreen: { bottom: 0, height: 0, left: 0, ratio: 0, right: 0, top: 0, width: 0, },
+                                normal: { bottom: 0, height: 0, left: 0, ratio: 0, right: 0, top: 0, width: 0, }
                             }
                         },
                         toolbox_mode: "normal",
@@ -866,8 +870,7 @@ async function showExtensionShop(disabled = [], callback) {
                     //         .then(result => console.log('登录成功', result))
                     //         .catch(err => console.log('登录取消', err));
                     let webviewData = { ...unloggedData };
-                    webviewData.stage_position.portrait.fullscreen.height = document.documentElement.scrollHeight;
-                    webviewData.stage_position.portrait.fullscreen.width = document.documentElement.scrollHeight * 0.624365;
+                    const { scrollHeight, scrollWidth } = document.documentElement;
                     setLoaderInfo('获取作品数据...', 4);
                     if (PLAYER.startsWith('https://') || PLAYER.startsWith('http://'))
                         fetch(PLAYER)
@@ -884,7 +887,32 @@ async function showExtensionShop(disabled = [], callback) {
                                 if (workId && data['work_urls'].length > 0)
                                     fetch(data['work_urls'][0])
                                         .then(response => response.json())
-                                        .then(data => loadWork(webviewData, data));
+                                        .then(data => {
+                                            const { width, height } = data['stage_size'];
+                                            const a1 = height / width;
+                                            const a2 = scrollHeight / scrollWidth;
+                                            if (height > width)
+                                                // 竖屏作品
+                                                if (a1 > a2) {
+                                                    webviewData.stage_position.portrait.fullscreen.height = scrollHeight;
+                                                    webviewData.stage_position.portrait.fullscreen.width = scrollHeight * (width / height);
+                                                } else {
+                                                    webviewData.stage_position.portrait.fullscreen.width = scrollWidth;
+                                                    webviewData.stage_position.portrait.fullscreen.height = scrollWidth * (height / width);
+                                                }
+                                            else
+                                                // 横屏作品
+                                                if (a1 > a2) {
+                                                    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaas');
+                                                    webviewData.stage_position.landscape.fullscreen.height = scrollHeight;
+                                                    webviewData.stage_position.landscape.fullscreen.width = scrollHeight * (width / height);
+                                                } else {
+                                                    webviewData.stage_position.landscape.fullscreen.width = scrollWidth;
+                                                    webviewData.stage_position.landscape.fullscreen.height = scrollWidth * (height / width);
+                                                }
+                                            loadWork(webviewData, data);
+                                        });
+                                else document.write(`<h1>Error: 无法获取作品数据</h1>`);
                             });
                 }
         if (args.length === 3)
