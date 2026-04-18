@@ -645,10 +645,10 @@ async function showExtensionShop(disabled = [], callback) {
         card.setAttribute('clickable', '');
         if (disable) card.setAttribute('disabled', '');
         else card.setAttribute('onclick', 'this.childNodes[3].click()');
-        card.style.width = '230px';
-        card.style.height = '150px';
+        card.style.width = '24vw';
+        card.style.height = '24vh';
         card.style.padding = '15px';
-        card.style.margin = '10px';
+        card.style.margin = '8px';
         card.innerHTML = `<h3 style="margin:5px 0">${cardData.title}</h3><p style="font-size:12px">${cardData.content}</p>
         <mdui-checkbox style="position:absolute;bottom:5px;right:5px" onclick="this.click()" ${disable ? 'disabled checked' : ''}
         ${cardData.checked ? 'checked' : ''}></mdui-checkbox>`;

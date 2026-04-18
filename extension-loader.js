@@ -37,6 +37,7 @@ hook("./node_modules/@crc/heart/build/opti/compiler.js", "HookOptiCompiler");
 hook("./node_modules/@crc/stage/build/core/physics/actor_body.js", "HookActorBody");
 hook("./node_modules/dsbridge/index.js", "HookDsbridge");
 hook("./node_modules/@crc/blink/dist/core/singletons/theme.js", "HookTheme");
+hook("./src/i18n/index.ts", "HookI18n");
 
 // --------------- Player检测 & 加载动画 ---------------
 const PLAYER = (new URLSearchParams(window.location.search)).get('player');

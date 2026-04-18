@@ -120,6 +120,18 @@ Extension.metaData = {
                 "note": "C4"
             }],
             ...Block.methodBlock
+        },
+        {
+            type: "template_7",
+            message0: "下拉框的 %1 匹配",
+            args0: [{
+                "type": "field_dropdown",
+                "name": "dropdown",
+                "options": [
+                    ["[前缀 和 后缀]", "1"],
+                    ["[前缀  后缀]", "2"],
+                ]
+            }]
         }
     ].map((block) => { return { ...block, colour: "%{BKY_TEMPLATE_HUE}" }; });
     // 等待积木对象加载完毕，别动
@@ -130,7 +142,8 @@ Extension.metaData = {
     // 定义你的积木盒
     const templateXML = [
         Toolbox.title("模板 · Template"),
-        Toolbox.button("template", "HELLO", () => console.log("嗯呃~")),
+        Toolbox.block("template_7"),
+        Toolbox.button("template_btn", "HELLO", () => console.log("嗯呃~")),
         Toolbox.eventBlock("template_6"),
         Toolbox.block("template_3"),
         Toolbox.error("这到底是什么啊啊啊？！"),
