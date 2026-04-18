@@ -886,55 +886,7 @@
 .end method
 
 .method private checkAntiAddictionState()V
-    .registers 3
-
-    .line 2124
-    invoke-static {}, Lcom/giu/xzz/http/RetrofitManager;->get()Lcom/giu/xzz/http/RetrofitManager;
-
-    move-result-object v0
-
-    const-class v1, Lcom/codemao/nemo/retrofit/api/DiscoveryService;
-
-    invoke-virtual {v0, v1}, Lcom/giu/xzz/http/RetrofitManager;->create(Ljava/lang/Class;)Ljava/lang/Object;
-
-    move-result-object v0
-
-    check-cast v0, Lcom/codemao/nemo/retrofit/api/DiscoveryService;
-
-    .line 2125
-    invoke-static {}, Lcom/codemao/nemo/util/SystemUtil;->getBackendHost()Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-interface {v0, v1}, Lcom/codemao/nemo/retrofit/api/DiscoveryService;->getAntiAddictionState(Ljava/lang/String;)Lio/reactivex/Observable;
-
-    move-result-object v0
-
-    .line 2126
-    invoke-static {}, Lio/reactivex/schedulers/Schedulers;->io()Lio/reactivex/Scheduler;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Lio/reactivex/Observable;->subscribeOn(Lio/reactivex/Scheduler;)Lio/reactivex/Observable;
-
-    move-result-object v0
-
-    .line 2127
-    invoke-static {}, Lio/reactivex/android/schedulers/AndroidSchedulers;->mainThread()Lio/reactivex/Scheduler;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Lio/reactivex/Observable;->observeOn(Lio/reactivex/Scheduler;)Lio/reactivex/Observable;
-
-    move-result-object v0
-
-    new-instance v1, Lcom/codemao/nemo/activity/WorkDetailActivity$54;
-
-    invoke-direct {v1, p0}, Lcom/codemao/nemo/activity/WorkDetailActivity$54;-><init>(Lcom/codemao/nemo/activity/WorkDetailActivity;)V
-
-    .line 2128
-    invoke-virtual {v0, v1}, Lio/reactivex/Observable;->subscribe(Lio/reactivex/Observer;)V
-
+    .registers 1
     return-void
 .end method
 
