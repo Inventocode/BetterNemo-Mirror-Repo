@@ -1,0 +1,54 @@
+.class public Landroidx/camera/core/internal/compat/quirk/DeviceQuirksLoader;
+.super Ljava/lang/Object;
+.source "DeviceQuirksLoader.java"
+
+
+# direct methods
+.method static loadQuirks()Ljava/util/List;
+    .registers 2
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()",
+            "Ljava/util/List<",
+            "Landroidx/camera/core/impl/Quirk;",
+            ">;"
+        }
+    .end annotation
+
+    .line 41
+    new-instance v0, Ljava/util/ArrayList;
+
+    invoke-direct {v0}, Ljava/util/ArrayList;-><init>()V
+
+    .line 43
+    invoke-static {}, Landroidx/camera/core/internal/compat/quirk/ImageCaptureRotationOptionQuirk;->load()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_13
+
+    .line 44
+    new-instance v1, Landroidx/camera/core/internal/compat/quirk/ImageCaptureRotationOptionQuirk;
+
+    invoke-direct {v1}, Landroidx/camera/core/internal/compat/quirk/ImageCaptureRotationOptionQuirk;-><init>()V
+
+    invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    .line 46
+    :cond_13
+    invoke-static {}, Landroidx/camera/core/internal/compat/quirk/SurfaceOrderQuirk;->load()Z
+
+    move-result v1
+
+    if-eqz v1, :cond_21
+
+    .line 47
+    new-instance v1, Landroidx/camera/core/internal/compat/quirk/SurfaceOrderQuirk;
+
+    invoke-direct {v1}, Landroidx/camera/core/internal/compat/quirk/SurfaceOrderQuirk;-><init>()V
+
+    invoke-interface {v0, v1}, Ljava/util/List;->add(Ljava/lang/Object;)Z
+
+    :cond_21
+    return-object v0
+.end method

@@ -1,0 +1,102 @@
+.class Lcom/codemao/nemo/fragment/WorkCommentFragment$18;
+.super Lcom/codemao/nemo/retrofit/response/CommonSubcriber;
+.source "WorkCommentFragment.java"
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingMethod;
+    value = Lcom/codemao/nemo/fragment/WorkCommentFragment;->topOrCancel(ZJI)V
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x0
+    name = null
+.end annotation
+
+.annotation system Ldalvik/annotation/Signature;
+    value = {
+        "Lcom/codemao/nemo/retrofit/response/CommonSubcriber<",
+        "Ljava/lang/String;",
+        ">;"
+    }
+.end annotation
+
+
+# instance fields
+.field final synthetic this$0:Lcom/codemao/nemo/fragment/WorkCommentFragment;
+
+
+# direct methods
+.method constructor <init>(Lcom/codemao/nemo/fragment/WorkCommentFragment;)V
+    .registers 2
+
+    .line 921
+    iput-object p1, p0, Lcom/codemao/nemo/fragment/WorkCommentFragment$18;->this$0:Lcom/codemao/nemo/fragment/WorkCommentFragment;
+
+    invoke-direct {p0}, Lcom/codemao/nemo/retrofit/response/CommonSubcriber;-><init>()V
+
+    return-void
+.end method
+
+
+# virtual methods
+.method protected onFailure(Ljava/lang/String;Ljava/lang/String;)V
+    .registers 3
+
+    .line 931
+    iget-object p1, p0, Lcom/codemao/nemo/fragment/WorkCommentFragment$18;->this$0:Lcom/codemao/nemo/fragment/WorkCommentFragment;
+
+    invoke-virtual {p1}, Landroidx/fragment/app/Fragment;->getContext()Landroid/content/Context;
+
+    move-result-object p1
+
+    invoke-static {p1, p2}, Lcom/codemao/nemo/util/ToastUtil;->showDefaultShortToast(Landroid/content/Context;Ljava/lang/CharSequence;)V
+
+    return-void
+.end method
+
+.method protected onNetError(Ljava/lang/String;Ljava/lang/String;)V
+    .registers 3
+
+    .line 936
+    iget-object p1, p0, Lcom/codemao/nemo/fragment/WorkCommentFragment$18;->this$0:Lcom/codemao/nemo/fragment/WorkCommentFragment;
+
+    invoke-virtual {p1}, Landroidx/fragment/app/Fragment;->getContext()Landroid/content/Context;
+
+    move-result-object p1
+
+    invoke-static {p1}, Lcom/codemao/nemo/util/ToastUtil;->showNetErrorToast(Landroid/content/Context;)V
+
+    return-void
+.end method
+
+.method protected bridge synthetic onSuccess(Ljava/lang/Object;)V
+    .registers 2
+
+    .line 921
+    check-cast p1, Ljava/lang/String;
+
+    invoke-virtual {p0, p1}, Lcom/codemao/nemo/fragment/WorkCommentFragment$18;->onSuccess(Ljava/lang/String;)V
+
+    return-void
+.end method
+
+.method protected onSuccess(Ljava/lang/String;)V
+    .registers 3
+
+    .line 925
+    iget-object p1, p0, Lcom/codemao/nemo/fragment/WorkCommentFragment$18;->this$0:Lcom/codemao/nemo/fragment/WorkCommentFragment;
+
+    const/4 v0, 0x0
+
+    invoke-static {p1, v0}, Lcom/codemao/nemo/fragment/WorkCommentFragment;->access$1302(Lcom/codemao/nemo/fragment/WorkCommentFragment;I)I
+
+    .line 926
+    iget-object p1, p0, Lcom/codemao/nemo/fragment/WorkCommentFragment$18;->this$0:Lcom/codemao/nemo/fragment/WorkCommentFragment;
+
+    const/4 v0, 0x1
+
+    invoke-static {p1, v0}, Lcom/codemao/nemo/fragment/WorkCommentFragment;->access$1400(Lcom/codemao/nemo/fragment/WorkCommentFragment;Z)V
+
+    return-void
+.end method

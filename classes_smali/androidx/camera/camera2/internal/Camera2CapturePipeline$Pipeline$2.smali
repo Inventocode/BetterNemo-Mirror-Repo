@@ -1,0 +1,106 @@
+.class Landroidx/camera/camera2/internal/Camera2CapturePipeline$Pipeline$2;
+.super Landroidx/camera/core/impl/CameraCaptureCallback;
+.source "Camera2CapturePipeline.java"
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingMethod;
+    value = Landroidx/camera/camera2/internal/Camera2CapturePipeline$Pipeline;->lambda$submitConfigsInternal$4(Landroidx/camera/core/impl/CaptureConfig$Builder;Landroidx/concurrent/futures/CallbackToFutureAdapter$Completer;)Ljava/lang/Object;
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x0
+    name = null
+.end annotation
+
+
+# instance fields
+.field final synthetic val$completer:Landroidx/concurrent/futures/CallbackToFutureAdapter$Completer;
+
+
+# direct methods
+.method constructor <init>(Landroidx/camera/camera2/internal/Camera2CapturePipeline$Pipeline;Landroidx/concurrent/futures/CallbackToFutureAdapter$Completer;)V
+    .registers 3
+
+    .line 349
+    iput-object p2, p0, Landroidx/camera/camera2/internal/Camera2CapturePipeline$Pipeline$2;->val$completer:Landroidx/concurrent/futures/CallbackToFutureAdapter$Completer;
+
+    invoke-direct {p0}, Landroidx/camera/core/impl/CameraCaptureCallback;-><init>()V
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public onCaptureCancelled()V
+    .registers 6
+
+    .line 366
+    iget-object v0, p0, Landroidx/camera/camera2/internal/Camera2CapturePipeline$Pipeline$2;->val$completer:Landroidx/concurrent/futures/CallbackToFutureAdapter$Completer;
+
+    new-instance v1, Landroidx/camera/core/ImageCaptureException;
+
+    const/4 v2, 0x3
+
+    const-string v3, "Capture request is cancelled because camera is closed"
+
+    const/4 v4, 0x0
+
+    invoke-direct {v1, v2, v3, v4}, Landroidx/camera/core/ImageCaptureException;-><init>(ILjava/lang/String;Ljava/lang/Throwable;)V
+
+    invoke-virtual {v0, v1}, Landroidx/concurrent/futures/CallbackToFutureAdapter$Completer;->setException(Ljava/lang/Throwable;)Z
+
+    return-void
+.end method
+
+.method public onCaptureCompleted(Landroidx/camera/core/impl/CameraCaptureResult;)V
+    .registers 3
+
+    .line 352
+    iget-object p1, p0, Landroidx/camera/camera2/internal/Camera2CapturePipeline$Pipeline$2;->val$completer:Landroidx/concurrent/futures/CallbackToFutureAdapter$Completer;
+
+    const/4 v0, 0x0
+
+    invoke-virtual {p1, v0}, Landroidx/concurrent/futures/CallbackToFutureAdapter$Completer;->set(Ljava/lang/Object;)Z
+
+    return-void
+.end method
+
+.method public onCaptureFailed(Landroidx/camera/core/impl/CameraCaptureFailure;)V
+    .registers 6
+
+    .line 357
+    new-instance v0, Ljava/lang/StringBuilder;
+
+    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v1, "Capture request failed with reason "
+
+    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    .line 358
+    invoke-virtual {p1}, Landroidx/camera/core/impl/CameraCaptureFailure;->getReason()Landroidx/camera/core/impl/CameraCaptureFailure$Reason;
+
+    move-result-object p1
+
+    invoke-virtual {v0, p1}, Ljava/lang/StringBuilder;->append(Ljava/lang/Object;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object p1
+
+    .line 359
+    iget-object v0, p0, Landroidx/camera/camera2/internal/Camera2CapturePipeline$Pipeline$2;->val$completer:Landroidx/concurrent/futures/CallbackToFutureAdapter$Completer;
+
+    new-instance v1, Landroidx/camera/core/ImageCaptureException;
+
+    const/4 v2, 0x2
+
+    const/4 v3, 0x0
+
+    invoke-direct {v1, v2, p1, v3}, Landroidx/camera/core/ImageCaptureException;-><init>(ILjava/lang/String;Ljava/lang/Throwable;)V
+
+    invoke-virtual {v0, v1}, Landroidx/concurrent/futures/CallbackToFutureAdapter$Completer;->setException(Ljava/lang/Throwable;)Z
+
+    return-void
+.end method

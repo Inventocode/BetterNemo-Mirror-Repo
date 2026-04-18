@@ -1,0 +1,102 @@
+.class final Lkotlin/internal/jdk8/JDK8PlatformImplementations$ReflectSdkVersion;
+.super Ljava/lang/Object;
+.source "JDK8PlatformImplementations.kt"
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingClass;
+    value = Lkotlin/internal/jdk8/JDK8PlatformImplementations;
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x1a
+    name = "ReflectSdkVersion"
+.end annotation
+
+.annotation system Ldalvik/annotation/SourceDebugExtension;
+    value = "SMAP\nJDK8PlatformImplementations.kt\nKotlin\n*S Kotlin\n*F\n+ 1 JDK8PlatformImplementations.kt\nkotlin/internal/jdk8/JDK8PlatformImplementations$ReflectSdkVersion\n+ 2 fake.kt\nkotlin/jvm/internal/FakeKt\n*L\n1#1,61:1\n1#2:62\n*E\n"
+.end annotation
+
+
+# static fields
+.field public static final sdkVersion:Ljava/lang/Integer;
+
+
+# direct methods
+.method static constructor <clinit>()V
+    .registers 3
+
+    new-instance v0, Lkotlin/internal/jdk8/JDK8PlatformImplementations$ReflectSdkVersion;
+
+    invoke-direct {v0}, Lkotlin/internal/jdk8/JDK8PlatformImplementations$ReflectSdkVersion;-><init>()V
+
+    const/4 v0, 0x0
+
+    :try_start_6
+    const-string v1, "android.os.Build$VERSION"
+
+    .line 34
+    invoke-static {v1}, Ljava/lang/Class;->forName(Ljava/lang/String;)Ljava/lang/Class;
+
+    move-result-object v1
+
+    const-string v2, "SDK_INT"
+
+    invoke-virtual {v1, v2}, Ljava/lang/Class;->getField(Ljava/lang/String;)Ljava/lang/reflect/Field;
+
+    move-result-object v1
+
+    invoke-virtual {v1, v0}, Ljava/lang/reflect/Field;->get(Ljava/lang/Object;)Ljava/lang/Object;
+
+    move-result-object v1
+
+    instance-of v2, v1, Ljava/lang/Integer;
+
+    if-eqz v2, :cond_1d
+
+    check-cast v1, Ljava/lang/Integer;
+    :try_end_1c
+    .catchall {:try_start_6 .. :try_end_1c} :catchall_1d
+
+    goto :goto_1e
+
+    :catchall_1d
+    :cond_1d
+    move-object v1, v0
+
+    :goto_1e
+    if-eqz v1, :cond_2c
+
+    .line 37
+    invoke-virtual {v1}, Ljava/lang/Number;->intValue()I
+
+    move-result v2
+
+    if-lez v2, :cond_28
+
+    const/4 v2, 0x1
+
+    goto :goto_29
+
+    :cond_28
+    const/4 v2, 0x0
+
+    :goto_29
+    if-eqz v2, :cond_2c
+
+    move-object v0, v1
+
+    :cond_2c
+    sput-object v0, Lkotlin/internal/jdk8/JDK8PlatformImplementations$ReflectSdkVersion;->sdkVersion:Ljava/lang/Integer;
+
+    return-void
+.end method
+
+.method private constructor <init>()V
+    .registers 1
+
+    .line 31
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    return-void
+.end method

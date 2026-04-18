@@ -1,0 +1,44 @@
+.class Lcom/codemao/nemo/dialog/ShareCardDialogV3_ViewBinding$2;
+.super Lbutterknife/internal/DebouncingOnClickListener;
+.source "ShareCardDialogV3_ViewBinding.java"
+
+
+# annotations
+.annotation system Ldalvik/annotation/EnclosingMethod;
+    value = Lcom/codemao/nemo/dialog/ShareCardDialogV3_ViewBinding;-><init>(Lcom/codemao/nemo/dialog/ShareCardDialogV3;Landroid/view/View;)V
+.end annotation
+
+.annotation system Ldalvik/annotation/InnerClass;
+    accessFlags = 0x0
+    name = null
+.end annotation
+
+
+# instance fields
+.field final synthetic val$target:Lcom/codemao/nemo/dialog/ShareCardDialogV3;
+
+
+# direct methods
+.method constructor <init>(Lcom/codemao/nemo/dialog/ShareCardDialogV3_ViewBinding;Lcom/codemao/nemo/dialog/ShareCardDialogV3;)V
+    .registers 3
+
+    .line 62
+    iput-object p2, p0, Lcom/codemao/nemo/dialog/ShareCardDialogV3_ViewBinding$2;->val$target:Lcom/codemao/nemo/dialog/ShareCardDialogV3;
+
+    invoke-direct {p0}, Lbutterknife/internal/DebouncingOnClickListener;-><init>()V
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public doClick(Landroid/view/View;)V
+    .registers 3
+
+    .line 65
+    iget-object v0, p0, Lcom/codemao/nemo/dialog/ShareCardDialogV3_ViewBinding$2;->val$target:Lcom/codemao/nemo/dialog/ShareCardDialogV3;
+
+    invoke-virtual {v0, p1}, Lcom/codemao/nemo/dialog/ShareCardDialogV3;->onShare(Landroid/view/View;)V
+
+    return-void
+.end method

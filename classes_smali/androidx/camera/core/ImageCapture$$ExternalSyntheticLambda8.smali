@@ -1,0 +1,41 @@
+.class public final synthetic Landroidx/camera/core/ImageCapture$$ExternalSyntheticLambda8;
+.super Ljava/lang/Object;
+
+# interfaces
+.implements Landroidx/concurrent/futures/CallbackToFutureAdapter$Resolver;
+
+
+# instance fields
+.field public final synthetic f$0:Landroidx/camera/core/ImageCapture;
+
+.field public final synthetic f$1:Landroidx/camera/core/ImageCapture$ImageCaptureRequest;
+
+
+# direct methods
+.method public synthetic constructor <init>(Landroidx/camera/core/ImageCapture;Landroidx/camera/core/ImageCapture$ImageCaptureRequest;)V
+    .registers 3
+
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    iput-object p1, p0, Landroidx/camera/core/ImageCapture$$ExternalSyntheticLambda8;->f$0:Landroidx/camera/core/ImageCapture;
+
+    iput-object p2, p0, Landroidx/camera/core/ImageCapture$$ExternalSyntheticLambda8;->f$1:Landroidx/camera/core/ImageCapture$ImageCaptureRequest;
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public final attachCompleter(Landroidx/concurrent/futures/CallbackToFutureAdapter$Completer;)Ljava/lang/Object;
+    .registers 4
+
+    iget-object v0, p0, Landroidx/camera/core/ImageCapture$$ExternalSyntheticLambda8;->f$0:Landroidx/camera/core/ImageCapture;
+
+    iget-object v1, p0, Landroidx/camera/core/ImageCapture$$ExternalSyntheticLambda8;->f$1:Landroidx/camera/core/ImageCapture$ImageCaptureRequest;
+
+    invoke-static {v0, v1, p1}, Landroidx/camera/core/ImageCapture;->$r8$lambda$MRsPMEgVc1Ibp-ZnRVAZzPS4PEk(Landroidx/camera/core/ImageCapture;Landroidx/camera/core/ImageCapture$ImageCaptureRequest;Landroidx/concurrent/futures/CallbackToFutureAdapter$Completer;)Ljava/lang/Object;
+
+    move-result-object p1
+
+    return-object p1
+.end method

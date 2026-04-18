@@ -1,0 +1,255 @@
+.class public final enum Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+.super Ljava/lang/Enum;
+.source "FragmentLifeCycleEvent.java"
+
+
+# annotations
+.annotation system Ldalvik/annotation/Signature;
+    value = {
+        "Ljava/lang/Enum<",
+        "Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;",
+        ">;"
+    }
+.end annotation
+
+
+# static fields
+.field private static final synthetic $VALUES:[Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+.field public static final enum ACTIVITY_CREATE:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+.field public static final enum ATTACH:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+.field public static final enum CREATE:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+.field public static final enum CREATE_VIEW:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+.field public static final enum DESTORY:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+.field public static final enum DESTORY_VIEW:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+.field public static final enum DETACH:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+.field public static final enum PAUSE:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+.field public static final enum RESUME:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+.field public static final enum START:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+.field public static final enum STOP:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+
+# direct methods
+.method static constructor <clinit>()V
+    .registers 16
+
+    .line 8
+    new-instance v0, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    const-string v1, "ATTACH"
+
+    const/4 v2, 0x0
+
+    invoke-direct {v0, v1, v2}, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;-><init>(Ljava/lang/String;I)V
+
+    sput-object v0, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;->ATTACH:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    .line 9
+    new-instance v1, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    const-string v3, "CREATE"
+
+    const/4 v4, 0x1
+
+    invoke-direct {v1, v3, v4}, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;-><init>(Ljava/lang/String;I)V
+
+    sput-object v1, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;->CREATE:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    .line 10
+    new-instance v3, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    const-string v5, "CREATE_VIEW"
+
+    const/4 v6, 0x2
+
+    invoke-direct {v3, v5, v6}, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;-><init>(Ljava/lang/String;I)V
+
+    sput-object v3, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;->CREATE_VIEW:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    .line 11
+    new-instance v5, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    const-string v7, "ACTIVITY_CREATE"
+
+    const/4 v8, 0x3
+
+    invoke-direct {v5, v7, v8}, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;-><init>(Ljava/lang/String;I)V
+
+    sput-object v5, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;->ACTIVITY_CREATE:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    .line 12
+    new-instance v7, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    const-string v9, "START"
+
+    const/4 v10, 0x4
+
+    invoke-direct {v7, v9, v10}, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;-><init>(Ljava/lang/String;I)V
+
+    sput-object v7, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;->START:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    .line 13
+    new-instance v9, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    const-string v11, "RESUME"
+
+    const/4 v12, 0x5
+
+    invoke-direct {v9, v11, v12}, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;-><init>(Ljava/lang/String;I)V
+
+    sput-object v9, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;->RESUME:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    .line 14
+    new-instance v11, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    const-string v13, "PAUSE"
+
+    const/4 v14, 0x6
+
+    invoke-direct {v11, v13, v14}, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;-><init>(Ljava/lang/String;I)V
+
+    sput-object v11, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;->PAUSE:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    .line 15
+    new-instance v13, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    const-string v15, "STOP"
+
+    const/4 v14, 0x7
+
+    invoke-direct {v13, v15, v14}, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;-><init>(Ljava/lang/String;I)V
+
+    sput-object v13, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;->STOP:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    .line 16
+    new-instance v15, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    const-string v14, "DESTORY_VIEW"
+
+    const/16 v12, 0x8
+
+    invoke-direct {v15, v14, v12}, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;-><init>(Ljava/lang/String;I)V
+
+    sput-object v15, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;->DESTORY_VIEW:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    .line 17
+    new-instance v14, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    const-string v12, "DESTORY"
+
+    const/16 v10, 0x9
+
+    invoke-direct {v14, v12, v10}, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;-><init>(Ljava/lang/String;I)V
+
+    sput-object v14, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;->DESTORY:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    .line 18
+    new-instance v12, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    const-string v10, "DETACH"
+
+    const/16 v8, 0xa
+
+    invoke-direct {v12, v10, v8}, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;-><init>(Ljava/lang/String;I)V
+
+    sput-object v12, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;->DETACH:Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    const/16 v10, 0xb
+
+    new-array v10, v10, [Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    aput-object v0, v10, v2
+
+    aput-object v1, v10, v4
+
+    aput-object v3, v10, v6
+
+    const/4 v0, 0x3
+
+    aput-object v5, v10, v0
+
+    const/4 v0, 0x4
+
+    aput-object v7, v10, v0
+
+    const/4 v0, 0x5
+
+    aput-object v9, v10, v0
+
+    const/4 v0, 0x6
+
+    aput-object v11, v10, v0
+
+    const/4 v0, 0x7
+
+    aput-object v13, v10, v0
+
+    const/16 v0, 0x8
+
+    aput-object v15, v10, v0
+
+    const/16 v0, 0x9
+
+    aput-object v14, v10, v0
+
+    aput-object v12, v10, v8
+
+    .line 7
+    sput-object v10, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;->$VALUES:[Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    return-void
+.end method
+
+.method private constructor <init>(Ljava/lang/String;I)V
+    .registers 3
+    .annotation system Ldalvik/annotation/Signature;
+        value = {
+            "()V"
+        }
+    .end annotation
+
+    .line 7
+    invoke-direct {p0, p1, p2}, Ljava/lang/Enum;-><init>(Ljava/lang/String;I)V
+
+    return-void
+.end method
+
+.method public static valueOf(Ljava/lang/String;)Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+    .registers 2
+
+    .line 7
+    const-class v0, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    invoke-static {v0, p0}, Ljava/lang/Enum;->valueOf(Ljava/lang/Class;Ljava/lang/String;)Ljava/lang/Enum;
+
+    move-result-object p0
+
+    check-cast p0, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    return-object p0
+.end method
+
+.method public static values()[Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+    .registers 1
+
+    .line 7
+    sget-object v0, Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;->$VALUES:[Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    invoke-virtual {v0}, [Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;->clone()Ljava/lang/Object;
+
+    move-result-object v0
+
+    check-cast v0, [Lcom/giu/xzz/rx/lifecycle/event/FragmentLifeCycleEvent;
+
+    return-object v0
+.end method

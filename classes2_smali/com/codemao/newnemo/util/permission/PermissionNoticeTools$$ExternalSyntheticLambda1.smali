@@ -1,0 +1,39 @@
+.class public final synthetic Lcom/codemao/newnemo/util/permission/PermissionNoticeTools$$ExternalSyntheticLambda1;
+.super Ljava/lang/Object;
+
+# interfaces
+.implements Landroid/view/View$OnClickListener;
+
+
+# instance fields
+.field public final synthetic f$0:Lcom/codemao/creativecenter/CreativeCenterUtils$PermissonNoticeResultHandler;
+
+.field public final synthetic f$1:Lcom/codemao/nemo/dialog/CustomDialogTypeOne;
+
+
+# direct methods
+.method public synthetic constructor <init>(Lcom/codemao/creativecenter/CreativeCenterUtils$PermissonNoticeResultHandler;Lcom/codemao/nemo/dialog/CustomDialogTypeOne;)V
+    .registers 3
+
+    invoke-direct {p0}, Ljava/lang/Object;-><init>()V
+
+    iput-object p1, p0, Lcom/codemao/newnemo/util/permission/PermissionNoticeTools$$ExternalSyntheticLambda1;->f$0:Lcom/codemao/creativecenter/CreativeCenterUtils$PermissonNoticeResultHandler;
+
+    iput-object p2, p0, Lcom/codemao/newnemo/util/permission/PermissionNoticeTools$$ExternalSyntheticLambda1;->f$1:Lcom/codemao/nemo/dialog/CustomDialogTypeOne;
+
+    return-void
+.end method
+
+
+# virtual methods
+.method public final onClick(Landroid/view/View;)V
+    .registers 4
+
+    iget-object v0, p0, Lcom/codemao/newnemo/util/permission/PermissionNoticeTools$$ExternalSyntheticLambda1;->f$0:Lcom/codemao/creativecenter/CreativeCenterUtils$PermissonNoticeResultHandler;
+
+    iget-object v1, p0, Lcom/codemao/newnemo/util/permission/PermissionNoticeTools$$ExternalSyntheticLambda1;->f$1:Lcom/codemao/nemo/dialog/CustomDialogTypeOne;
+
+    invoke-static {v0, v1, p1}, Lcom/codemao/newnemo/util/permission/PermissionNoticeTools;->$r8$lambda$VnxClx-92FSlrpLgzEIsBtF6Eno(Lcom/codemao/creativecenter/CreativeCenterUtils$PermissonNoticeResultHandler;Lcom/codemao/nemo/dialog/CustomDialogTypeOne;Landroid/view/View;)V
+
+    return-void
+.end method
