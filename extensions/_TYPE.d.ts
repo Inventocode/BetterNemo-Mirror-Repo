@@ -192,4 +192,11 @@ interface BetterNemo {
      * @param url 前置脚本路径
      */
     loadScript: (url: string) => Promise<void>;
+    /**
+     * 编程猫相关API
+     */
+    CAPI: {
+        getToken: () => string;
+        getWorkId: () => number;
+    };
 }
