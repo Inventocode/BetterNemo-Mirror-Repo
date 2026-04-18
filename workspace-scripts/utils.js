@@ -451,7 +451,32 @@ const BetterNemo = {
     getCtx: async () => {
         await isBlocklyLoaded();
         return Blockly.utils.canvas_context;
+    },
+    // ========== 开发者接口 ==========
+getToken: () => {
+    if (window.__BN && window.__BN.token) {
+        return window.__BN.token;
     }
+    console.warn('[BetterNemo] 未找到全局 Token，请确保 extension-loader.js 已正确注入');
+    return '';
+},
+getWorkId: () => {
+    if (window.__BN && window.__BN.workId) {
+        return window.__BN.workId;
+    }
+    console.warn('[BetterNemo] 未找到全局作品 ID，请确保 extension-loader.js 已正确注入');
+    return '';
+},
+getRawToken: () => {
+    if (window.__BN && window.__BN.rawToken) {
+        return window.__BN.rawToken;
+    }
+    const full = BetterNemo.getToken();
+    if (full && full.startsWith('Bearer ')) {
+        return full.slice(7);
+    }
+    return full;
+},
 };
 const extensionToolboxs = [];
 function reloadExtension() {
@@ -733,7 +758,6 @@ async function showExtensionShop(disabled = [], callback) {
         };
     });
 }
-// --------------- 劫持Webview向Nemo发送的数据 ---------------
 (async () => {
     if (isPCTestEnv()) window['_dsbridge'] = { call: (...args) => { console.log(...args); } };
     setLoaderInfo('等待dsbridge初始化...', 4);
@@ -866,7 +890,6 @@ async function showExtensionShop(disabled = [], callback) {
                                 if (data['error_code'])
                                     document.write(`<h1>Error ${data['error_code']}: ${data['error_message']}</h1>`);
                                 const workId = data['work_id'];
-                                document.title = `BNP #${workId}`;
                                 if (workId && data['work_urls'].length > 0)
                                     fetch(data['work_urls'][0])
                                         .then(response => response.json())
@@ -912,46 +935,6 @@ async function showExtensionShop(disabled = [], callback) {
         //     }));
         // }
         return result;
-    };
-})();
-// --------------- 劫持Nemo向Webview发送的数据 ---------------
-(async () => {
-    await waitGetGlobal('_dsf');
-    await waitGetGlobal('_dsaf');
-
-    const postMessage = _dsf.postMessage;
-    window['postMsg'] = _dsf.postMessage;
-    _dsf.postMessage = (...args) => {
-        if (experimentalConfig.webview_debug) {
-            console.log('[Nemo -> Webview]', ...args);
-            debugServer.send(JSON.stringify({
-                type: 'n2w',
-                data: [...args]
-            }));
-        }
-        if (args.length === 2)
-            if (args[0] === 'INIT_WEBVIEW_DATA') {
-                let data = JSON.parse(args[1]);
-                data.context_menu_with_set_block_visibility = true;
-                data.translucent_block_visible = 'translucent';
-                return postMessage.apply(_dsf, [
-                    'INIT_WEBVIEW_DATA',
-                    JSON.stringify(data)
-                ]);
-            }
-        return postMessage.apply(_dsf, args);
-    };
-    const postMessageAsyn = _dsaf.postMessageAsyn;
-    window['postMsgAsyn'] = _dsaf.postMessageAsyn;
-    _dsaf.postMessageAsyn = async (...args) => {
-        if (experimentalConfig.webview_debug) {
-            console.log('[Nemo -> Webview] [ASYNC]', ...args);
-            debugServer.send(JSON.stringify({
-                type: 'n2w async',
-                data: [...args]
-            }));
-        }
-        return postMessageAsyn.apply(_dsaf, args);
     };
 })();
 function createBlock(id) {
