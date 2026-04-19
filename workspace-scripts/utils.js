@@ -766,14 +766,8 @@ async function showExtensionShop(disabled = [], callback) {
                 if (PLAYER) {
                     document.querySelector("#floatBall").style.display = "none";
                     const unloggedData = {
-                        avatar_url: "",
-                        bcm_version: "0.9.3",
-                        context_menu_with_set_block_visibility: false,
-                        enable_hide: false,
-                        is_login: false,
-                        is_pad: false,
-                        nickname: "",
-                        sidebar_width: 64,
+                        avatar_url: "", bcm_version: "0.9.3", context_menu_with_set_block_visibility: false,
+                        enable_hide: false, is_login: false, is_pad: false, nickname: "", sidebar_width: 64,
                         stage_position: {
                             portrait: {
                                 fullscreen: { bottom: 0, height: 0, left: 0, ratio: 0, right: 0, top: 0, width: 0, },
@@ -784,14 +778,16 @@ async function showExtensionShop(disabled = [], callback) {
                                 normal: { bottom: 0, height: 0, left: 0, ratio: 0, right: 0, top: 0, width: 0, }
                             }
                         },
-                        toolbox_mode: "normal",
-                        translucent_block_visible: "visible",
-                        user_id: "",
-                        user_level: -1,
-                        user_token: "",
-                        webview_height: 0,
+                        toolbox_mode: "normal", translucent_block_visible: "visible",
+                        user_id: "", user_level: -1, user_token: "", webview_height: 0,
                     };
                     async function loadWork(data, bcm) {
+                        if (bcm.styles)
+                            if (bcm.styles.styles_dict)
+                                Object.keys(bcm.styles.styles_dict).forEach(key => {
+                                    if (bcm.styles.styles_dict[key].path) bcm.styles.styles_dict[key].path =
+                                        bcm.styles.styles_dict[key].path.replace('file:///android_asset/webview/', 'https://static.codemao.cn/nemo/22/');
+                                });
                         // 等待扩展加载完成
                         setLoaderInfo('', 4);
                         while (Object.keys(extensionMetaData).length !== EXTENSION_FILES.length)
@@ -815,60 +811,6 @@ async function showExtensionShop(disabled = [], callback) {
                         postMsg('THEATRE_FULL_SCREEN', '{"visible":true}');
                         hideLoader();
                     }
-                    function getCookie(cname) {
-                        var name = cname + "=";
-                        var ca = document.cookie.split(';');
-                        for (var i = 0; i < ca.length; i++) {
-                            var c = ca[i].trim();
-                            if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
-                        }
-                        return undefined;
-                    }
-                    async function codemaoLogin() {
-                        const overlay = document.createElement('div');
-                        overlay.setAttribute('style', 'position: fixed; top: 0px; left: 0px; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); z-index: 2147483647; display: none; align-items: center; justify-content: center; flex-direction: column;');
-                        const iframe = document.createElement('iframe');
-                        iframe.src = 'https://shequ.codemao.cn/codemao_login?language=zh&ageLimit=false&pageView=login&theme=violet&env=production&productCode=kitten&platform=pc';
-                        iframe.setAttribute('style', 'width: 100%;height: 100%;border: none;background: transparent;color-scheme: none;');
-                        iframe.allow = 'camera; microphone; fullscreen';
-                        overlay.appendChild(iframe);
-                        document.body.appendChild(overlay);
-                        let messageHandler = null;
-                        let isResolved = false;
-                        const waitForMessage = new Promise((resolve, reject) => {
-                            messageHandler = (event) => {
-                                if (event.origin !== 'https://shequ.codemao.cn') return;
-                                const data = event.data;
-                                console.log('收到消息:', data);
-                                if (!data.content) return;
-                                if (data.content.payload.event === 'IFRAME_READY')
-                                    overlay.style.display = 'flex';
-                                if (data.content.payload.event === 'PASSWORD_LOGIN_SUCCESS')
-                                    if (!isResolved) {
-                                        isResolved = true;
-                                        resolve(data.content.payload.value);
-                                        cleanup();
-                                    }
-                                if (data.content.payload.event === 'CLOSE_ANIMATION_END')
-                                    if (!isResolved) {
-                                        isResolved = true;
-                                        reject(new Error('取消'));
-                                        cleanup();
-                                    }
-                            };
-                            window.addEventListener('message', messageHandler);
-                        });
-                        const cleanup = () => {
-                            if (messageHandler) { window.removeEventListener('message', messageHandler); messageHandler = null; }
-                            if (overlay.parentNode) overlay.parentNode.removeChild(overlay);
-                        };
-                        return waitForMessage;
-                    }
-                    // const userToken = getCookie('authorization');
-                    // if (!userToken)
-                    //     codemaoLogin()
-                    //         .then(result => console.log('登录成功', result))
-                    //         .catch(err => console.log('登录取消', err));
                     let webviewData = { ...unloggedData };
                     const { scrollHeight, scrollWidth } = document.documentElement;
                     setLoaderInfo('获取作品数据...', 4);
@@ -903,7 +845,6 @@ async function showExtensionShop(disabled = [], callback) {
                                             else
                                                 // 横屏作品
                                                 if (a1 > a2) {
-                                                    console.log('aaaaaaaaaaaaaaaaaaaaaaaaaas');
                                                     webviewData.stage_position.landscape.fullscreen.height = scrollHeight;
                                                     webviewData.stage_position.landscape.fullscreen.width = scrollHeight * (width / height);
                                                 } else {
