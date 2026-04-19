@@ -747,7 +747,7 @@ async function showExtensionShop(disabled = [], callback) {
         };
     });
 }
-// --------------- 劫持Webview向Nemo发送的数据 ---------------
+// --------------- 劫持原生向Nemo发送的数据 ---------------
 (async () => {
     if (isPCTestEnv()) window['_dsbridge'] = { call: (...args) => { console.log(...args); } };
     setLoaderInfo('等待dsbridge初始化...', 4);
@@ -782,11 +782,16 @@ async function showExtensionShop(disabled = [], callback) {
                         user_id: "", user_level: -1, user_token: "", webview_height: 0,
                     };
                     async function loadWork(data, bcm) {
+                        document.title = bcm.project_name;
                         if (bcm.styles)
                             if (bcm.styles.styles_dict)
                                 Object.keys(bcm.styles.styles_dict).forEach(key => {
-                                    if (bcm.styles.styles_dict[key].path) bcm.styles.styles_dict[key].path =
-                                        bcm.styles.styles_dict[key].path.replace('file:///android_asset/webview/', 'https://static.codemao.cn/nemo/22/');
+                                    const s = bcm.styles.styles_dict[key];
+                                    if (s.path) s.path = s.path.replace('file:///android_asset/webview/', 'https://static.codemao.cn/nemo/22/');
+                                    if (s.url) {
+                                        s.url = s.url.replace('\u003d\u003d', '==');
+                                        if (!s.path) s.path = s.url;
+                                    }
                                 });
                         // 等待扩展加载完成
                         setLoaderInfo('', 4);
@@ -825,7 +830,6 @@ async function showExtensionShop(disabled = [], callback) {
                                 if (data['error_code'])
                                     document.write(`<h1>Error ${data['error_code']}: ${data['error_message']}</h1>`);
                                 const workId = data['work_id'];
-                                document.title = `BNP #${workId}`;
                                 if (workId && data['work_urls'].length > 0)
                                     fetch(data['work_urls'][0])
                                         .then(response => response.json())
@@ -897,7 +901,7 @@ async function showExtensionShop(disabled = [], callback) {
         return result;
     };
 })();
-// --------------- 劫持Nemo向Webview发送的数据 ---------------
+// --------------- 劫持Nemo向原生发送的数据 ---------------
 (async () => {
     await waitGetGlobal('_dsf');
     await waitGetGlobal('_dsaf');

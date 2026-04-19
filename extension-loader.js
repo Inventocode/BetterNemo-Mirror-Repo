@@ -154,8 +154,8 @@ let themeMetaData = {};
     await loadScript('workspace-scripts/utils.js');
     setLoaderInfo('加载核心脚本...');
     if (isCloudflareEnv())
-        loadScript('https://db0l8fnn8oqtof.database.nocode.cn/storage/v1/object/public/wenjian/anonymous/1772202797682_q1jamqn6clr.js');
-    else loadScript('workspace.bundle.79d6432e01ccdecb492a.js');
+        loadScript('https://db0l8fnn8oqtof.database.nocode.cn/storage/v1/object/public/wenjian/anonymous/1776601566193_aowalndxrwh.js');
+    else loadScript('assets/workspace.bundle.79d6432e01ccdecb492a.js');
     setLoaderInfo('加载自定义积木...');
     await loadScript('workspace-scripts/blocks.js');
     setLoaderInfo('注入原型...');
