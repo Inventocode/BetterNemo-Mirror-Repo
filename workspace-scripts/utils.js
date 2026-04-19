@@ -834,7 +834,7 @@ async function showExtensionShop(disabled = [], callback) {
                                     fetch(data['work_urls'][0])
                                         .then(response => response.json())
                                         .then(data => {
-                                            const { width, height } = data['stage_size'];
+                                            const { width, height } = data['stage_size'] || { height: 900, width: 562 };
                                             const a1 = height / width;
                                             const a2 = scrollHeight / scrollWidth;
                                             if (height > width)
