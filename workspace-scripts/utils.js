@@ -792,6 +792,8 @@ async function showExtensionShop(disabled = [], callback) {
                                         s.url = s.url.replace('\u003d\u003d', '==');
                                         if (!s.path) s.path = s.url;
                                     }
+                                    if (s.path.startsWith('file') && s.url.startsWith('http'))
+                                        s.path = s.url;
                                 });
                         // 等待扩展加载完成
                         setLoaderInfo('', 4);
