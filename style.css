@@ -1,3 +1,6 @@
+.actor_input {
+  background: none;
+}
 #floatWindow {
   z-index: 2147483647;
 }

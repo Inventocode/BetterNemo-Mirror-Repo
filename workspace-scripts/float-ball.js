@@ -494,25 +494,6 @@ const presetBackgroundColor = "#221D4E";
         }
     };
     UI.home = Page.home;
-    // 双击隐藏悬浮球
-    let lastTouchEnd = 0;
-    function handleTouchend(event) {
-        const now = (new Date()).getTime();
-        if (now - lastTouchEnd <= 200) {
-            event.preventDefault();
-            // 查找被点击的元素是否包含在 #workspace 内
-            let targetElement = event.target;
-            const workspaceElement = document.querySelector("#workspace > div > svg.blocklySvg");
-            if (workspaceElement && workspaceElement.contains(targetElement)) {
-                if (floatBall.classList.contains('hide')) floatBall.classList.remove('hide');
-                else floatBall.classList.add('hide');
-            }
-            lastTouchEnd = 0;
-        } else {
-            lastTouchEnd = now;
-        }
-    }
-    document.addEventListener('touchend', handleTouchend, false);
     // 关闭悬浮窗口
     function closeFloatWindow() {
         floatWindow.classList.remove('active');
