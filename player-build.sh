@@ -6,4 +6,5 @@ rm -rf classes2_smali
 rm -rf classes3_smali
 mkdir player
 mv ./* player
+mv player/assets .
 mv player/website/* .
