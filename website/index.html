@@ -302,6 +302,7 @@
 
         input[type="number"] {
             -moz-appearance: textfield;
+            appearance: textfield;
         }
     </style>
 </head>
@@ -345,10 +346,10 @@
 
         <div class="tab-content" id="download">
             <h2>文档</h2>
-            <p>📖 BetterNemo 文档：<a href="https://better-nemo.feishu.cn/wiki/HH4kwHOoJihAVLkEIDacNawKnMf" class="doc-link"
-                    target="_blank">BetterNemo 帮助手册</a></p>
-            <p>💻 BetterNemo 仓库：<a href="https://gitee.com/oldsquaw/better-nemo" class="doc-link"
-                    target="_blank">Gitee: oldsquaw/better-nemo</a></p>
+            <p>📖 BetterNemo 文档：<a href="https://better-nemo.feishu.cn/wiki/HH4kwHOoJihAVLkEIDacNawKnMf"
+                    class="doc-link" target="_blank">BetterNemo 帮助手册</a></p>
+            <p>💻 BetterNemo 仓库：<a href="https://gitee.com/oldsquaw/better-nemo" class="doc-link" target="_blank">Gitee:
+                    oldsquaw/better-nemo</a></p>
             <p>💬 官方 QQ 群：1083164353</p>
         </div>
 
@@ -357,7 +358,8 @@
             <p>输入作品ID</p>
             <input type="number" name="work-id" id="work-id" style="margin-bottom: 10px;">
             <br>
-            <button id="play-btn" class="tab-btn" onclick="window.location.href = `https://bn-p.pages.dev/player/?player=${document.getElementById('work-id').value}`">运行</button>
+            <button id="play-btn" class="tab-btn"
+                onclick="window.location.href = `https://bn-p.pages.dev/player/?player=${document.getElementById('work-id').value}`">运行</button>
         </div>
 
         <footer>
@@ -366,6 +368,9 @@
     </div>
 
     <script>
+        const PLAYER = (new URLSearchParams(window.location.search)).get('player');
+        if (PLAYER)
+            window.location.href = `https://bn-p.pages.dev/player/?player=${PLAYER}`
         document.getElementById('cr').innerHTML = '© ' + new Date().getFullYear() + ' BetterNemo 开发团队';
         const tabs = document.querySelectorAll('.tabs > .tab-btn');
         const contents = document.querySelectorAll('.tab-content');
