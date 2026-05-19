@@ -5,16 +5,16 @@
     const Brush = (await waitHook("Brush")).Brush;
     BetterNemo.log('Brush注入', "画笔原型注入开始");
     Brush.prototype.put_pixel = function (x, y, r, g, b, a) {
-        var ctx = this.ctx;
+        let ctx = this.ctx;
         if (!ctx) {
             return;
         }
-        var _a = this.app.get_app().view, width = _a.width, height = _a.height;
-        var center_x = width / 2;
-        var center_y = height / 2;
+        let _a = this.app.get_app().view, width = _a.width, height = _a.height;
+        let center_x = width / 2;
+        let center_y = height / 2;
 
-        var imageData = ctx.createImageData(1, 1);
-        var data = imageData.data;
+        let imageData = ctx.createImageData(1, 1);
+        let data = imageData.data;
 
         data[0] = r;
         data[1] = g;
@@ -26,15 +26,15 @@
         this.actor.parent_scene.should_update_brush();
     };
     Brush.prototype.fill_polygon = function (point, color) {
-        var ctx = this.ctx;
+        let ctx = this.ctx;
         if (!ctx) {
             return;
         }
-        var _a = this.app.get_app().view, width = _a.width, height = _a.height;
-        var center_x = width / 2;
-        var center_y = height / 2;
+        let _a = this.app.get_app().view, width = _a.width, height = _a.height;
+        let center_x = width / 2;
+        let center_y = height / 2;
 
-        var points = 0;
+        let points = 0;
 
         try {
             points = JSON.parse(point);
@@ -49,11 +49,11 @@
         }
         ctx.closePath();
 
-        var color2 = color;
+        let color2 = color;
         if (color2.substring(0, 1) == "[") {
             try {
                 color2 = JSON.parse(color2);
-                var gradient;
+                let gradient;
                 if (color2[0] == "Linear") {
                     gradient = ctx.createLinearGradient(center_x + color2[1][0], center_y - color2[1][1], center_x + color2[1][2], center_y - color2[1][3]);
                 }
@@ -81,22 +81,22 @@
         if (!this.ctx) {
             return;
         }
-        var _a = this.app.get_app().view, width2 = _a.width, height2 = _a.height;
-        var center_x = width2 / 2;
-        var center_y = height2 / 2;
+        let _a = this.app.get_app().view, width2 = _a.width, height2 = _a.height;
+        let center_x = width2 / 2;
+        let center_y = height2 / 2;
         // console.log("draw_image", image, x, y, width, height);
         this.ctx.drawImage(image, center_x + x, center_y - y, width, height);
         this.actor.parent_scene.should_update_brush();
     };
     Brush.prototype.draw_custom_image_stamp = function (url, x, y, w, h) {
-        var ctx = this.ctx;
+        let ctx = this.ctx;
         if (!ctx) {
             return;
         }
-        var actor = this.actor;
-        var _a = this.app.get_app().view, width2 = _a.width, height2 = _a.height;
-        var center_x = width2 / 2;
-        var center_y = height2 / 2;
+        let actor = this.actor;
+        let _a = this.app.get_app().view, width2 = _a.width, height2 = _a.height;
+        let center_x = width2 / 2;
+        let center_y = height2 / 2;
 
         const source = new Image(100, 200);
 
@@ -114,24 +114,24 @@
 
     };
     Brush.prototype.better_draw_text_stamp = function (text, color, style, weight, size, font, align, base_line, rotation) {
-        var ctx = this.ctx;
+        let ctx = this.ctx;
         if (!ctx) {
             return;
         }
-        var _a = this.app.get_app().stage
+        let _a = this.app.get_app().stage
             .toGlobal(this.actor.position), x = _a.x, y = _a.y;
-        var stamp_rotation = rotation !== undefined ? rotation : this.actor.rotation;
-        var _a2 = this.app.get_app().view, width2 = _a2.width, height2 = _a2.height;
-        var center_x = width2 / 2;
-        var center_y = height2 / 2;
+        let stamp_rotation = rotation !== undefined ? rotation : this.actor.rotation;
+        let _a2 = this.app.get_app().view, width2 = _a2.width, height2 = _a2.height;
+        let center_x = width2 / 2;
+        let center_y = height2 / 2;
         ctx.save();
         ctx.font = style + ' ' + weight + ' ' + size + "px " + font + ", Arial, 'Microsoft YaHei'";
 
-        var color2 = color;
+        let color2 = color;
         if (color2.substring(0, 1) == "[") {
             try {
                 color2 = JSON.parse(color2);
-                var gradient;
+                let gradient;
                 if (color2[0] == "Linear") {
                     gradient = ctx.createLinearGradient(center_x + color2[1][0], center_y - color2[1][1], center_x + color2[1][2], center_y - color2[1][3]);
                 }
@@ -160,35 +160,35 @@
         this.actor.parent_scene.should_update_brush();
     };
     Brush.prototype.rectangle_clear = function (x, y, width, height) {
-        var ctx = this.ctx;
+        let ctx = this.ctx;
         if (!ctx) {
             return;
         }
-        var _a = this.app.get_app().view, width2 = _a.width, height2 = _a.height;
-        var center_x = width2 / 2;
-        var center_y = height2 / 2;
+        let _a = this.app.get_app().view, width2 = _a.width, height2 = _a.height;
+        let center_x = width2 / 2;
+        let center_y = height2 / 2;
 
         ctx.clearRect(center_x + x, center_y - y, width, height);
         ctx.restore();
         this.actor.parent_scene.should_update_brush();
     };
     Brush.prototype.draw_svg = function (svg) {
-        var ctx = this.ctx;
+        let ctx = this.ctx;
         if (!ctx) {
             return;
         }
-        var actor = this.actor;
-        var center_point = Utils.get_actor_center(actor, actor.position);
-        var rotation = this.actor.rotation;
-        var _a = this.app.get_app().view, view_height = _a.height, view_width = _a.width;
+        let actor = this.actor;
+        let center_point = Utils.get_actor_center(actor, actor.position);
+        let rotation = this.actor.rotation;
+        let _a = this.app.get_app().view, view_height = _a.height, view_width = _a.width;
 
         ctx.translate(center_point.x + view_width / 2, center_point.y + view_height / 2);
         ctx.rotate(rotation);
         ctx.scale(actor.scale.x < 0 ? -1 : 1, actor.scale.y < 0 ? -1 : 1);
         const source = new Image(100, 200);
 
-        var svgString = svg;
-        var svgURL = 'data:image/svg+xml;base64,' + btoa(svgString);
+        let svgString = svg;
+        let svgURL = 'data:image/svg+xml;base64,' + btoa(svgString);
 
         source.onload = function () {
             ctx.save();
@@ -202,7 +202,7 @@
     /*
     Brush.prototype.dataURL_actor = function () {
         
-        var actor = this.actor;
+        let actor = this.actor;
         const source = actor.texture.baseTexture.getDrawableSource && actor.texture.baseTexture.getDrawableSource();
         
         const canvasD = document.createElement('canvas');
@@ -233,16 +233,16 @@
     };
     //舞台长宽
     Brush.prototype.stage_size = function () {
-        var _a = this.app.get_app().view, width2 = _a.width, height2 = _a.height;
-        var center_x = width2 / 2;
-        var center_y = height2 / 2;
+        let _a = this.app.get_app().view, width2 = _a.width, height2 = _a.height;
+        let center_x = width2 / 2;
+        let center_y = height2 / 2;
 
         //console.log([2,center_x,center_y]);
         return [center_x, center_y];
     };
     Brush.prototype.dataURL_URL = function (url) {
 
-        var img = new Image();
+        let img = new Image();
 
         img.crossOrigin = 'anonymous';
 
@@ -274,15 +274,138 @@
     };
     BetterNemo.log('Scene注入', "Scene原型注入完成");
 })();
-// ------------------OptiCompilerImpl原型注入------------------
+// ------------------编译器注入------------------
 (async () => {
-    BetterNemo.log('OptiCompilerImpl注入', "等待获取");
+    BetterNemo.log('编译器注入', "等待获取");
     const OptiCompilerImpl = (await waitHook("OptiCompiler")).OptiCompilerImpl;
-    BetterNemo.log('OptiCompilerImpl注入', "开始");
-    const compile_repeat_forever = OptiCompilerImpl.prototype.compile_repeat_forever;
-    OptiCompilerImpl.prototype.compile_repeat_forever = function () {
-        // console.log('compile_repeat_forever', arguments);
-        return compile_repeat_forever.apply(this, arguments);
+    BetterNemo.log('编译器注入', "开始");
+    const compile_statement = OptiCompilerImpl.prototype.compile_statement;
+    OptiCompilerImpl.prototype.compile_statement = function (ast) {
+        try {
+            if (ast == undefined) {
+                return {
+                    statements: '',
+                };
+            }
+            let res = [];
+            res.push(this.state.create_before_expression_yield_point(ast));
+            let omit_semicolon = false;
+            let omit_next = false;
+            if (ast.disabled) {
+                if (ast.next_block != undefined && omit_next == false) {
+                    const r = this.compile_statement(ast.next_block);
+                    res.push(r.statements);
+                }
+                return {
+                    statements: res,
+                };
+            }
+            if (this.block.is.repeat_forever(ast)) {
+                omit_semicolon = true;
+                const r = this.compile_repeat_forever(ast);
+                res.push(r.statements);
+            }
+            else if (this.block.is.repeat_forever_until(ast)) {
+                omit_semicolon = true;
+                const r = this.compile_repeat_forever_until(ast);
+                res.push(r.statements);
+            }
+            else if (this.block.is.wait_until(ast)) {
+                omit_semicolon = true;
+                const r = this.compile_wait_until(ast);
+                res.push(r.statements);
+            }
+            else if (this.block.is.repeat_n_times(ast)) {
+                omit_semicolon = true;
+                const r = this.compile_repeat_n_times(ast);
+                res.push(r.statements);
+            }
+            else if (this.block.is.break(ast)) {
+                const r = this.compile_break(ast);
+                res.push(r.statements);
+            }
+            else if (this.block.is.procedures_defnoreturn(ast)) {
+                let body = ast.child_block[0];
+                if (body == undefined) {
+                    // Do nothing if no procedure body
+                    omit_semicolon = true;
+                }
+                else {
+                    const r = this.compile_statement(body);
+                    res.push(r.statements);
+                }
+            }
+            else if (this.block.is.procedures_callnoreturn(ast)) {
+                const r = this.compile_procedure_call(ast);
+                res.push(r.pre);
+            }
+            else if (this.block.is.cond_block(ast)) {
+                omit_semicolon = true;
+                const r = this.compile_conditional(ast);
+                res.push(r.statements);
+            }
+            else if (this.block.is.async_tell(ast)) {
+                omit_semicolon = true;
+                const r = this.compile_async_tell(ast);
+                res.push(r.statements);
+            }
+            else if (this.block.is.sync_tell(ast)) {
+                omit_semicolon = true;
+                const r = this.compile_sync_tell(ast);
+                res.push(r.statements);
+            }
+            else if (this.block.is.warp(ast)) {
+                omit_semicolon = true;
+                const r = this.compile_warp(ast);
+                res.push(r.statements);
+            }
+            else if (this.block.is.event_block(ast)) {
+                omit_semicolon = true;
+                const r = this.compile_event(ast);
+                res.push(r.statements);
+            }
+            else if (this.block.is.responder_block(ast)) {
+                omit_semicolon = true;
+                const r = this.compile_responder(ast);
+                res.push(r.statements);
+            }
+            else if (this.block.is.lifetime_responder_type(ast.type)) {
+                omit_semicolon = true;
+                const r = this.compile_responder(ast);
+                res.push(r.statements);
+            }
+            else if (this.block.is.procedures_return_value(ast)) {
+                omit_semicolon = true;
+                omit_next = true;
+                const r = this.compile_procedure_return_value(ast);
+                res.push(r.statements);
+            }
+            else if (ast.type == "template_8") {
+                omit_semicolon = true;
+                if (ast.child_block[0]) {
+                    const compiledBody = this.compile_statement(ast.child_block[0]);
+                    res.push(compiledBody);
+                }
+            }
+            else {
+                const r = this.compile_expression(ast);
+                res.push(r.pre);
+                res.push(r.expr);
+            }
+            if (res.length != 0 && omit_semicolon == false) {
+                res.push(";");
+            }
+            if (ast.next_block != undefined && omit_next == false) {
+                const r = this.compile_statement(ast.next_block);
+                res.push(r.statements);
+            }
+            return {
+                statements: res,
+            };
+        }
+        catch (e) {
+            throw this.create_catch_all_error('compile_statement', e, ast);
+        }
     };
-    BetterNemo.log('OptiCompilerImpl注入', "完成");
+    BetterNemo.log('编译器注入', "完成");
 })();

@@ -193,12 +193,21 @@ const presetBackgroundColor = "#221D4E";
     const Page = {
         home: () => {
             UI.setStatus('Version: ' + BetterNemoVersion);
-            UI.button(() => { UI.load(Page.clipboard); }, '剪切板', 'clipboard');
-            UI.button(() => { UI.load(Page.extensions); }, '内置扩展', 'puzzle-piece');
-            UI.button(() => { UI.load(Page.theme); }, '主题', 'palette');
-            UI.button(() => { UI.load(Page.editorConfig); }, '编辑器', 'laptop-code');
-            UI.button(() => { UI.load(Page.runtimeConfig); }, '运行时', 'cog');
-            UI.button(() => { UI.load(Page.more); }, '更多', 'ellipsis');
+            if (IS_BN_APP){
+                UI.button(() => {
+                    window.location.href = `https://nemo.codemao.cn/w/${PLAYER_DATA.data.work_id}?is_nemo_player=true`
+                }, '使用Nemo播放器', 'arrow-left');
+                UI.button(() => { UI.load(Page.runtimeConfig); }, '运行时', 'cog');
+                UI.button(() => { UI.load(Page.more); }, '更多', 'ellipsis');
+            }
+            else {
+                UI.button(() => { UI.load(Page.clipboard); }, '剪切板', 'clipboard');
+                UI.button(() => { UI.load(Page.extensions); }, '内置扩展', 'puzzle-piece');
+                UI.button(() => { UI.load(Page.theme); }, '主题', 'palette');
+                UI.button(() => { UI.load(Page.editorConfig); }, '编辑器', 'laptop-code');
+                UI.button(() => { UI.load(Page.runtimeConfig); }, '运行时', 'cog');
+                UI.button(() => { UI.load(Page.more); }, '更多', 'ellipsis');
+            }
         },
         error: (error = "未知错误") => {
             UI.setTitle('错误');

@@ -131,7 +131,20 @@ Extension.metaData = {
                     ["[前缀 和 后缀]", "1"],
                     ["[前缀  后缀]", "2"],
                 ]
-            }]
+            }],
+            ...Block.methodBlock
+        },
+        {
+            type: "template_8",
+            message0: "C口积木测试 %1 %2",
+            args0: [{
+                "type": "input_dummy",
+                "align": "CENTRE"
+            }, {
+                "type": "input_statement",
+                "name": "DO"
+            }],
+            ...Block.methodBlock
         }
     ].map((block) => { return { ...block, colour: "%{BKY_TEMPLATE_HUE}" }; });
     // 等待积木对象加载完毕，别动
@@ -142,6 +155,7 @@ Extension.metaData = {
     // 定义你的积木盒
     const templateXML = [
         Toolbox.title("模板 · Template"),
+        Toolbox.block("template_8"),
         Toolbox.block("template_7"),
         Toolbox.button("template_btn", "HELLO", () => console.log("嗯呃~")),
         Toolbox.eventBlock("template_6"),
@@ -193,7 +207,7 @@ Extension.metaData = {
         });
     })();
     // 给你的积木定义一个解释器
-    BN.regMethod('template_3', (params, _, __, ___) => {
-        BN.emitSimpleEvent("template_6", params.arg);
+    BN.regDomainFunction('template_8', (params, _, __, ___) => {
+        console.log('t8', params, _, __, ___);
     });
 })();

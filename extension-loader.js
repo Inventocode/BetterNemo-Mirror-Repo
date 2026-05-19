@@ -41,6 +41,7 @@ hook("./src/i18n/index.ts", "HookI18n");
 
 // --------------- Player检测 & 加载动画 ---------------
 const PLAYER = (new URLSearchParams(window.location.search)).get('player');
+const IS_BN_APP = (new URLSearchParams(window.location.search)).get('is_bn_app');
 if (PLAYER)
     (async function () {
         while (!document['body']) await new Promise(resolve => setTimeout(resolve, 100));

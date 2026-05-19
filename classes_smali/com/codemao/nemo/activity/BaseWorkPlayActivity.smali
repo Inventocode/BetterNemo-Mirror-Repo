@@ -480,7 +480,7 @@
 .end method
 
 .method private initIntentData()V
-    .registers 6
+    .registers 10
 
     .line 298
     invoke-virtual {p0}, Landroid/app/Activity;->getIntent()Landroid/content/Intent;
@@ -497,34 +497,84 @@
 
     iput-boolean v0, p0, Lcom/codemao/nemo/activity/BaseWorkPlayActivity;->isX5:Z
 
-    .line 299
-    new-instance v0, Ljava/lang/StringBuilder;
-
-    invoke-direct {v0}, Ljava/lang/StringBuilder;-><init>()V
-
     invoke-virtual {p0}, Landroid/app/Activity;->getIntent()Landroid/content/Intent;
-
-    move-result-object v1
-
-    const-string v3, "url"
-
-    invoke-virtual {v1, v3}, Landroid/content/Intent;->getStringExtra(Ljava/lang/String;)Ljava/lang/String;
-
-    move-result-object v1
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    const-string v1, "?is_nemo_player=true"
-
-    invoke-virtual {v0, v1}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
-
-    invoke-virtual {v0}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
 
     move-result-object v0
 
-    iput-object v0, p0, Lcom/codemao/nemo/activity/BaseWorkPlayActivity;->url:Ljava/lang/String;
+    const-string v1, "url"
+
+    invoke-virtual {v0, v1}, Landroid/content/Intent;->getStringExtra(Ljava/lang/String;)Ljava/lang/String;
+
+    move-result-object v3
+
+    invoke-virtual {v3}, Ljava/lang/String;->toLowerCase()Ljava/lang/String;
+
+    move-result-object v4
+
+    const-string v5, "nemo"
+
+    invoke-virtual {v4, v5}, Ljava/lang/String;->contains(Ljava/lang/CharSequence;)Z
+
+    move-result v4
+
+    if-nez v4, :cond_37
+
+    new-instance v5, Ljava/lang/StringBuilder;
+
+    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
+
+    invoke-virtual {v5, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v6, "?is_nemo_player=true"
+
+    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v3
+
+    iput-object v3, p0, Lcom/codemao/nemo/activity/BaseWorkPlayActivity;->url:Ljava/lang/String;
+
+    goto :goto_5c
+
+    :cond_37
+    const-string v5, "/"
+
+    invoke-virtual {v3, v5}, Ljava/lang/String;->split(Ljava/lang/String;)[Ljava/lang/String;
+
+    move-result-object v6
+
+    array-length v7, v6
+
+    if-eqz v7, :cond_44
+
+    add-int/lit8 v7, v7, -0x1
+
+    aget-object v3, v6, v7
+
+    :cond_44
+    new-instance v5, Ljava/lang/StringBuilder;
+
+    invoke-direct {v5}, Ljava/lang/StringBuilder;-><init>()V
+
+    const-string v6, "https://bn-p.pages.dev/player/?player="
+
+    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v5, v3}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    const-string v6, "&is_bn_app=true"
+
+    invoke-virtual {v5, v6}, Ljava/lang/StringBuilder;->append(Ljava/lang/String;)Ljava/lang/StringBuilder;
+
+    invoke-virtual {v5}, Ljava/lang/StringBuilder;->toString()Ljava/lang/String;
+
+    move-result-object v3
+
+    iput-object v3, p0, Lcom/codemao/nemo/activity/BaseWorkPlayActivity;->url:Ljava/lang/String;
 
     .line 300
+    :goto_5c
     invoke-virtual {p0}, Landroid/app/Activity;->getIntent()Landroid/content/Intent;
 
     move-result-object v0
@@ -557,7 +607,7 @@
 
     move-result v0
 
-    if-eqz v0, :cond_56
+    if-eqz v0, :cond_88
 
     .line 304
     sget-object v0, Lcom/codemao/nemo/qrscan/utils/QRCodeCreateHelper;->INSTANCE:Lcom/codemao/nemo/qrscan/utils/QRCodeCreateHelper;
@@ -572,10 +622,10 @@
 
     iput-object v0, p0, Lcom/codemao/nemo/activity/BaseWorkPlayActivity;->shareUrl:Ljava/lang/String;
 
-    goto :goto_62
+    goto :goto_94
 
     .line 306
-    :cond_56
+    :cond_88
     sget-object v0, Lcom/codemao/nemo/qrscan/utils/QRCodeCreateHelper;->INSTANCE:Lcom/codemao/nemo/qrscan/utils/QRCodeCreateHelper;
 
     iget-object v1, p0, Lcom/codemao/nemo/activity/BaseWorkPlayActivity;->shareUrl:Ljava/lang/String;
@@ -589,7 +639,7 @@
     iput-object v0, p0, Lcom/codemao/nemo/activity/BaseWorkPlayActivity;->shareUrl:Ljava/lang/String;
 
     .line 308
-    :goto_62
+    :goto_94
     invoke-virtual {p0}, Landroid/app/Activity;->getIntent()Landroid/content/Intent;
 
     move-result-object v0
