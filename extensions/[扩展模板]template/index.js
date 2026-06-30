@@ -22,6 +22,93 @@ Extension.metaData = {
     // --------------------------------积木-------------------------------
     // 这条语句会等待Blockly加载完毕，别动
     await BN.waitBlocklyLoaded();
+    const di_1 = await BN.getHook('Di');
+    const defs_1 = await waitHook('BlocksDefs');
+    function gen_uid() {
+        var length = 20;
+        var soup = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        var soup_length = soup.length;
+        var id = [];
+        for (var i = 0; i < length; i++) {
+            id[i] = soup.charAt(Math.random() * soup_length);
+        }
+        return id.join('');
+    }
+    const templateMutation = {
+    itemCount_: 0,
+    shadowIds: [],
+    addMutation(value) {
+        const e = Blink.di_container.get(di_1.BINDING.events);
+        const og = e.get_group();
+        if (!og) e.set_group(true);
+        const n = `ADD${this.itemCount_}`;
+        const sid = this.shadowIds[this.itemCount_] || gen_uid();
+        this.shadowIds[this.itemCount_] = sid;
+        this.append_value_input(n, 'TITLE_TAIL', 0, defs_1.text_shadow(value || '', sid)).connection?.respawn_shadow();
+        this.itemCount_++;
+        if (this.itemCount_ > 2) {
+            const mi = this.get_input('MUTATE_BUTTON');
+            if (mi && !mi.get_field('REMOVE'))
+                mi.insert_field_at(0, Blink.di_container.get(di_1.BINDING.MutationRemoveButton)(), 'REMOVE');
+        }
+        if (e.is_enabled())
+            Blink.di_container.get(di_1.BINDING.ChangeEvent)('mutation', { block: this, old_value: void 0, new_value: value }).let(f => e.fire(f));
+        if (!og) e.set_group(false);
+    },
+    removeMutation() {
+        const idx = this.itemCount_ - 1;
+        const inp = this.get_input(`ADD${idx}`);
+        this.itemCount_--;
+        if (this.itemCount_ <= 2) {
+            const mi = this.get_input('MUTATE_BUTTON');
+            if (mi?.get_field('REMOVE')) mi.remove_field('REMOVE');
+        }
+        if (!inp) return;
+        const e = Blink.di_container.get(di_1.BINDING.events);
+        const og = e.get_group();
+        if (!og) e.set_group(true);
+        let removed = '';
+        const cb = inp.connection.targetBlock();
+        if (!cb?.is_shadow()) {
+            const sd = inp.connection.get_shadow_dom();
+            this.shadowIds[idx] = sd?.getAttribute('id') || gen_uid();
+            removed = sd?.firstChild?.textContent || '';
+        } else {
+            this.shadowIds[idx] = cb.id;
+            removed = cb.get_field_value('TEXT') || '';
+        }
+        this.remove_input(`ADD${idx}`);
+        if (e.is_enabled())
+            Blink.di_container.get(di_1.BINDING.ChangeEvent)('mutation', { block: this, old_value: removed, new_value: void 0 }).let(f => e.fire(f));
+        if (og === '') e.set_group(false);
+    },
+    mutationToDom() {
+        const c = document.createElement('mutation');
+        c.setAttribute('items', String(this.itemCount_));
+        return c;
+    },
+    domToMutation(xml) {
+        this.itemCount_ = Math.max(parseInt(xml.getAttribute('items') || '0', 10), 2);
+        const e = Blink.di_container.get(di_1.BINDING.events);
+        e.disable();
+        this.append_dummy_input('TITLE_HEAD').append_field('华为自研');
+        this.shadowIds = this.shadowIds || [];
+        for (let i = 0; i < this.itemCount_; i++) {
+            if (!this.get_input(`ADD${i}`)) {
+                const id = gen_uid();
+                this.shadowIds[i] = id;
+                const txt = i === 0 ? 'ab' : i === 1 ? 'c' : '';
+                this.append_shadow_input(`ADD${i}`, defs_1.text_shadow(txt, id));
+            }
+        }
+        this.append_dummy_input('TITLE_TAIL').append_field('可变参数');
+        const mi = this.append_dummy_input('MUTATE_BUTTON').append_field(Blink.di_container.get(di_1.BINDING.MutationAddButton)(), 'ADD');
+        if (this.itemCount_ > 2)
+            mi.insert_field_at(0, Blink.di_container.get(di_1.BINDING.MutationRemoveButton)(), 'REMOVE');
+        e.enable();
+    }
+};
+    Blockly.extensions.register_mutator('mutator_template9', templateMutation);
     // 这条语句会注册一个颜色
     BN.regColor("TEMPLATE_HUE", "#ff9900", "#ff9900");
     // 开始定义你的自定义积木吧
@@ -145,16 +232,24 @@ Extension.metaData = {
                 "name": "DO"
             }],
             ...Block.methodBlock
+        },
+        {
+            "type": "template_9",
+            "message0": "",
+            "output": "String",
+            "inputsInline": true,
+            "mutator": "mutator_template9"
         }
     ].map((block) => { return { ...block, colour: "%{BKY_TEMPLATE_HUE}" }; });
     // 等待积木对象加载完毕，别动
     await BN.waitBlockLoaded();
     // 注册你的积木
-    BN.regBlocks(templateBlocks);
+    BN.defineBlocks(templateBlocks);
     // --------------------------------积木盒-------------------------------
     // 定义你的积木盒
     const templateXML = [
         Toolbox.title("模板 · Template"),
+        Toolbox.block("template_9"),
         Toolbox.block("template_8"),
         Toolbox.block("template_7"),
         Toolbox.button("template_btn", "HELLO", () => console.log("嗯呃~")),
@@ -168,7 +263,7 @@ Extension.metaData = {
         Toolbox.flyout_bottom(),
     ];
     // 为你的积木盒注册一个图标
-    BN.regIcon(`<symbol id="icon-template" viewBox="-1030 -960 2500 2500"><path d="M224 0c35.3 0 64 21.5 64 48 0 10.4-4.4 20-12 27.9-6.6 6.9-12 15.3-12 24.9 0 15 12.2 27.2 27.2 27.2l44.8 0c26.5 0 48 21.5 48 48l0 44.8c0 15 12.2 27.2 27.2 27.2 9.5 0 18-5.4 24.9-12 7.9-7.5 17.5-12 27.9-12 26.5 0 48 28.7 48 64s-21.5 64-48 64c-10.4 0-20.1-4.4-27.9-12-6.9-6.6-15.3-12-24.9-12-15 0-27.2 12.2-27.2 27.2L384 464c0 26.5-21.5 48-48 48l-56.8 0c-12.8 0-23.2-10.4-23.2-23.2 0-9.2 5.8-17.3 13.2-22.8 11.6-8.7 18.8-20.7 18.8-34 0-26.5-28.7-48-64-48s-64 21.5-64 48c0 13.3 7.2 25.3 18.8 34 7.4 5.5 13.2 13.5 13.2 22.8 0 12.8-10.4 23.2-23.2 23.2L48 512c-26.5 0-48-21.5-48-48L0 343.2c0-12.8 10.4-23.2 23.2-23.2 9.2 0 17.3 5.8 22.8 13.2 8.7 11.6 20.7 18.8 34 18.8 26.5 0 48-28.7 48-64s-21.5-64-48-64c-13.3 0-25.3 7.2-34 18.8-5.5 7.4-13.5 13.2-22.8 13.2-12.8 0-23.2-10.4-23.2-23.2L0 176c0-26.5 21.5-48 48-48l108.8 0c15 0 27.2-12.2 27.2-27.2 0-9.5-5.4-18-12-24.9-7.5-7.9-12-17.5-12-27.9 0-26.5 28.7-48 64-48z"></path></symbol>`);
+    BN.addIcon(`<symbol id="icon-template" viewBox="-1030 -960 2500 2500"><path d="M224 0c35.3 0 64 21.5 64 48 0 10.4-4.4 20-12 27.9-6.6 6.9-12 15.3-12 24.9 0 15 12.2 27.2 27.2 27.2l44.8 0c26.5 0 48 21.5 48 48l0 44.8c0 15 12.2 27.2 27.2 27.2 9.5 0 18-5.4 24.9-12 7.9-7.5 17.5-12 27.9-12 26.5 0 48 28.7 48 64s-21.5 64-48 64c-10.4 0-20.1-4.4-27.9-12-6.9-6.6-15.3-12-24.9-12-15 0-27.2 12.2-27.2 27.2L384 464c0 26.5-21.5 48-48 48l-56.8 0c-12.8 0-23.2-10.4-23.2-23.2 0-9.2 5.8-17.3 13.2-22.8 11.6-8.7 18.8-20.7 18.8-34 0-26.5-28.7-48-64-48s-64 21.5-64 48c0 13.3 7.2 25.3 18.8 34 7.4 5.5 13.2 13.5 13.2 22.8 0 12.8-10.4 23.2-23.2 23.2L48 512c-26.5 0-48-21.5-48-48L0 343.2c0-12.8 10.4-23.2 23.2-23.2 9.2 0 17.3 5.8 22.8 13.2 8.7 11.6 20.7 18.8 34 18.8 26.5 0 48-28.7 48-64s-21.5-64-48-64c-13.3 0-25.3 7.2-34 18.8-5.5 7.4-13.5 13.2-22.8 13.2-12.8 0-23.2-10.4-23.2-23.2L0 176c0-26.5 21.5-48 48-48l108.8 0c15 0 27.2-12.2 27.2-27.2 0-9.5-5.4-18-12-24.9-7.5-7.9-12-17.5-12-27.9 0-26.5 28.7-48 64-48z"></path></symbol>`);
     // 添加你的积木盒
     BN.addToolbox("template", "icon-template", "#ff9900", templateXML);
     // ---------------------------解释器-------------------------------------

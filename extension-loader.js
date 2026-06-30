@@ -29,6 +29,7 @@ hook("./src/common/redux/index.ts", "HookRedux");
 hook("./node_modules/@crc/stage/build/core/actors/brush.js", "HookBrush");
 hook("./node_modules/@crc/stage/build/core/utils/index.js", "HookUtils");
 hook("./node_modules/@crc/blink/dist/core/di/index.js", "HookDi");
+hook("./node_modules/@crc/blink/dist/blocks/defs.js", "HookBlocksDefs");
 hook("./node_modules/@crc/stage/build/core/scenes/scene.js", "HookScene");
 hook("./src/i18n/zh_CN.ts", "HookMsgZhCN");
 hook("./src/webview/bridge/index.ts", "HookBridge");
@@ -152,8 +153,11 @@ let themeMetaData = {};
     extensionMgrLog('主题列表:', THEME_FILES.join(', '));
     setLoaderInfo('初始化存储...');
     await loadScript('workspace-scripts/storage.js');
+    setLoaderInfo('加载BN核心');
     await loadScript('workspace-scripts/utils.js');
-    setLoaderInfo('加载核心脚本...');
+    setLoaderInfo('加载CUELoader...');
+    await loadScript('workspace-scripts/CUELoader-preview.user.js')
+    setLoaderInfo('加载Nemo核心...');
     if (isCloudflareEnv())
         loadScript('https://db0l8fnn8oqtof.database.nocode.cn/storage/v1/object/public/wenjian/anonymous/1776601566193_aowalndxrwh.js');
     else loadScript('assets/workspace.bundle.79d6432e01ccdecb492a.js');

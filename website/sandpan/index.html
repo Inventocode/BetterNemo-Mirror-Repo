@@ -448,30 +448,22 @@
                 // 更新节点状态为"检测中"
                 updateNodeStatusItem(index, 'checking', '检测中...');
 
-                return fetch(node.url, {
-                        mode: 'cors',
-                        signal: controller.signal,
-                        headers: {
-                            'Accept': 'text/html'
-                        }
+                // 使用 no-cors 模式,但请求一个特定的测试路径来间接判断
+                // 如果服务器正常,即使是404也会响应;如果完全不可达会超时或网络错误
+                return fetch(node.url + '/health-check-' + Date.now(), {
+                        mode: 'no-cors',
+                        signal: controller.signal
                     })
-                    .then((response) => {
-                        if (!response.ok) {
-                            clearTimeout(timeoutId);
-                            return { index, success: false, url: node.url, name: node.name };
-                        }
-                        return response.text();
-                    })
-                    .then((html) => {
+                    .then(() => {
                         clearTimeout(timeoutId);
-                        // 检查是否包含404页面特征
-                        if (html && html.includes('<title>HP PRO | 404</title>')) {
-                            return { index, success: false, url: node.url, name: node.name };
-                        }
+                        // no-cors模式下能到达这里说明服务器有响应
+                        // 但由于无法检查内容,我们假设只要响应了就视为可用
+                        // 如果需要更精确的404检测,需要后端配合或使用其他方案
                         return { index, success: true, url: node.url, name: node.name };
                     })
-                    .catch(() => {
+                    .catch((error) => {
                         clearTimeout(timeoutId);
+                        // 网络错误、超时等视为不可用
                         return { index, success: false, url: node.url, name: node.name };
                     });
             }
