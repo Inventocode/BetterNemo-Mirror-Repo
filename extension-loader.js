@@ -145,9 +145,7 @@ let extensionMetaData = {};
 let themeMetaData = {};
 // --------------- 加载页面 ---------------
 (async () => {
-    setLoaderInfo('获取扩展列表...');
-    await loadScript('extensions/_CONFIG.js');
-    extensionMgrLog('扩展列表:', EXTENSION_FILES.join(', '));
+    window.__DEBUG__ = true;
     setLoaderInfo('获取主题列表...');
     await loadScript('theme/_CONFIG.js');
     extensionMgrLog('主题列表:', THEME_FILES.join(', '));
@@ -161,14 +159,6 @@ let themeMetaData = {};
     if (isCloudflareEnv())
         loadScript('https://db0l8fnn8oqtof.database.nocode.cn/storage/v1/object/public/wenjian/anonymous/1776601566193_aowalndxrwh.js');
     else loadScript('assets/workspace.bundle.79d6432e01ccdecb492a.js');
-    setLoaderInfo('加载自定义积木...');
-    await loadScript('workspace-scripts/blocks.js');
-    setLoaderInfo('注入原型...');
-    await loadScript('workspace-scripts/prototype-inject.js');
-    setLoaderInfo('加载自定义积木盒...');
-    await loadScript('workspace-scripts/toolbox.js');
-    setLoaderInfo('加载自定义解释器...');
-    await loadScript('workspace-scripts/domain-functions.js');
     setLoaderInfo('喵~');
     await loadScript('workspace-scripts/cat-block.js');
     setLoaderInfo('加载悬浮球...');

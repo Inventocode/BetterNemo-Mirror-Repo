@@ -46,7 +46,7 @@ const presetBackgroundColor = "#221D4E";
             }
         }
         if (window['Blockly']) {
-            const workspace = Blockly.mainWorkspace;
+            const workspace = Blockly.mainWorkspace; 
             if (workspace) {
                 Blockly.mainWorkspace.options.flyout.max_width = storage.get('flyout_max_width') || 488;
                 Blockly.mainWorkspace.options.notch = storage.get('notch') || false;
